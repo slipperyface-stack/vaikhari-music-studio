@@ -11,48 +11,52 @@
 
 :root {
   /* ── Paper tones ── */
-  --bg:     #f7f3e9;   /* aged paper */
-  --bg2:    #efe9da;
-  --panel:  #faf7f1;   /* fresh sheet */
-  --panel2: #f3ede2;   /* slightly shadowed */
-  --panel3: #ece4d5;
+  --bg:     #f2ede0;
+  --bg2:    #e8e0ce;
+  --panel:  #f9f5ec;
+  --panel2: #e8dfc8;
+  --panel3: #d8cdb4;
 
-  /* Pencil borders */
-  --ink:    rgba(55,40,20,1);
-  --border: rgba(55,40,20,0.18);
-  --bord2:  rgba(55,40,20,0.09);
+  /* Borders — strong and visible */
+  --ink:    rgba(40,25,8,1);
+  --border: rgba(40,25,8,0.55);
+  --bord2:  rgba(40,25,8,0.35);
 
-  /* ── Pencil/ink accent colours ── */
-  --forest: #2d5a3d;   /* deep ink green */
-  --forest2:#1e3f2b;
-  --indigo: #3d4a8a;   /* blue-ink */
-  --rust:   #7a3020;   /* red pencil */
-  --ochre:  #7a5515;   /* yellow pencil */
-  --umber:  #5a3e10;   /* brown pencil */
+  /* Accent colours — deeper, richer */
+  --forest: #0e3d1e;
+  --forest2:#082a14;
+  --indigo: #1e2d6e;
+  --rust:   #5c1a08;
+  --ochre:  #5c3c08;
+  --umber:  #3a2406;
 
-  /* Text — graphite grades */
-  --t1: #0f0a04;   /* 6B — near black */
-  --t2: #261c0e;   /* 4B */
-  --t3: #5a4420;   /* HB — much stronger */
-  --t4: #8a7050;   /* 2H — was too faint, bumped up */
+  /* Text — maximum contrast */
+  --t1: #0a0502;
+  --t2: #120a04;
+  --t3: #241408;
+  --t4: #3e2808;
 
   --mono: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --ui:   'Poppins', sans-serif;
   --head: 'Poppins', sans-serif;
   --hand: 'Poppins', sans-serif;
 
-  /* ── Pencil tokens (light mode) ── */
-  --pencil-soft:   rgba(55,40,20,0.12);
-  --pencil-mid:    rgba(55,40,20,0.25);
-  --pencil-faint:  rgba(55,40,20,0.06);
-  --pencil-2b:     #2c1e0a;   /* near-black — max contrast */
-  --pencil-hb:     #4a3418;
-  --pencil-hb2:    #6a5030;
-  --pencil-h:      #8a7050;
-  --paper:         #faf7f1;
-  --paper2:        #f3ede2;
-  --red-ink:       #8a2010;
-  --amber-ink:     #7a5010;
+  --pencil-soft:   rgba(40,25,8,0.25);
+  --pencil-mid:    rgba(40,25,8,0.50);
+  --pencil-faint:  rgba(40,25,8,0.14);
+  --pencil-2b:     #0a0502;
+  --pencil-hb:     #241408;
+  --pencil-hb2:    #3e2808;
+  --pencil-h:      #5c3c18;
+  --paper:         #f9f5ec;
+  --paper2:        #e8dfc8;
+  --red-ink:       #5c1808;
+  --amber-ink:     #4a3008;
+
+  --saffron:       #c0620a;
+  --saffron-dim:   #9a4c06;
+  --saffron-lt:    rgba(192,98,10,0.18);
+  --saffron-faint: rgba(192,98,10,0.09);
 }
 
 /* ── Dark mode toggle button ── */
@@ -69,49 +73,46 @@
    DARK MODE — warm charcoal night
 ════════════════════════════════════════════ */
 body.dark {
-  /* Surfaces: warm dark — like graphite paper, hints of amber */
-  --bg:     #191610;   /* deepest — aged graphite */
-  --bg2:    #201d16;   /* slightly lighter, warmth */
-  --panel:  #252118;   /* panel surface */
-  --panel2: #2c2820;   /* inset / secondary */
-  --panel3: #332e26;   /* hover / tertiary */
+  --bg:     #111008;
+  --bg2:    #18160e;
+  --panel:  #1c1a10;
+  --panel2: #232016;
+  --panel3: #2c291c;
 
-  /* Borders: very subtle warm gold-dust glow */
-  --ink:    rgba(242,228,198,1);
-  --border: rgba(200,178,140,0.14);
-  --bord2:  rgba(200,178,140,0.07);
+  /* Borders — clearly visible on dark */
+  --ink:    rgba(245,228,195,1);
+  --border: rgba(220,198,158,0.65);
+  --bord2:  rgba(220,198,158,0.40);
 
-  /* Accents: softer, more luminous on dark ground */
-  --forest: #5ec47a;    /* sage-mint green */
-  --forest2:#44aa60;
-  --indigo: #8fa8e8;    /* periwinkle blue */
-  --rust:   #e07060;    /* warm red */
-  --ochre:  #d8a840;    /* amber gold */
-  --umber:  #b88848;
+  /* Accents — vivid, high contrast on dark */
+  --forest: #52e878;
+  --forest2:#3ec85a;
+  --indigo: #9abcff;
+  --rust:   #ff8870;
+  --ochre:  #ffcc50;
+  --umber:  #e0aa58;
 
-  /* Text: warm cream/parchment hierarchy — boosted for readability */
-  --t1: #f4ecd8;   /* brightest — warm white */
-  --t2: #d8c8a8;   /* mid — warm cream */
-  --t3: #a89870;   /* dim — readable bronze (was too dark) */
-  --t4: #726450;   /* ghost — bumped up from 4a4234 */
+  /* Text — strong contrast on dark */
+  --t1: #faf2e2;
+  --t2: #ecdabb;
+  --t3: #d0b888;
+  --t4: #a89060;
 
-  /* Indian saffron */
-  --saffron:       #f5913a;
-  --saffron-dim:   #c87030;
-  --saffron-lt:    rgba(245,145,58,0.20);
-  --saffron-faint: rgba(245,145,58,0.09);
+  --saffron:       #ff9640;
+  --saffron-dim:   #d07828;
+  --saffron-lt:    rgba(255,150,64,0.25);
+  --saffron-faint: rgba(255,150,64,0.12);
 
-  /* Pencil token map */
-  --pencil-soft:  rgba(200,178,140,0.10);
-  --pencil-mid:   rgba(200,178,140,0.22);
-  --pencil-2b:    #e0cca8;
-  --pencil-hb:    #b8a880;
-  --pencil-hb2:   #988868;
-  --pencil-h:     #685c48;
-  --paper:        #252118;
-  --paper2:       #2c2820;
-  --red-ink:      #e07060;
-  --amber-ink:    #d8a840;
+  --pencil-soft:  rgba(220,198,158,0.20);
+  --pencil-mid:   rgba(220,198,158,0.45);
+  --pencil-2b:    #faf2e2;
+  --pencil-hb:    #d0b888;
+  --pencil-hb2:   #a89060;
+  --pencil-h:     #807048;
+  --paper:        #1c1a10;
+  --paper2:       #232016;
+  --red-ink:      #ff8870;
+  --amber-ink:    #ffcc50;
 }
 
 body.dark { background-image: none; }
@@ -140,10 +141,14 @@ body.dark .panel::before {
 }
 body.dark .ph {
   border-color: var(--bord2);
-  background: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.25);
 }
-body.dark .ph-t { color: var(--t2); letter-spacing: 2px; }
-body.dark .ph-r { color: var(--t3); }
+body.dark .ph-t { color: var(--t1); letter-spacing: 2px; font-weight: 800; }
+body.dark .ph-r { color: var(--t2); font-weight: 700; }
+body.dark .win-min-btn {
+  border-color: var(--border); color: var(--t1); background: var(--panel3); font-weight: 700;
+}
+body.dark .win-min-btn:hover { background: var(--t3); color: var(--panel); border-color: var(--t2); }
 
 /* ── Form elements ── */
 body.dark select {
@@ -155,67 +160,72 @@ body.dark .sl { accent-color: var(--ochre); }
 
 /* ── Button groups (.b) ── */
 body.dark .b {
-  color: var(--t2); border-color: var(--border);
-  background: transparent;
+  color: var(--t1); border-color: var(--border);
+  background: rgba(220,198,158,0.08);
+  font-weight: 600;
 }
 body.dark .b:hover {
-  background: rgba(200,178,140,0.08);
-  color: var(--t2);
-  border-color: rgba(200,178,140,0.22);
+  background: rgba(220,198,158,0.18);
+  color: var(--t1);
+  border-color: var(--t1);
 }
 body.dark .b.on {
-  background: rgba(200,178,140,0.13);
-  border-color: var(--t3);
+  background: rgba(220,198,158,0.25);
+  border-color: var(--t1);
   color: var(--t1);
+  font-weight: 800;
 }
 
 /* ── Panel toggle pills ── */
 body.dark .ptog {
   border-color: var(--border);
-  color: var(--t3);
-  background: transparent;
+  color: var(--t1);
+  background: var(--panel2);
+  font-weight: 600;
 }
 body.dark .ptog:hover {
-  background: rgba(200,178,140,0.09);
-  color: var(--t2);
-  border-color: rgba(200,178,140,0.28);
+  background: var(--panel3);
+  color: var(--t1);
+  border-color: var(--t2);
 }
 body.dark .ptog.on {
-  background: rgba(94,196,122,0.15);
+  background: rgba(82,232,120,0.22);
   border-color: var(--forest);
   color: var(--forest);
+  font-weight: 700;
 }
-body.dark .pbar-lbl { color: var(--t3); }
-body.dark .pbar-sep { background: var(--bord2); }
+body.dark .pbar-lbl { color: var(--t1); font-weight: 700; }
+body.dark .pbar-sep { background: var(--border); }
 
 /* ── Universal bar ── */
-body.dark .ubar-lbl { color: var(--t3); }
-body.dark .ubar-group { border-color: var(--bord2); }
+body.dark .ubar-lbl { color: var(--t1); font-weight: 700; }
+body.dark .ubar-group { border-color: var(--border); }
 body.dark .ubar-arr {
-  background: var(--panel2); border-color: var(--border); color: var(--t2);
+  background: var(--panel3); border-color: var(--border); color: var(--t1); font-weight: 700;
 }
 body.dark .ubar-arr:hover {
-  background: var(--panel3); color: var(--t1); border-color: var(--t3);
+  background: var(--t3); color: var(--panel); border-color: var(--t2);
 }
-body.dark #ubarBpmNum { color: var(--t1); }
-body.dark .ubar-bpm-unit { color: var(--t4); }
+body.dark #ubarBpmNum { color: var(--t1); font-weight: 800; }
+body.dark .ubar-bpm-unit { color: var(--t3); }
 body.dark .ubar-key {
-  border-color: var(--border); color: var(--t3); background: transparent;
+  border-color: var(--border); color: var(--t2); background: var(--panel2); font-weight: 600;
 }
 body.dark .ubar-key:hover {
   border-color: var(--forest); color: var(--forest);
-  background: rgba(94,196,122,0.07);
+  background: rgba(82,232,120,0.10);
 }
 body.dark .ubar-key.on {
   background: var(--forest); border-color: var(--forest);
-  color: #141008; font-weight: 700;
+  color: #0a0802; font-weight: 800;
 }
-body.dark #ubarTapBtn {
-  border-color: var(--border); color: var(--t3);
+body.dark #ubarTapBtn,
+body.dark #ubarClapBtn {
+  border-color: var(--border); color: var(--t2); font-weight: 600;
 }
 body.dark #ubarTapBtn:hover {
   border-color: var(--ochre); color: var(--ochre);
-  background: rgba(216,168,64,0.08);
+  background: rgba(255,204,80,0.10);
 }
 
 /* ── Dark mode toggle pill ── */
@@ -231,84 +241,84 @@ body.dark .dark-toggle .dt-icon { transform: rotate(20deg); }
 body.dark .spl-bar-fill { background: rgba(25,22,16,0.82); }
 
 /* ── Metronome ── */
-body.dark .mlbl { color: var(--t4); }
-body.dark .acc-lbl { color: var(--t4); }
+body.dark .mlbl { color: var(--t2); font-weight: 600; }
+body.dark .acc-lbl { color: var(--t2); font-weight: 600; }
 body.dark .acc-b {
-  border-color: var(--border); color: var(--t4); background: transparent;
+  border-color: var(--border); color: var(--t2); background: var(--panel2);
 }
 body.dark .acc-b.on {
-  background: rgba(216,168,64,0.16);
+  background: rgba(240,184,64,0.20);
   border-color: var(--ochre); color: var(--ochre);
 }
 body.dark .snd-b {
-  border-color: var(--border); color: var(--t3); background: transparent;
+  border-color: var(--border); color: var(--t2); background: var(--panel2);
 }
 body.dark .snd-b.on {
-  background: rgba(200,178,140,0.12);
-  border-color: var(--t2); color: var(--t1);
+  background: rgba(78,216,112,0.15);
+  border-color: var(--forest); color: var(--forest);
 }
 
 /* ── Drum panel ── */
 body.dark .drum-genre-btn {
-  background: var(--panel2); border-color: var(--border); color: var(--t3);
+  background: var(--panel2); border-color: var(--border); color: var(--t2);
 }
 body.dark .drum-genre-btn:hover {
   border-color: var(--indigo); color: var(--indigo);
-  background: rgba(143,168,232,0.07);
+  background: rgba(138,176,248,0.12);
 }
 body.dark .drum-genre-btn.on {
-  background: rgba(143,168,232,0.14);
-  border-color: var(--indigo); color: var(--indigo);
+  background: rgba(138,176,248,0.18);
+  border-color: var(--indigo); color: var(--indigo); font-weight: 700;
 }
-body.dark .dstep { background: var(--panel2); border-color: var(--bord2); }
-body.dark .dstep:hover { border-color: var(--border); background: var(--panel3); }
+body.dark .dstep { background: var(--panel2); border-color: var(--border); }
+body.dark .dstep:hover { border-color: var(--t2); background: var(--panel3); }
 body.dark .dstep.on { background: var(--indigo); border-color: var(--indigo); }
-body.dark .dstep.on:hover { background: #a8baee; }
-body.dark .dstep.beat-start { border-left-color: rgba(200,178,140,0.18); }
+body.dark .dstep.on:hover { background: #b8caff; }
+body.dark .dstep.beat-start { border-left-color: rgba(210,188,148,0.30); }
 body.dark .dstep.playing { box-shadow: 0 0 0 2px var(--ochre); }
 body.dark .loop-len-btn {
-  border-color: var(--border); color: var(--t3); background: transparent;
+  border-color: var(--border); color: var(--t2); background: var(--panel2);
 }
 body.dark .loop-len-btn.on {
   border-color: var(--indigo); color: var(--indigo);
-  background: rgba(143,168,232,0.10);
+  background: rgba(138,176,248,0.16); font-weight: 700;
 }
 body.dark .cplx-dot { background: var(--panel2); border-color: var(--border); }
 body.dark .cplx-dot.on { background: var(--indigo); border-color: var(--indigo); }
-body.dark .drum-row-lbl { color: var(--t4); }
-body.dark .drum-ctrl-lbl { color: var(--t4); }
-body.dark .drum-ctrl-val { color: var(--t2); }
+body.dark .drum-row-lbl { color: var(--t2); }
+body.dark .drum-ctrl-lbl { color: var(--t2); font-weight: 600; }
+body.dark .drum-ctrl-val { color: var(--t1); }
 body.dark .drum-shuffle-btn {
-  border-color: var(--border); color: var(--t3);
+  border-color: var(--border); color: var(--t2); background: var(--panel2);
 }
 body.dark .drum-shuffle-btn:hover {
-  border-color: var(--t2); color: var(--t2);
+  border-color: var(--t1); color: var(--t1);
 }
 body.dark .drum-play-btn {
-  background: rgba(143,168,232,0.08);
+  background: rgba(138,176,248,0.10);
   border-color: var(--indigo); color: var(--indigo);
 }
 body.dark .drum-play-btn:hover {
-  background: rgba(143,168,232,0.14);
+  background: rgba(138,176,248,0.20);
 }
 body.dark .drum-play-btn.playing {
-  background: rgba(224,112,96,0.10);
+  background: rgba(240,120,96,0.14);
   border-color: var(--rust); color: var(--rust);
 }
 
 /* ── Indian panels ── */
 body.dark .ir-bols {
-  background: var(--saffron-faint); color: var(--saffron-dim);
+  background: var(--saffron-faint); color: var(--saffron);
 }
 body.dark .ir-beat {
-  border-color: var(--border); color: var(--t4); background: var(--panel2);
+  border-color: var(--border); color: var(--t2); background: var(--panel2);
 }
 body.dark .ir-beat.sam {
   border-color: var(--saffron); color: var(--saffron);
-  background: rgba(245,145,58,0.10);
+  background: rgba(245,145,58,0.14);
 }
 body.dark .ir-beat.khali {
-  border-color: var(--bord2); color: var(--t4);
+  border-color: var(--border); color: var(--t3);
 }
 body.dark .ir-beat.lit {
   background: var(--saffron) !important;
@@ -323,28 +333,28 @@ body.dark .ir-taal-btn:hover {
 }
 body.dark .ir-taal-btn.on {
   background: var(--saffron-lt);
-  border-color: var(--saffron); color: var(--saffron);
+  border-color: var(--saffron); color: var(--saffron); font-weight: 700;
 }
 body.dark .ir-play-btn {
   background: var(--saffron-faint);
   border-color: var(--saffron); color: var(--saffron);
 }
 body.dark .ir-play-btn.playing {
-  background: rgba(224,112,96,0.10);
+  background: rgba(240,120,96,0.14);
   border-color: var(--rust); color: var(--rust);
 }
 
 /* ── Theory panel ── */
-body.dark .clbl { color: var(--t3); }
+body.dark .clbl { color: var(--t2); font-weight: 600; }
 body.dark .tun-sel {
-  background: var(--panel2); color: var(--t2); border-color: var(--border);
+  background: var(--panel2); color: var(--t1); border-color: var(--border);
 }
 
-/* ── Canvas in dark mode — warm charcoal background ── */
+/* ── Canvas in dark mode ── */
 body.dark #oscCvs,
 body.dark #specCvs {
   border-color: var(--border);
-  background: #0f0d09;
+  background: #0c0b07;
 }
 
 /* ── Scrollbars ── */
@@ -356,7 +366,7 @@ body.dark ::-webkit-scrollbar-thumb {
 body.dark ::-webkit-scrollbar-thumb:hover { background: var(--t4); }
 
 /* ── Misc text ── */
-body.dark .vol-row .mlbl { color: var(--t3); }
+body.dark .vol-row .mlbl { color: var(--t2); font-weight: 600; }
 body.dark .clbl { color: var(--t3); }
 body.dark .ir-lbl { color: var(--t3); }
 body.dark .ir-val { color: var(--t2); }
@@ -457,41 +467,79 @@ header {
 .ubar-group:last-child { border-right: none; margin-right: 0; }
 .ubar-lbl {
   font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
-  color: var(--t4); text-transform: uppercase; white-space: nowrap;
+  color: var(--t2); text-transform: uppercase; white-space: nowrap; font-weight: 700;
 }
 /* BPM */
 .ubar-bpm-block { display: flex; align-items: center; gap: 8px; }
 .ubar-arrows { display: flex; flex-direction: column; gap: 2px; }
 .ubar-arr {
-  width: 24px; height: 17px; border: 1px solid var(--border); border-radius: 2px;
-  background: var(--panel); color: var(--t3); font-size: 10px; cursor: pointer;
+  width: 24px; height: 17px; border: 1.5px solid var(--border); border-radius: 2px;
+  background: var(--panel3); color: var(--t1); font-size: 10px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); transition: all 0.1s; line-height: 1;
+  font-family: var(--mono); transition: all 0.1s; line-height: 1; font-weight: 800;
 }
-.ubar-arr:hover { background: var(--panel3); color: var(--t1); border-color: var(--t3); }
+.ubar-arr:hover { background: var(--t1); color: var(--panel); border-color: var(--t1); }
 #ubarBpmNum {
   font-family: var(--head); font-size: 32px; font-weight: 800;
   color: var(--t1); line-height: 1; min-width: 54px; text-align: center;
   letter-spacing: -1px; cursor: pointer; user-select: none;
 }
 .ubar-bpm-right { display: flex; flex-direction: column; gap: 4px; }
-.ubar-bpm-unit { font-family: var(--mono); font-size: 9px; color: var(--t4); letter-spacing: 2px; }
+.ubar-bpm-unit { font-family: var(--mono); font-size: 9px; color: var(--t2); letter-spacing: 2px; font-weight: 700; }
 #ubarBpmSl { width: 100px; }
-#ubarTapBtn {
-  padding: 5px 10px; border: 1.5px dashed var(--border); border-radius: 3px;
-  background: transparent; font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
-  color: var(--t3); cursor: pointer; white-space: nowrap; transition: background 0.08s;
+#ubarTapBtn, #ubarClapBtn {
+  padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 3px;
+  background: var(--panel2); font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  color: var(--t1); cursor: pointer; white-space: nowrap; transition: all 0.15s; font-weight: 600;
 }
-#ubarTapBtn:active { background: var(--panel3); border-style: solid; }
+#ubarTapBtn:active, #ubarClapBtn:active { background: var(--panel3); border-style: solid; }
+
+/* Clap — active / listening state */
+#ubarClapBtn.listening {
+  border-style: solid;
+  border-color: var(--rust);
+  color: var(--rust);
+  background: rgba(122,48,32,0.07);
+  box-shadow: 0 0 0 0 rgba(122,48,32,0.4);
+  animation: clap-pulse 1.6s ease-in-out infinite;
+}
+/* Glow burst when a clap is detected */
+#ubarClapBtn.clap-hit {
+  animation: clap-hit-flash 0.35s ease-out forwards !important;
+}
+@keyframes clap-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(122,48,32,0.35); }
+  50%      { box-shadow: 0 0 0 5px rgba(122,48,32,0.0); }
+}
+@keyframes clap-hit-flash {
+  0%   { background: rgba(122,48,32,0.55); box-shadow: 0 0 0 6px rgba(122,48,32,0.3); color: #fff; border-color: var(--rust); }
+  100% { background: rgba(122,48,32,0.07); box-shadow: 0 0 0 0 rgba(122,48,32,0); color: var(--rust); border-color: var(--rust); }
+}
+body.dark #ubarClapBtn.listening {
+  border-color: var(--red-ink); color: var(--red-ink);
+  background: rgba(224,112,96,0.10);
+  animation: clap-pulse-dark 1.6s ease-in-out infinite;
+}
+body.dark #ubarClapBtn.clap-hit {
+  animation: clap-hit-flash-dark 0.35s ease-out forwards !important;
+}
+@keyframes clap-pulse-dark {
+  0%,100% { box-shadow: 0 0 0 0 rgba(224,112,96,0.35); }
+  50%      { box-shadow: 0 0 0 5px rgba(224,112,96,0.0); }
+}
+@keyframes clap-hit-flash-dark {
+  0%   { background: rgba(224,112,96,0.45); box-shadow: 0 0 0 7px rgba(224,112,96,0.25); color: #fff; }
+  100% { background: rgba(224,112,96,0.10); box-shadow: 0 0 0 0 rgba(224,112,96,0); color: var(--red-ink); }
+}
 /* Key buttons */
 .ubar-keys { display: flex; flex-wrap: wrap; gap: 3px; }
 .ubar-key {
-  padding: 5px 9px; border: 1px solid var(--border); border-radius: 3px;
-  background: transparent; font-family: var(--mono); font-size: 11px;
-  color: var(--t3); cursor: pointer; transition: all 0.12s; min-width: 36px; text-align: center;
+  padding: 5px 9px; border: 1.5px solid var(--border); border-radius: 3px;
+  background: var(--panel2); font-family: var(--mono); font-size: 11px;
+  color: var(--t1); cursor: pointer; transition: all 0.12s; min-width: 36px; text-align: center; font-weight: 600;
 }
-.ubar-key:hover { border-color: var(--t3); color: var(--t2); }
-.ubar-key.on { background: var(--forest); border-color: var(--forest); color: #fff; font-weight: 700; }
+.ubar-key:hover { border-color: var(--forest); color: var(--forest); background: var(--panel3); }
+.ubar-key.on { background: var(--forest); border-color: var(--forest); color: #fff; font-weight: 800; }
 
 /* ── LAYOUT — bounded window manager ── */
 main { padding: 0; min-height: calc(100vh - 140px); }
@@ -553,15 +601,16 @@ main { padding: 0; min-height: calc(100vh - 140px); }
     visibility: visible;
   }
 }
-/* .ph and .ctrl are fixed; panel-body scrolls to fill square */
+/* .ph and .ctrl are fixed; panel body clips at boundary - no scroll */
 .panel .ph   { flex-shrink: 0; }
 .panel .ctrl { flex-shrink: 0; }
 .panel-body {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   min-height: 0;
-  -webkit-overflow-scrolling: touch;
 }
+/* Allow scroll only when manually resized larger */
+.panel[style*="height"] .panel-body { overflow-y: auto; }
 /* Resize handle — dedicated draggable element */
 .resize-handle {
   position: absolute; bottom: 0; right: 0;
@@ -569,19 +618,22 @@ main { padding: 0; min-height: calc(100vh - 140px); }
   cursor: se-resize;
   z-index: 10;
   border-radius: 0 0 5px 0;
-  /* Three diagonal hash lines */
+  /* Bold diagonal stripes — always visible */
   background:
     linear-gradient(135deg,
-      transparent 25%, var(--border) 25%, var(--border) 35%, transparent 35%,
-      transparent 50%, var(--border) 50%, var(--border) 60%, transparent 60%,
-      transparent 75%, var(--border) 75%, var(--border) 85%, transparent 85%
+      transparent 28%, var(--t3) 28%, var(--t3) 38%, transparent 38%,
+      transparent 52%, var(--t3) 52%, var(--t3) 62%, transparent 62%,
+      transparent 76%, var(--t3) 76%, var(--t3) 86%, transparent 86%
     );
-  opacity: 0.5;
-  transition: opacity 0.15s;
+  opacity: 0.75;
+  transition: opacity 0.15s, transform 0.12s;
 }
 .panel:hover .resize-handle,
-.spl-panel:hover .resize-handle { opacity: 1; }
+.spl-panel:hover .resize-handle { opacity: 1; transform: scale(1.08); }
 .panel.resizing .resize-handle { opacity: 1; }
+body.dark .resize-handle { opacity: 0.85; }
+body.dark .panel:hover .resize-handle,
+body.dark .spl-panel:hover .resize-handle { opacity: 1; }
 
 /* When manually resized, allow panel to scroll */
 .panel[style*="height"],
@@ -598,18 +650,44 @@ main { padding: 0; min-height: calc(100vh - 140px); }
   z-index: 1000;
   transition: none;
 }
-/* Minimize button */
+/* Compact / Minimize button */
 .win-min-btn {
   display: flex; align-items: center; gap: 3px;
-  padding: 3px 7px; border: 1px solid var(--border);
-  border-radius: 3px; background: transparent;
-  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
-  color: var(--t4); cursor: pointer; transition: all 0.12s;
-  margin-left: auto; flex-shrink: 0;
+  padding: 3px 9px; border: 1.5px solid var(--border);
+  border-radius: 3px; background: var(--panel3);
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  color: var(--t1); cursor: pointer; transition: all 0.12s;
+  margin-left: auto; flex-shrink: 0; font-weight: 700;
 }
-.win-min-btn:hover { color: var(--t2); border-color: var(--t3); }
+.win-min-btn:hover { color: var(--panel); border-color: var(--t1); background: var(--t1); }
 /* Compact state */
-.panel.win-compact, .spl-panel.win-compact { height: 160px !important; }
+.panel.win-compact, .spl-panel.win-compact { height: 200px !important; overflow: hidden; }
+/* ── Metronome compact: ONLY play btn + accent row + subdivision selector ── */
+#metroPanel.win-compact .mrow-swing,
+#metroPanel.win-compact .mrow-beat,
+#metroPanel.win-compact .beat-vis,
+#metroPanel.win-compact .acc-lbl,
+#metroPanel.win-compact .snd-grid,
+#metroPanel.win-compact .vol-row,
+#metroPanel.win-compact .metro-osc-wrap { display: none !important; }
+/* Keep subdivision row + accent row visible */
+#metroPanel.win-compact .mrow-sub { display: flex !important; margin-bottom: 5px; }
+#metroPanel.win-compact .acc-row { display: flex !important; margin-bottom: 6px; }
+/* Tighten compact spacing */
+#metroPanel.win-compact .mbody { padding: 8px 10px; }
+#metroPanel.win-compact .play-b { margin-top: 4px; }
+#metroPanel.win-compact { height: 152px !important; }
+/* Tuner compact: show seismo + needle only */
+#tunerPanel.win-compact .tun-wrap { display: none !important; }
+/* General compact: hide secondary controls */
+.panel.win-compact .panel-body { overflow: hidden; }
+/* No scroll overlay indicator */
+.panel-overflow-hint {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: var(--t4); font-family: var(--mono); letter-spacing: 1px;
+  pointer-events: none; opacity: 0; transition: opacity 0.2s;
+}
+.panel:hover .panel-overflow-hint { opacity: 1; }
 /* Minimized bar state */
 .panel.win-mini, .spl-panel.win-mini { 
   height: 38px !important; 
@@ -634,26 +712,26 @@ main { padding: 0; min-height: calc(100vh - 140px); }
   border-bottom: 1px solid var(--bord2);
   background: rgba(238,232,218,0.35);
 }
-.ph-t { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 2px; color: var(--t3); text-transform: uppercase; }
-.ph-r { font-size: 10px; color: var(--t4); font-family: var(--mono); }
+.ph-t { font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--t1); text-transform: uppercase; }
+.ph-r { font-size: 10px; color: var(--t2); font-family: var(--mono); font-weight: 700; }
 
 /* ── CONTROL ROW ── */
 .ctrl { display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-bottom: 1px solid var(--bord2); flex-wrap: wrap; }
-.clbl { font-size: 11px; color: var(--t3); font-family: var(--mono); white-space: nowrap; }
+.clbl { font-size: 11px; color: var(--t2); font-family: var(--mono); white-space: nowrap; font-weight: 600; }
 
 /* ── BUTTON GROUP — pencil-sketched tabs ── */
 .bg { display: flex; }
 .b {
   background: transparent;
-  border: 1px solid var(--border); border-right: none;
-  color: var(--t3); padding: 4px 11px; cursor: pointer;
+  border: 1.5px solid var(--border); border-right: none;
+  color: var(--t1); padding: 4px 11px; cursor: pointer;
   font-family: var(--mono); font-size: 11px;
-  transition: all 0.12s; white-space: nowrap;
+  transition: all 0.12s; white-space: nowrap; font-weight: 600;
 }
 .b:first-child { border-radius: 3px 0 0 3px; }
-.b:last-child  { border-right: 1px solid var(--border); border-radius: 0 3px 3px 0; }
-.b:hover { background: rgba(55,40,20,0.05); color: var(--t2); }
-.b.on   { background: rgba(55,40,20,0.08); border-color: var(--t3); color: var(--t1); font-weight: 600; }
+.b:last-child  { border-right: 1.5px solid var(--border); border-radius: 0 3px 3px 0; }
+.b:hover { background: rgba(40,25,8,0.10); color: var(--t1); border-color: var(--t1); }
+.b.on   { background: rgba(40,25,8,0.18); border-color: var(--t1); color: var(--t1); font-weight: 800; }
 
 /* ── OSCILLOSCOPE canvas ── */
 .osc-wrap { padding: 10px 14px 4px; }
@@ -683,8 +761,8 @@ main { padding: 0; min-height: calc(100vh - 140px); }
   border-radius: 4px; padding: 11px 8px; text-align: center;
   box-shadow: inset 0 1px 2px rgba(55,40,20,0.04);
 }
-.psl { font-size: 10px; color: var(--t3); letter-spacing: 1px; margin-bottom: 5px; font-family: var(--mono); }
-.psv { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--indigo); }
+.psl { font-size: 10px; color: var(--t2); letter-spacing: 1px; margin-bottom: 5px; font-family: var(--mono); font-weight: 700; }
+.psv { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--indigo); }
 .psu { font-size: 10px; color: var(--t4); margin-top: 2px; }
 
 /* ── THEORY ── */
@@ -705,22 +783,32 @@ main { padding: 0; min-height: calc(100vh - 140px); }
   padding: 9px 4px; cursor: pointer; transition: all 0.14s; text-align: center;
   position: relative; overflow: hidden;
 }
-.dc:hover  { border-color: var(--t3); background: rgba(55,40,20,0.04); }
+.dc:hover  { border-color: var(--t3); }
 .dc.isr   { border-color: var(--forest); background: rgba(45,90,61,0.06); }
-.dc .deg  { font-size: 9px; color: var(--t4); margin-bottom: 3px; font-family: var(--mono); }
+.dc .deg  { font-size: 9px; color: var(--t3); margin-bottom: 3px; font-family: var(--mono); font-weight: 700; }
 .dc .cn   { font-family: var(--head); font-size: 13px; font-weight: 800; color: var(--forest); }
-.dc .cq   { font-size: 9px; color: var(--t3); margin-top: 2px; font-family: var(--mono); }
-.dc .cno  { font-size: 9px; color: var(--t4); margin-top: 4px; line-height: 1.5; font-family: var(--mono); }
+.dc .cq   { font-size: 9px; color: var(--t2); margin-top: 2px; font-family: var(--mono); font-weight: 600; }
+.dc .cno  { font-size: 9px; color: var(--t3); margin-top: 4px; line-height: 1.5; font-family: var(--mono); font-weight: 600; }
+/* Hover info bubble — floats above card, theme-safe */
 .dc .hov  {
-  position: absolute; inset: 0; background: rgba(247,243,233,0.97);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%);
+  background: var(--panel); border: 1.5px solid var(--forest); border-radius: 5px;
+  padding: 6px 9px; min-width: 110px; max-width: 180px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
   opacity: 0; transition: opacity 0.14s; pointer-events: none;
-  border-radius: 4px; border: 1.5px solid var(--forest);
+  z-index: 100; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
 }
 .dc:hover .hov { opacity: 1; }
 .hov .hr { font-family: var(--head); font-size: 10px; color: var(--forest); font-weight: 800; letter-spacing: 0.5px; }
 .hov .hf { font-size: 10px; color: var(--t2); font-family: var(--mono); }
-.hov .hm { font-size: 9px; color: var(--t3); text-align: center; padding: 0 4px; line-height: 1.5; }
+.hov .hm { font-size: 9px; color: var(--t3); text-align: left; line-height: 1.5; white-space: normal; max-width: 160px; }
+/* Drag indicator */
+.dc[draggable="true"]:hover { cursor: grab; }
+.dc[draggable="true"]:active { cursor: grabbing; }
+.dc.drag-preview { opacity: 0.5; transform: scale(0.95); }
+/* Drop target highlight */
+.gen-player-chords.drag-over { border: 2px dashed var(--forest) !important; background: rgba(45,90,61,0.06); }
 .dc.dlit  { border-color: var(--indigo) !important; background: rgba(61,74,138,0.06) !important; }
 .dc.dlit .cn { color: var(--indigo) !important; }
 
@@ -728,8 +816,9 @@ main { padding: 0; min-height: calc(100vh - 140px); }
 .mc-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-top: 8px; }
 .mcd {
   background: rgba(55,40,20,0.03); border: 1px solid var(--bord2);
-  border-radius: 3px; padding: 6px 3px; text-align: center;
+  border-radius: 3px; padding: 6px 3px; text-align: center; cursor: grab; transition: all 0.12s;
 }
+.mcd:hover { border-color: var(--indigo); }
 .mcd .mdeg  { font-size: 9px; color: var(--t4); font-family: var(--mono); margin-bottom: 2px; }
 .mcd .mcn   { font-family: var(--head); font-size: 11px; font-weight: 800; color: var(--indigo); }
 .mcd .mcno  { font-size: 8px; color: var(--t4); margin-top: 2px; font-family: var(--mono); }
@@ -776,9 +865,10 @@ main { padding: 0; min-height: calc(100vh - 140px); }
 .mname  { font-family: var(--head); font-size: 12px; font-weight: 800; color: var(--forest); }
 .mgreek { font-size: 10px; color: var(--t4); margin-top: 2px; font-family: var(--mono); font-style: italic; }
 .mnotes { display: flex; gap: 3px; flex-wrap: wrap; }
-.mnt { padding: 2px 6px; border: 1px solid var(--bord2); border-radius: 3px; font-size: 11px; color: var(--t2); font-family: var(--mono); }
+.mnt { padding: 2px 6px; border: 1px solid var(--bord2); border-radius: 3px; font-size: 11px; color: var(--t2); font-family: var(--mono); transition: all 0.12s; }
 .mnt.mr { border-color: var(--forest); color: var(--forest); background: rgba(45,90,61,0.06); font-weight: 600; }
 .mnt.mc { border-color: var(--ochre); color: var(--ochre); background: rgba(122,85,21,0.06); }
+.mnt.det { border-color: var(--indigo); color: var(--indigo); background: rgba(61,74,138,0.08); font-weight: 600; }
 .mvib { font-size: 10px; color: var(--t4); text-align: right; line-height: 1.6; font-style: italic; }
 .m-det { display: none; padding: 0 14px 14px; }
 .mcard.exp .m-det { display: block; }
@@ -839,13 +929,13 @@ body.dark #seismoCvs { background: #0f0d09; }
 }
 body.dark .seismo-note { color: var(--t1); }
 .seismo-oct {
-  font-family: var(--mono); font-size: 11px; color: var(--t3);
-  letter-spacing: 1px;
+  font-family: var(--mono); font-size: 11px; color: var(--t2);
+  letter-spacing: 1px; font-weight: 700;
 }
 .seismo-freq {
   position: absolute; bottom: 7px; right: 10px;
-  font-family: var(--mono); font-size: 10px; color: var(--t3);
-  pointer-events: none; letter-spacing: 0.5px;
+  font-family: var(--mono); font-size: 10px; color: var(--t2);
+  pointer-events: none; letter-spacing: 0.5px; font-weight: 600;
 }
 
 .tmeter { margin: 8px 12px 0; }
@@ -874,50 +964,56 @@ body.dark .seismo-note { color: var(--t1); }
 .strbtn:hover, .strbtn.on { background: rgba(45,90,61,0.06); border-color: var(--forest); color: var(--forest); }
 
 /* ── METRONOME ── */
-.mbody { padding: 9px 12px; }
+.mbody {
+  padding: 8px 12px 10px;
+  display: flex; flex-direction: column; gap: 0;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+}
 
 .bpm-sec { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
 .bpm-b { width: 34px; height: 34px; background: var(--panel2); border: 1px solid var(--border); color: var(--t2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 3px; transition: all 0.1s; font-family: var(--mono); }
 .bpm-b:hover { background: rgba(55,40,20,0.06); color: var(--t1); }
 .bpm-d { text-align: center; }
 .bpm-n { font-family: var(--head); font-size: 52px; font-weight: 800; color: var(--t1); line-height: 1; cursor: pointer; user-select: none; letter-spacing: -2px; }
-.bpm-lbl { font-size: 10px; color: var(--t4); letter-spacing: 3px; margin-top: 1px; font-family: var(--mono); }
+.bpm-lbl { font-size: 10px; color: var(--t3); letter-spacing: 3px; margin-top: 1px; font-family: var(--mono); font-weight: 600; }
 
 input[type=range].sl { width: 100%; -webkit-appearance: none; appearance: none; height: 3px; background: rgba(55,40,20,0.15); outline: none; cursor: pointer; border-radius: 2px; }
 input[type=range].sl::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--t2); cursor: pointer; border: 1.5px solid var(--t3); }
-.bpm-rl { display: flex; justify-content: space-between; font-size: 9px; color: var(--t4); margin-top: 3px; font-family: var(--mono); }
+.bpm-rl { display: flex; justify-content: space-between; font-size: 9px; color: var(--t3); margin-top: 3px; font-family: var(--mono); font-weight: 600; }
 
 .tap-b { display: block; width: 100%; padding: 10px; background: var(--panel2); border: 1.5px dashed var(--border); color: var(--t2); font-family: var(--mono); font-size: 12px; letter-spacing: 2px; cursor: pointer; text-align: center; margin-bottom: 12px; transition: all 0.1s; border-radius: 3px; }
 .tap-b:active { background: rgba(55,40,20,0.07); border-style: solid; }
 
-.mrow  { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; flex-wrap: wrap; }
-.mlbl  { font-size: 11px; color: var(--t3); min-width: 72px; font-family: var(--mono); }
+.mrow  { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+.mlbl  { font-size: 11px; color: var(--t2); min-width: 60px; font-family: var(--mono); font-weight: 600; }
 
-.beat-vis { display: flex; gap: 4px; margin-bottom: 7px; flex-wrap: wrap; min-height: 26px; }
-.bd { flex: 1; min-width: 22px; height: 32px; border: 1px solid var(--bord2); border-radius: 3px; background: var(--panel2); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--t4); transition: all 0.04s; font-family: var(--mono); }
-.bd.acc { border-color: var(--ochre); color: var(--ochre); background: rgba(122,85,21,0.05); }
+.beat-vis { display: flex; gap: 3px; margin-bottom: 5px; flex-wrap: wrap; min-height: 24px; }
+.bd { flex: 1; min-width: 22px; height: 32px; border: 1.5px solid var(--border); border-radius: 3px; background: var(--panel2); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--t2); transition: all 0.04s; font-family: var(--mono); font-weight: 700; }
+.bd.acc { border-color: var(--ochre); color: var(--ochre); background: rgba(92,60,8,0.08); }
 .bd.lit { background: var(--t1) !important; border-color: var(--t1) !important; color: var(--panel) !important; font-weight: 700; }
 .bd.lit.acclit { background: var(--forest) !important; border-color: var(--forest) !important; }
 
-.acc-lbl { font-size: 10px; color: var(--t3); letter-spacing: 1px; margin-bottom: 4px; font-family: var(--mono); }
+.acc-lbl { font-size: 10px; color: var(--t2); letter-spacing: 1px; margin-bottom: 4px; font-family: var(--mono); font-weight: 600; }
 .acc-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 7px; }
-.acc-b { width: 28px; height: 28px; border: 1px solid var(--bord2); border-radius: 3px; background: var(--panel2); color: var(--t4); font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; font-family: var(--mono); }
+.acc-b { width: 28px; height: 28px; border: 1.5px solid var(--border); border-radius: 3px; background: var(--panel2); color: var(--t2); font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; font-family: var(--mono); font-weight: 600; }
 .acc-b:hover { border-color: var(--ochre); color: var(--ochre); }
 .acc-b.on { background: rgba(122,85,21,0.07); border-color: var(--ochre); color: var(--ochre); }
 
 .snd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
-.snd-b { padding: 8px; background: var(--panel2); border: 1px solid var(--bord2); border-radius: 3px; color: var(--t3); font-family: var(--mono); font-size: 10px; cursor: pointer; text-align: center; transition: all 0.1s; }
-.snd-b:hover { background: rgba(55,40,20,0.05); color: var(--t2); border-color: var(--t3); }
-.snd-b.on { background: rgba(45,90,61,0.07); border-color: var(--forest); color: var(--forest); font-weight: 600; }
+.snd-b { padding: 8px; background: var(--panel2); border: 1.5px solid var(--border); border-radius: 3px; color: var(--t2); font-family: var(--mono); font-size: 10px; cursor: pointer; text-align: center; transition: all 0.1s; font-weight: 600; }
+.snd-b:hover { background: var(--panel3); color: var(--t1); border-color: var(--t2); }
+.snd-b.on { background: rgba(45,90,61,0.12); border-color: var(--forest); color: var(--forest); font-weight: 700; }
 
 .sub-dots { display: flex; gap: 3px; }
 .subdot { width: 8px; height: 8px; border-radius: 50%; background: var(--panel2); border: 1px solid var(--border); transition: all 0.05s; }
 .subdot.lit { background: var(--t2); border-color: var(--t1); }
 
 .vol-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.play-b { display: block; width: 100%; padding: 13px; background: rgba(55,40,20,0.06); border: 1.5px solid var(--t2); color: var(--t1); font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 3px; cursor: pointer; text-align: center; border-radius: 3px; transition: all 0.15s; }
-.play-b:hover { background: rgba(55,40,20,0.1); }
-.play-b.playing { background: rgba(122,48,32,0.08); border-color: var(--rust); color: var(--rust); animation: pblink 1s infinite; }
+.play-b { display: block; width: 100%; padding: 10px; background: var(--panel2); border: 2px solid var(--border); color: var(--t1); font-family: var(--mono); font-size: 12px; font-weight: 800; letter-spacing: 3px; cursor: pointer; text-align: center; border-radius: 3px; transition: all 0.15s; margin-top: auto; }
+.play-b:hover { background: var(--panel3); border-color: var(--t1); }
+.play-b.playing { background: rgba(92,26,8,0.08); border-color: var(--rust); color: var(--rust); animation: pblink 1s infinite; }
 @keyframes pblink { 0%,100%{opacity:1} 50%{opacity:0.55} }
 
 /* responsive handled by panelGrid auto-fill */
@@ -1013,6 +1109,7 @@ input[type=range].sl::-webkit-slider-thumb { -webkit-appearance: none; appearanc
 .tn.sa  { border-color: var(--saffron); color: var(--saffron); font-weight: 700; background: var(--saffron-faint); }
 .tn.vkr { border-color: var(--turmeric); color: var(--turmeric); }
 .tn.pkr { border-color: var(--lotus); color: var(--lotus); }
+.tn.det { border-color: var(--indigo); color: var(--indigo); background: rgba(61,74,138,0.08); font-weight: 600; }
 
 .thaat-desc { font-family: var(--hand); font-size: 13px; color: var(--pencil-2b); line-height: 1.75; margin-bottom: 10px; }
 .thaat-desc em { color: var(--saffron); font-style: italic; }
@@ -1260,15 +1357,16 @@ body.dark #stickyShell {
 #liveBar { display: none !important; }
 .lbar-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; color: var(--t4); }
 .ptog {
-  padding: 4px 13px;
-  border: 1px solid var(--border);
+  padding: 5px 14px;
+  border: 1.5px solid var(--border);
   border-radius: 20px;
-  background: transparent;
+  background: var(--panel2);
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
-  color: var(--t3); cursor: pointer; transition: all 0.13s; white-space: nowrap;
+  color: var(--t1); cursor: pointer; transition: all 0.13s; white-space: nowrap;
+  font-weight: 600;
 }
-.ptog:hover { border-color: var(--forest); color: var(--forest); }
-.ptog.on  { background: var(--forest); border-color: var(--forest); color: #fff; font-weight: 600; }
+.ptog:hover { border-color: var(--forest); color: var(--forest); background: var(--panel3); }
+.ptog.on  { background: var(--forest); border-color: var(--forest); color: #fff; font-weight: 700; }
 #practiceGrid { display: none !important; }
 
 /* ════════════════════════════════════════════
@@ -1304,19 +1402,19 @@ body.dark #stickyShell {
 }
 .drum-genre-btn {
   padding: 6px 4px; text-align: center;
-  border: 1px solid var(--bord2); border-radius: 4px;
+  border: 1.5px solid var(--border); border-radius: 4px;
   background: var(--panel2); font-family: var(--mono); font-size: 10px;
-  color: var(--t3); cursor: pointer; transition: all 0.13s; line-height: 1.4;
+  color: var(--t2); cursor: pointer; transition: all 0.13s; line-height: 1.4; font-weight: 500;
 }
-.drum-genre-btn:hover { border-color: var(--t3); color: var(--t2); }
-.drum-genre-btn.on { border-color: var(--indigo); background: rgba(61,74,138,0.08); color: var(--indigo); font-weight: 600; }
+.drum-genre-btn:hover { border-color: var(--t2); color: var(--t1); background: var(--panel3); }
+.drum-genre-btn.on { border-color: var(--indigo); background: rgba(61,74,138,0.12); color: var(--indigo); font-weight: 700; }
 .drum-genre-btn .dg-icon { font-size: 15px; display: block; margin-bottom: 2px; }
 .drum-controls { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
 .drum-grid { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
 .dstep { flex: 1; height: 22px; border: 1px solid var(--bord2); border-radius: 2px; background: var(--panel2); cursor: pointer; transition: all 0.07s; position: relative; }
 
 .drum-ctrl-row { display: flex; align-items: center; gap: 10px; }
-.drum-ctrl-lbl { font-family: var(--mono); font-size: 10px; color: var(--t3); letter-spacing: 1px; min-width: 80px; }
+.drum-ctrl-lbl { font-family: var(--mono); font-size: 10px; color: var(--t2); letter-spacing: 1px; min-width: 80px; font-weight: 600; }
 .drum-ctrl-val { font-family: var(--mono); font-size: 11px; color: var(--t2); min-width: 38px; text-align: right; }
 
 .complexity-dots { display: flex; gap: 4px; }
@@ -1337,32 +1435,32 @@ body.dark #stickyShell {
 .loop-len-btn.on { background: rgba(61,74,138,0.08); border-color: var(--indigo); color: var(--indigo); font-weight: 600; }
 
 .drum-row { display: flex; align-items: center; gap: 6px; }
-.drum-row-lbl { font-family: var(--mono); font-size: 10px; color: var(--t3); min-width: 52px; letter-spacing: 0.5px; }
+.drum-row-lbl { font-family: var(--mono); font-size: 10px; color: var(--t2); min-width: 52px; letter-spacing: 0.5px; font-weight: 600; }
 .drum-steps { display: flex; gap: 3px; flex: 1; }
 .dstep {
-  flex: 1; height: 26px; border: 1px solid var(--bord2); border-radius: 2px;
+  flex: 1; height: 26px; border: 1.5px solid var(--border); border-radius: 2px;
   background: var(--panel2); cursor: pointer; transition: all 0.07s;
   position: relative;
 }
-.dstep.beat-start { border-left: 2px solid rgba(55,40,20,0.2); }
+.dstep.beat-start { border-left: 2px solid rgba(40,25,8,0.35); }
 .dstep.on { background: var(--indigo); border-color: var(--indigo); }
 .dstep.on.accent { background: var(--rust); border-color: var(--rust); }
 .dstep.playing { box-shadow: 0 0 0 2px var(--ochre); }
 
 .drum-play-row { display: flex; gap: 8px; align-items: center; }
 .drum-play-btn {
-  flex: 1; padding: 11px; background: rgba(61,74,138,0.06); border: 1.5px solid var(--indigo);
-  color: var(--indigo); font-family: var(--mono); font-size: 11px; font-weight: 600;
+  flex: 1; padding: 11px; background: rgba(30,45,110,0.08); border: 2px solid var(--indigo);
+  color: var(--indigo); font-family: var(--mono); font-size: 11px; font-weight: 700;
   letter-spacing: 2px; cursor: pointer; text-align: center; border-radius: 3px; transition: all 0.15s;
 }
-.drum-play-btn:hover { background: rgba(61,74,138,0.1); }
-.drum-play-btn.playing { background: rgba(122,48,32,0.08); border-color: var(--rust); color: var(--rust); animation: pblink 1s infinite; }
+.drum-play-btn:hover { background: rgba(30,45,110,0.16); }
+.drum-play-btn.playing { background: rgba(92,26,8,0.08); border-color: var(--rust); color: var(--rust); animation: pblink 1s infinite; }
 .drum-shuffle-btn {
-  padding: 11px 14px; border: 1px solid var(--border); border-radius: 3px;
-  background: transparent; font-family: var(--mono); font-size: 11px; color: var(--t3);
-  cursor: pointer; transition: all 0.13s;
+  padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 3px;
+  background: var(--panel2); font-family: var(--mono); font-size: 11px; color: var(--t1);
+  cursor: pointer; transition: all 0.13s; font-weight: 600;
 }
-.drum-shuffle-btn:hover { border-color: var(--t3); color: var(--t2); }
+.drum-shuffle-btn:hover { border-color: var(--t1); background: var(--panel3); }
 
 /* ════════════════════════════════════════════
    INDIAN RHYTHMS PANEL
@@ -1390,16 +1488,16 @@ body.dark #stickyShell {
 .ir-bols { font-family: var(--mono); font-size: 10px; color: var(--saffron-dim,#a04008); padding: 5px 9px;
   background: var(--saffron-faint,rgba(200,82,10,0.07)); border-radius: 2px; margin-bottom: 8px; letter-spacing: 0.5px; line-height: 1.6; }
 .ir-ctrl-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.ir-lbl { font-family: var(--mono); font-size: 10px; color: var(--t3); letter-spacing: 1px; min-width: 60px; }
-.ir-val { font-family: var(--mono); font-size: 11px; color: var(--t2); min-width: 40px; text-align: right; }
+.ir-lbl { font-family: var(--mono); font-size: 10px; color: var(--t2); letter-spacing: 1px; min-width: 60px; font-weight: 700; }
+.ir-val { font-family: var(--mono); font-size: 11px; color: var(--t1); min-width: 40px; text-align: right; font-weight: 700; }
 .ir-play-btn {
   display: block; width: 100%; padding: 11px;
-  background: var(--saffron-faint,rgba(200,82,10,0.07)); border: 1.5px solid var(--saffron);
-  color: var(--saffron); font-family: var(--mono); font-size: 11px; font-weight: 600;
+  background: var(--saffron-faint,rgba(192,98,10,0.08)); border: 2px solid var(--saffron);
+  color: var(--saffron); font-family: var(--mono); font-size: 11px; font-weight: 800;
   letter-spacing: 2px; cursor: pointer; text-align: center; border-radius: 3px; transition: all 0.15s; margin-top: 8px;
 }
-.ir-play-btn:hover { background: rgba(200,82,10,0.12); }
-.ir-play-btn.playing { background: rgba(122,48,32,0.08); border-color: var(--rust); color: var(--rust); animation: pblink 1s infinite; }
+.ir-play-btn:hover { background: rgba(192,98,10,0.18); }
+.ir-play-btn.playing { background: rgba(92,26,8,0.08); border-color: var(--rust); color: var(--rust); animation: pblink 1s infinite; }
 
 
 
@@ -1412,18 +1510,18 @@ body.dark #stickyShell {
 }
 .tun-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; flex-wrap: wrap; }
 .tun-lbl {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--t3);
-  min-width: 76px; text-transform: uppercase;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--t2);
+  min-width: 76px; text-transform: uppercase; font-weight: 700;
 }
 .tun-sel {
   flex: 1; min-width: 150px;
   padding: 5px 26px 5px 9px;
-  border: 1px solid var(--border); border-radius: 3px;
+  border: 1.5px solid var(--border); border-radius: 3px;
   background-color: var(--panel2);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a6540'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233e2808'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 8px center;
   appearance: none; -webkit-appearance: none;
-  font-family: var(--mono); font-size: 11px; color: var(--t2); cursor: pointer;
+  font-family: var(--mono); font-size: 11px; color: var(--t1); cursor: pointer; font-weight: 600;
 }
 .tun-sel:focus { outline: none; border-color: var(--forest); }
 .tun-strings { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
@@ -1459,19 +1557,38 @@ body.dark #stickyShell {
 @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 .global-play-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border: 1.5px solid var(--indigo);
-  background: rgba(61,74,138,0.07); color: var(--indigo);
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  letter-spacing: 1.5px; cursor: pointer; border-radius: 3px; transition: all 0.2s;
-  white-space: nowrap;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 18px; border: 2px solid var(--indigo);
+  background: rgba(61,74,138,0.08); color: var(--indigo);
+  font-family: var(--mono); font-size: 11px; font-weight: 800;
+  letter-spacing: 2px; cursor: pointer; border-radius: 4px; transition: all 0.18s;
+  white-space: nowrap; position: relative; overflow: hidden;
 }
-.global-play-btn:hover { background: rgba(61,74,138,0.14); }
+.global-play-btn:hover { background: rgba(61,74,138,0.18); transform: translateY(-1px); box-shadow: 0 3px 12px rgba(61,74,138,0.25); }
+.global-play-btn:active { transform: translateY(0); }
+.global-play-btn .gpb-icon { font-size: 13px; line-height: 1; transition: all 0.15s; }
 .global-play-btn.playing {
-  background: rgba(61,74,138,0.18); border-color: var(--indigo);
-  animation: mpulse 2s infinite;
+  background: rgba(61,74,138,0.16); border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(61,74,138,0.18);
+  animation: gpb-pulse 2s ease-in-out infinite;
 }
+.global-play-btn.playing:hover { box-shadow: 0 0 0 4px rgba(61,74,138,0.28); }
+@keyframes gpb-pulse {
+  0%,100% { box-shadow: 0 0 0 2px rgba(61,74,138,0.2); }
+  50%      { box-shadow: 0 0 0 6px rgba(61,74,138,0.0); }
+}
+/* Module play indicators on the button itself */
+.gpb-modules {
+  display: flex; gap: 3px; align-items: center; margin-left: 4px;
+}
+.gpb-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(61,74,138,0.25); transition: all 0.2s;
+}
+.gpb-dot.active { background: var(--indigo); box-shadow: 0 0 4px var(--indigo); }
 body.dark .global-play-btn { border-color: var(--indigo); color: var(--indigo); }
+body.dark .global-play-btn:hover { background: rgba(143,168,232,0.15); }
+body.dark .global-play-btn.playing { background: rgba(143,168,232,0.12); }
 
 .input-group { display: flex; gap: 4px; align-items: center; }
 .header-midi-btn {
@@ -1685,24 +1802,24 @@ main { padding: 10px 16px 32px; }
 }
 .gen-player-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .gen-btn {
-  padding: 4px 10px; border: 1px solid var(--border); border-radius: 3px;
-  background: transparent; font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
-  color: var(--t3); cursor: pointer; transition: all 0.12s;
+  padding: 5px 12px; border: 1.5px solid var(--border); border-radius: 3px;
+  background: var(--panel2); font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
+  color: var(--t1); cursor: pointer; transition: all 0.12s; font-weight: 700;
 }
-.gen-btn:hover { border-color: var(--forest); color: var(--forest); }
-.gen-btn.active { background: var(--forest); color: #fff; border-color: var(--forest); }
+.gen-btn:hover { border-color: var(--forest); color: var(--forest); background: var(--panel3); }
+.gen-btn.active { background: var(--forest); color: #fff; border-color: var(--forest); font-weight: 800; }
 .gen-btn-dl:hover { border-color: var(--indigo); color: var(--indigo); }
 .gen-bars-sel {
-  padding: 3px 8px; border: 1px solid var(--border); border-radius: 3px;
-  background: var(--panel); color: var(--t2); font-family: var(--mono); font-size: 10px;
-  cursor: pointer;
+  padding: 3px 8px; border: 1.5px solid var(--border); border-radius: 3px;
+  background: var(--panel2); color: var(--t1); font-family: var(--mono); font-size: 10px;
+  cursor: pointer; font-weight: 600;
 }
 .gen-chord-chip {
-  padding: 4px 10px; border: 1px solid var(--border); border-radius: 3px;
-  background: var(--panel); font-family: var(--mono); font-size: 11px; color: var(--t2);
-  cursor: pointer; transition: all 0.12s; user-select: none;
+  padding: 4px 10px; border: 1.5px solid var(--border); border-radius: 3px;
+  background: var(--panel2); font-family: var(--mono); font-size: 11px; color: var(--t1);
+  cursor: pointer; transition: all 0.12s; user-select: none; font-weight: 600;
 }
-.gen-chord-chip:hover { border-color: var(--forest); }
+.gen-chord-chip:hover { border-color: var(--forest); color: var(--forest); }
 .gen-chord-chip.playing { background: var(--forest); color: #fff; border-color: var(--forest); }
 
 /* osc note detector badge */
@@ -1908,9 +2025,16 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
       </div>
     </div>
     <!-- Global Play/Stop -->
-    <button class="global-play-btn" id="globalPlayBtn" title="Start/stop all players">
-      <span id="globalPlayIcon">▶</span>
+    <button class="global-play-btn" id="globalPlayBtn" title="Play / stop all active modules">
+      <span class="gpb-icon" id="globalPlayIcon">▶</span>
       <span id="globalPlayLbl">PLAY ALL</span>
+      <span class="gpb-modules">
+        <span class="gpb-dot" id="gpbDotMetro"  title="Metronome"></span>
+        <span class="gpb-dot" id="gpbDotDrums"  title="Drum loops"></span>
+        <span class="gpb-dot" id="gpbDotIR"     title="Indian rhythms"></span>
+        <span class="gpb-dot" id="gpbDotGen"    title="Chord player"></span>
+        <span class="gpb-dot" id="gpbDotLg"     title="Loop generator"></span>
+      </span>
     </button>
     <!-- Mic + Input selector -->
     <div class="input-group">
@@ -2004,6 +2128,7 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
       <div class="ubar-bpm-right">
         <input type="range" id="ubarBpmSl" min="20" max="300" value="120">
         <button id="ubarTapBtn">⬤ TAP</button>
+        <button id="ubarClapBtn" title="Clap/tap a rhythm to auto-detect tempo">👏 CLAP</button>
       </div>
     </div>
   </div>
@@ -2134,8 +2259,8 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
       <span class="gen-midi-note" id="genMidiNote"></span>
     </div>
     <!-- Player strip -->
-    <div class="gen-player-strip" id="genPlayerStrip" style="display:none">
-      <div class="gen-player-chords" id="genPlayerChords"></div>
+    <div class="gen-player-strip" id="genPlayerStrip">
+      <div class="gen-player-chords" id="genPlayerChords" title="Drop chord tiles here to build progression"></div>
       <div class="gen-player-btns">
         <button class="gen-btn" id="genPlayBtn">▶ PLAY</button>
         <button class="gen-btn" id="genLoopBtn">⟳ LOOP</button>
@@ -2297,22 +2422,15 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
       <span class="ph-r">ADVANCED</span>
     </div>
     <div class="mbody">
-      <div class="mrow">
+      <div class="mrow mrow-swing">
         <span class="mlbl">SWING:</span>
         <div class="bg" id="swingBtns">
           <button class="b on" data-swing="0">Straight</button>
-          <button class="b" data-swing="0.1">Light</button>
-          <button class="b" data-swing="0.2">Medium</button>
-          <button class="b" data-swing="0.33">Hard</button>
+          <button class="b" data-swing="0.15">Swing</button>
         </div>
       </div>
-      <div class="mrow">
+      <div class="mrow mrow-beat">
         <span class="mlbl">TEMPO:</span>
-        <div id="clapDetectWrap" style="display:flex;align-items:center;gap:8px">
-          <button class="b" id="clapDetectBtn" title="Click then clap/tap a rhythm to detect tempo">👏 CLAP DETECT</button>
-          <span style="font-family:var(--mono);font-size:10px;color:var(--t3)" id="clapDetectLbl"></span>
-        </div>
-      </div>
         <div class="bg" id="beatBtns">
           <button class="b" data-beats="2">2/4</button>
           <button class="b on" data-beats="4">4/4</button>
@@ -2322,7 +2440,7 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
           <button class="b" data-beats="7">7/8</button>
         </div>
       </div>
-      <div class="mrow">
+      <div class="mrow mrow-sub">
         <span class="mlbl">SUBDIV:</span>
         <div class="bg" id="subBtns">
           <button class="b on" data-sub="1">♩</button>
@@ -2346,12 +2464,6 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
         <span class="mlbl">VOLUME</span>
         <input type="range" class="sl" id="volSl" min="0" max="100" value="80" style="flex:1">
         <span style="font-size:10px;color:var(--t2);min-width:32px;text-align:right;font-family:var(--mono)" id="volLbl">80%</span>
-      </div>
-      <!-- Rush/Drag oscilloscope display -->
-      <div class="metro-osc-wrap" id="metroOscWrap">
-        <div class="metro-osc-lbl">INPUT vs CLICK — Rush/Drag detector</div>
-        <canvas id="metroOscCvs" style="width:100%;height:64px;display:block"></canvas>
-        <div class="metro-osc-status" id="metroOscStatus"></div>
       </div>
       <button class="play-b" id="playB">▶  START</button>
     </div>
@@ -2490,6 +2602,11 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
 //  AUDIO / MIC
 // ════════════════════════════════════════════════
 let aCtx=null, analyser=null, micSrc=null, micOn=false, animId=null, liveMode=false;
+// Shared mic stream — cached to avoid repeated permission requests
+let _sharedMicStream = null;
+let _micPermissionGranted = false;
+let _preferredAudioDeviceId = null;
+
 const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
 function f2n(freq){
@@ -2500,26 +2617,66 @@ function f2n(freq){
   return{note,oct,cents};
 }
 
-async function startMic(){
+async function _getSharedMicStream(deviceId){
+  // If we already have a live stream with the same device, reuse it
+  if(_sharedMicStream && !deviceId){
+    const tracks = _sharedMicStream.getTracks();
+    if(tracks.length && tracks[0].readyState === 'live') return _sharedMicStream;
+  }
+  // Stop existing stream if switching device
+  if(_sharedMicStream && deviceId){
+    _sharedMicStream.getTracks().forEach(t=>t.stop());
+    _sharedMicStream = null;
+  }
+  const constraints = {audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}};
+  if(deviceId) constraints.audio.deviceId = {exact: deviceId};
+  _sharedMicStream = await navigator.mediaDevices.getUserMedia(constraints);
+  _micPermissionGranted = true;
+  return _sharedMicStream;
+}
+
+async function startMic(deviceId){
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}});
-    aCtx=aCtx||new(window.AudioContext||window.webkitAudioContext)();
-    analyser=aCtx.createAnalyser(); analyser.fftSize=16384; analyser.smoothingTimeConstant=0.8;
-    micSrc=aCtx.createMediaStreamSource(stream); micSrc.connect(analyser);
+    const stream = await _getSharedMicStream(deviceId || _preferredAudioDeviceId || null);
+    aCtx = aCtx || new(window.AudioContext||window.webkitAudioContext)();
+    if(aCtx.state === 'suspended') await aCtx.resume();
+    // Disconnect old source if any
+    try{ if(micSrc) micSrc.disconnect(); }catch(e){}
+    analyser = aCtx.createAnalyser(); analyser.fftSize=16384; analyser.smoothingTimeConstant=0.8;
+    micSrc = aCtx.createMediaStreamSource(stream); micSrc.connect(analyser);
     micOn=true; liveMode=true;
     document.getElementById('mic-dot').classList.add('on');
     document.getElementById('micBtn').classList.add('act');
-    document.getElementById('micBtnTxt').textContent='MIC ACTIVE';
+    document.getElementById('micBtnTxt').textContent='MIC ON';
+    updateListeningState();
     startViz();
-  }catch(e){alert('Microphone access denied.');}
+  }catch(e){
+    console.warn('Microphone error:', e);
+    if(e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError'){
+      alert('Microphone permission denied. Please allow microphone access in your browser settings.');
+    }
+  }
 }
 function stopMic(){
-  micOn=false; liveMode=false; if(animId)cancelAnimationFrame(animId); animId=null;
+  micOn=false; liveMode=false;
+  if(animId)cancelAnimationFrame(animId); animId=null;
+  // Disconnect analyser but keep stream alive (avoid re-requesting permission)
+  try{ if(micSrc){ micSrc.disconnect(); micSrc=null; } }catch(e){}
+  analyser=null;
   document.getElementById('mic-dot').classList.remove('on');
   document.getElementById('micBtn').classList.remove('act');
-  document.getElementById('micBtnTxt').textContent='ACTIVATE MIC';
+  document.getElementById('micBtnTxt').textContent='MIC';
   // Reset smoothing state for clean restart
   freqEMA = null; centsEMA = 0; pitchHistory = []; centsHistory = [];
+  // Stop all listening indicators
+  updateListeningState();
+  // Clear note detection displays
+  const genNote = document.getElementById('genDetectNote');
+  const genDot  = document.getElementById('genDetectDot');
+  if(genNote) genNote.textContent = '--';
+  if(genDot)  genDot.classList.remove('active');
+  document.querySelectorAll('.sn.det').forEach(e => e.classList.remove('det'));
+  document.querySelectorAll('.mnt.det').forEach(e => e.classList.remove('det'));
   // Resume idle canvas loop
   if(typeof window._restartIdleLoop==='function') window._restartIdleLoop();
 }
@@ -3002,7 +3159,15 @@ function updateTuner(n, freq) {
 }
 
 function hlNote(name){
+  // Scale view: .sn elements
   document.querySelectorAll('.sn').forEach(e=>e.classList.toggle('det',e.dataset.note===name&&!e.classList.contains('root')));
+  // Modes view: .mnt elements
+  document.querySelectorAll('.mnt').forEach(e=>e.classList.toggle('det',e.textContent.trim().replace('♯','#')===name&&!e.classList.contains('mr')));
+  // Thaat view: .tn elements
+  document.querySelectorAll('.tn').forEach(e=>{
+    const txt = e.firstChild?.textContent?.trim().replace('♯','#');
+    e.classList.toggle('det', txt===name && !e.classList.contains('sa'));
+  });
 }
 
 // Idle loop — only drives canvas when mic is OFF
@@ -3214,10 +3379,10 @@ function scaleChords(rootNote,ivArr,force4){
 
 function miniChordGrid(chords){
   return`<div class="mc-grid">${chords.map(c=>`
-    <div class="mcd">
+    <div class="mcd" draggable="true" data-chord-sym="${c.sym}" data-chord-notes="${c.notes.join('\u00b7')}" data-chord-q="${c.q}" title="Drag to chord player">
       <div class="mdeg">${c.rom}</div>
       <div class="mcn">${c.sym}</div>
-      <div class="mcno">${c.notes.join('·')}</div>
+      <div class="mcno">${c.notes.join('\u00b7')}</div>
     </div>`).join('')}</div>`;
 }
 
@@ -3413,7 +3578,7 @@ function renderDiatonic(){
     </div>
     ${indianNote}
     <div class="dgrid" style="margin-top:10px">${cards.map((c,i)=>`
-      <div class="dc${i===0?' isr':''}${dcLit.has(i)?' dlit':''}" data-i="${i}">
+      <div class="dc${i===0?' isr':''}${dcLit.has(i)?' dlit':''}" data-i="${i}" draggable="true" data-chord-sym="${c.sym}" data-chord-notes="${c.notes.join('·')}" data-chord-q="${c.q}">
         <div class="deg">${c.rom}</div>
         <div class="cn">${c.sym}</div>
         <div class="cq">${QL[c.q]}</div>
@@ -3429,6 +3594,14 @@ function renderDiatonic(){
       dcLit.has(i)?dcLit.delete(i):dcLit.add(i);
       d.classList.toggle('dlit',dcLit.has(i));
     });
+    // Drag start — store chord data
+    d.addEventListener('dragstart', e => {
+      const data = { sym: d.dataset.chordSym, notes: d.dataset.chordNotes, q: d.dataset.chordQ };
+      e.dataTransfer.setData('application/x-chord', JSON.stringify(data));
+      e.dataTransfer.effectAllowed = 'copy';
+      d.classList.add('drag-preview');
+    });
+    d.addEventListener('dragend', () => d.classList.remove('drag-preview'));
   });
 }
 
@@ -3865,16 +4038,27 @@ function playClick(when, accent, sub){
 
 // ── Lag-free scheduler ──────────────────────
 // Lookahead: 150ms. Interval: 25ms.
-// UI updates scheduled via Web Audio clock, not setTimeout drift.
+// Swing: odd sub-beats are delayed to create long-short feel
 function sched(){
   const ctx=getMCtx();
-  const LOOKAHEAD=0.15; // seconds ahead to schedule
+  const LOOKAHEAD=0.15;
   const bd=60/M.bpm, sd=bd/M.sub;
   while(M.nextT < ctx.currentTime + LOOKAHEAD){
     const acc=M.accents.has(M.beatN), isSub=M.subN>0;
-    playClick(M.nextT, acc, isSub);
-    // Schedule UI flash via AudioContext time (accurate, no setTimeout drift)
-    const delay=Math.max(0,(M.nextT-ctx.currentTime)*1000);
+    // Apply swing offset to odd subdivisions (off-beats)
+    const sw = typeof window._swingAmount !== 'undefined' ? window._swingAmount : 0;
+    let swingOff = 0;
+    if(sw > 0 && M.sub >= 2 && M.subN % 2 === 1){
+      // Off-beat pushed late: creates the long-short swing feel
+      // sw=0.2 → 20% extra delay = noticeably swung
+      // sw=0.33 → 33% extra = triplet/jazz feel
+      // Formula: off-beat shifts by sw * one-beat-duration
+      // This is more audible than shifting within a sub-beat
+      swingOff = sw * (60 / M.bpm);
+    }
+    const scheduledT = M.nextT + swingOff;
+    playClick(scheduledT, acc, isSub);
+    const delay=Math.max(0,(scheduledT-ctx.currentTime)*1000);
     const bn=M.beatN, sn=M.subN;
     setTimeout(()=>origFlashUI(bn,sn), delay);
     M.nextT+=sd; M.subN++;
@@ -4157,23 +4341,18 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
     if (!ph) return;
     const btn = document.createElement('button');
     btn.className = 'win-min-btn';
-    btn.title = 'Minimize / Compact / Full';
-    btn.setAttribute('aria-label', 'Minimize panel');
-    // Cycle: full → compact → mini → full
-    const STATES = ['full','compact','mini'];
-    let stateIdx = 0;
-    const ICONS = ['▬','◻','—'];
-    btn.textContent = ICONS[0];
+    btn.title = 'Toggle compact view';
+    btn.setAttribute('aria-label', 'Toggle compact view');
+    // Only 2 states: full ↔ compact
+    let isCompact = false;
+    btn.textContent = '◻';
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      // Remove old state
-      panel.classList.remove('win-compact','win-mini');
-      stateIdx = (stateIdx + 1) % STATES.length;
-      const s = STATES[stateIdx];
-      if (s === 'compact') panel.classList.add('win-compact');
-      else if (s === 'mini')    panel.classList.add('win-mini');
-      btn.textContent = ICONS[stateIdx];
-      btn.title = s === 'full' ? 'Compact view' : s === 'compact' ? 'Minimize to bar' : 'Restore full';
+      isCompact = !isCompact;
+      panel.classList.toggle('win-compact', isCompact);
+      panel.classList.remove('win-mini');
+      btn.textContent = isCompact ? '▣' : '◻';
+      btn.title = isCompact ? 'Restore full view' : 'Compact view';
       setTimeout(resizeCanvases, 50);
     });
     ph.appendChild(btn);
@@ -4864,131 +5043,221 @@ document.getElementById('indianBtn').addEventListener('click', () => {
 // Minimize buttons are added by the window manager above
 
 // ════════════════════════════════════════════════
-//  GLOBAL PLAY / STOP SYSTEM
+//  GLOBAL PLAY / STOP SYSTEM  (unified)
 // ════════════════════════════════════════════════
 let globalPlaying = false;
 
+// ── Module registry ───────────────────────────
+// Each module self-registers via window._gps.register(id, { isPlaying, start, stop })
+// after it initialises. The global controller calls these directly.
+window._gps = (function(){
+  const modules = {};
+
+  function register(id, api){ modules[id] = api; }
+
+  function anyPlaying(){
+    return Object.values(modules).some(m => m.isPlaying());
+  }
+
+  function stopAll(){
+    Object.entries(modules).forEach(([id, m]) => {
+      if(m.isPlaying()) m.stop();
+    });
+  }
+
+  // Start every module whose panel is currently visible
+  function startVisible(){
+    Object.entries(modules).forEach(([id, m]) => {
+      const panel = document.getElementById(m.panelId);
+      if(panel && panel.style.display !== 'none' && !m.isPlaying()){
+        m.start();
+      }
+    });
+  }
+
+  function refresh(){ updateGlobalPlayState(); }
+
+  return { register, anyPlaying, stopAll, startVisible, refresh, modules };
+})();
+
 function updateGlobalPlayState(){
-  // Check if any player is active
-  const anyPlaying =
-    (typeof M !== 'undefined' && M.playing) ||
-    (typeof window._drumPlaying === 'function' && window._drumPlaying()) ||
-    (typeof window._irPlaying === 'function' && window._irPlaying());
+  const anyPlaying = window._gps.anyPlaying();
   globalPlaying = anyPlaying;
-  const btn = document.getElementById('globalPlayBtn');
+
+  const btn  = document.getElementById('globalPlayBtn');
   const icon = document.getElementById('globalPlayIcon');
   const lbl  = document.getElementById('globalPlayLbl');
+  if(!btn) return;
+
   if(anyPlaying){
     btn.classList.add('playing');
     icon.textContent = '■';
-    lbl.textContent = 'STOP ALL';
+    lbl.textContent  = 'STOP ALL';
   } else {
     btn.classList.remove('playing');
     icon.textContent = '▶';
-    lbl.textContent = 'PLAY ALL';
+    lbl.textContent  = 'PLAY ALL';
   }
-  // Update playing dot in header
-  const playDot = document.getElementById('playingDot');
-  const playPill = document.getElementById('playingPill');
-  if(playDot && playPill){
-    if(anyPlaying){
-      playPill.classList.add('playing-active');
-    } else {
-      playPill.classList.remove('playing-active');
-    }
-  }
-  // Update panel toggle play dots
-  updatePanelPlayDots();
-}
 
-function updatePanelPlayDots(){
-  const metroDot  = document.getElementById('dotMetro');
-  const drumsDot  = document.getElementById('dotDrums');
-  const irDot     = document.getElementById('dotIR');
-  if(metroDot) metroDot.classList.toggle('active', typeof M !== 'undefined' && M.playing);
-  if(drumsDot) drumsDot.classList.toggle('active', typeof window._drumPlaying === 'function' && window._drumPlaying());
-  if(irDot)    irDot.classList.toggle('active', typeof window._irPlaying === 'function' && window._irPlaying());
-}
+  // Header playing pill
+  const pill = document.getElementById('playingPill');
+  if(pill) pill.classList.toggle('playing-active', anyPlaying);
 
-// Expose drum/IR playing state query functions
-window._drumPlayingRef = false;
-window._irPlayingRef = false;
-window._drumPlaying = () => window._drumPlayingRef;
-window._irPlaying   = () => window._irPlayingRef;
-
-// Hook drum play state
-(function patchDrumState(){
-  const observer = new MutationObserver(() => {
-    const btn = document.getElementById('drumPlayBtn');
-    if(btn) {
-      window._drumPlayingRef = btn.classList.contains('playing');
-      updateGlobalPlayState();
-    }
+  // Per-module dots on the button
+  const dotMap = {
+    metro: 'gpbDotMetro',
+    drums: 'gpbDotDrums',
+    ir:    'gpbDotIR',
+    gen:   'gpbDotGen',
+    lg:    'gpbDotLg',
+  };
+  Object.entries(dotMap).forEach(([id, dotId]) => {
+    const m = window._gps.modules[id];
+    const dot = document.getElementById(dotId);
+    if(dot) dot.classList.toggle('active', !!(m && m.isPlaying()));
   });
-  const btn = document.getElementById('drumPlayBtn');
-  if(btn) observer.observe(btn, {attributes:true, attributeFilter:['class']});
-  const irBtn = document.getElementById('irPlayBtn');
-  if(irBtn){
-    const obs2 = new MutationObserver(() => {
-      window._irPlayingRef = irBtn.classList.contains('playing');
-      updateGlobalPlayState();
-    });
-    obs2.observe(irBtn, {attributes:true, attributeFilter:['class']});
+
+  // Legacy panel toggle dots
+  const panelDotMap = { metro:'dotMetro', drums:'dotDrums', ir:'dotIR' };
+  Object.entries(panelDotMap).forEach(([id, dotId]) => {
+    const m = window._gps.modules[id];
+    const d = document.getElementById(dotId);
+    if(d) d.classList.toggle('active', !!(m && m.isPlaying()));
+  });
+}
+
+// ── Register: Metronome ───────────────────────
+window._gps.register('metro', {
+  panelId:   'metroPanel',
+  isPlaying: () => typeof M !== 'undefined' && M.playing,
+  start:     () => { if(typeof startM === 'function') startM(); },
+  stop:      () => { if(typeof stopM  === 'function') stopM();  },
+});
+
+// ── Register: Drum Loops ──────────────────────
+window._drumPlayingRef = false;
+window._drumPlaying    = () => window._drumPlayingRef;
+window._gps.register('drums', {
+  panelId:   'drumsPanel',
+  isPlaying: () => window._drumPlayingRef,
+  start: () => {
+    const btn = document.getElementById('drumPlayBtn');
+    if(btn && !window._drumPlayingRef) btn.click();
+  },
+  stop: () => {
+    const btn = document.getElementById('drumPlayBtn');
+    if(btn && window._drumPlayingRef) btn.click();
+  },
+});
+
+// ── Register: Indian Rhythms ──────────────────
+window._irPlayingRef = false;
+window._irPlaying    = () => window._irPlayingRef;
+window._gps.register('ir', {
+  panelId:   'indianRhythmsPanel',
+  isPlaying: () => window._irPlayingRef,
+  start: () => {
+    const btn = document.getElementById('irPlayBtn');
+    if(btn && !window._irPlayingRef) btn.click();
+  },
+  stop: () => {
+    const btn = document.getElementById('irPlayBtn');
+    if(btn && window._irPlayingRef) btn.click();
+  },
+});
+
+// ── Register: Chord Generator player ─────────
+window._genPlayingRef = false;
+window._gps.register('gen', {
+  panelId:   'theoryPanel',
+  isPlaying: () => window._genPlayingRef,
+  start: () => {
+    const btn = document.getElementById('genPlayBtn');
+    if(btn && !window._genPlayingRef) btn.click();
+  },
+  stop: () => {
+    const btn = document.getElementById('genPlayBtn');
+    if(btn && window._genPlayingRef) btn.click();
+  },
+});
+
+// ── Register: Loop / Song Generator ──────────
+// (startLg / stopLg / lgPlaying are available after initLoopSongGenerator runs)
+window._lgPlayingRef = false;
+window._gps.register('lg', {
+  panelId:   'loopGenPanel',
+  isPlaying: () => !!(window._lgIsPlaying && window._lgIsPlaying()),
+  start: () => { if(window._lgStart) window._lgStart(); },
+  stop:  () => { if(window._lgStop)  window._lgStop();  },
+});
+
+// ── MutationObserver hooks for all play buttons ──
+(function wirePlayObservers(){
+  function watchBtn(btnId, onchange){
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    new MutationObserver(onchange).observe(btn, { attributes: true, attributeFilter: ['class'] });
   }
-  // Hook metro play button
-  const playB = document.getElementById('playB');
-  if(playB){
-    const obs3 = new MutationObserver(() => {
-      updateGlobalPlayState();
-    });
-    obs3.observe(playB, {attributes:true, attributeFilter:['class']});
-  }
+
+  watchBtn('playB', () => updateGlobalPlayState());
+
+  watchBtn('drumPlayBtn', () => {
+    const btn = document.getElementById('drumPlayBtn');
+    window._drumPlayingRef = !!(btn && btn.classList.contains('playing'));
+    updateGlobalPlayState();
+  });
+
+  watchBtn('irPlayBtn', () => {
+    const btn = document.getElementById('irPlayBtn');
+    window._irPlayingRef = !!(btn && btn.classList.contains('playing'));
+    updateGlobalPlayState();
+  });
+
+  watchBtn('genPlayBtn', () => {
+    const btn = document.getElementById('genPlayBtn');
+    window._genPlayingRef = !!(btn && (btn.classList.contains('playing') || btn.classList.contains('active')));
+    updateGlobalPlayState();
+  });
+
+  watchBtn('lgPlayBtn', () => updateGlobalPlayState());
+  // Also watch second lg play button if it exists
+  watchBtn('lgPlayBtn2', () => updateGlobalPlayState());
 })();
 
+// ── Global button click ───────────────────────
 document.getElementById('globalPlayBtn').addEventListener('click', () => {
-  const anyPlaying =
-    (typeof M !== 'undefined' && M.playing) ||
-    window._drumPlayingRef ||
-    window._irPlayingRef;
-  if(anyPlaying){
-    // Stop all
-    if(typeof M !== 'undefined' && M.playing) stopM();
-    const drumBtn = document.getElementById('drumPlayBtn');
-    if(drumBtn && window._drumPlayingRef) drumBtn.click();
-    const irBtn = document.getElementById('irPlayBtn');
-    if(irBtn && window._irPlayingRef) irBtn.click();
+  if(window._gps.anyPlaying()){
+    window._gps.stopAll();
   } else {
-    // Start metronome + drums if visible
-    const metroPanel = document.getElementById('metroPanel');
-    const drumsPanel = document.getElementById('drumsPanel');
-    if(metroPanel && metroPanel.style.display !== 'none') startM();
-    const drumBtn = document.getElementById('drumPlayBtn');
-    if(drumsPanel && drumsPanel.style.display !== 'none' && drumBtn && !window._drumPlayingRef) drumBtn.click();
+    window._gps.startVisible();
   }
+  // Small delay so module states settle before re-reading
+  setTimeout(updateGlobalPlayState, 60);
 });
+
+
 
 // ════════════════════════════════════════════════
 //  LISTENING INDICATOR SYSTEM
 // ════════════════════════════════════════════════
 function updateListeningState(){
-  // Check if mic is active (any audio node is running)
-  const micActive = typeof analyser !== 'undefined' && analyser !== null;
+  const isListening = micOn === true;
   const dots = ['dotTuner','dotLoudness','dotOsc','dotSpec'];
   dots.forEach(id => {
     const el = document.getElementById(id);
-    if(el) el.classList.toggle('active', micActive);
+    if(el) el.classList.toggle('active', isListening);
   });
   const pill = document.getElementById('listeningPill');
   const dot  = document.getElementById('listeningDot');
   if(pill && dot){
-    if(micActive){
-      pill.classList.add('active');
-    } else {
-      pill.classList.remove('active');
-    }
+    if(isListening) pill.classList.add('active');
+    else pill.classList.remove('active');
   }
   const micDot = document.getElementById('mic-dot');
-  if(micDot) micDot.style.background = micActive ? 'var(--forest)' : '';
+  if(micDot) micDot.classList.toggle('on', isListening);
+  // Sync genDetectDot
+  const genDot = document.getElementById('genDetectDot');
+  if(genDot && !isListening) genDot.classList.remove('active');
 }
 // Call periodically
 setInterval(updateListeningState, 500);
@@ -5008,8 +5277,15 @@ setInterval(updateListeningState, 500);
     if(!popup || !list) return;
     list.innerHTML = '';
     try {
-      await navigator.mediaDevices.getUserMedia({audio:true}); // ensure permission
-      const devices = await navigator.mediaDevices.enumerateDevices();
+      // Use cached permission - don't call getUserMedia again just to enumerate
+      let devices;
+      if(_micPermissionGranted){
+        devices = await navigator.mediaDevices.enumerateDevices();
+      } else {
+        // Need permission once to get labels
+        await _getSharedMicStream(null);
+        devices = await navigator.mediaDevices.enumerateDevices();
+      }
       const inputs = devices.filter(d => d.kind === 'audioinput');
       if(inputs.length === 0){
         list.innerHTML = '<div class="input-popup-item muted">No audio inputs found</div>';
@@ -5020,10 +5296,13 @@ setInterval(updateListeningState, 500);
           item.textContent = dev.label || `Microphone ${dev.deviceId.substring(0,8)}`;
           item.addEventListener('click', () => {
             popup.style.display = 'none';
-            // Restart mic with selected device
-            window._preferredAudioDeviceId = dev.deviceId;
-            if(typeof stopMic === 'function') stopMic();
-            if(typeof startMic === 'function') startMic();
+            // Switch device without re-requesting permission
+            _preferredAudioDeviceId = dev.deviceId;
+            if(micOn){
+              // Restart with new device using cached permission
+              stopMic();
+              startMic(dev.deviceId);
+            }
           });
           list.appendChild(item);
         });
@@ -5212,66 +5491,164 @@ if(typeof sched === 'function'){
 //  CLAP / TRANSIENT DETECTION for tempo
 // ════════════════════════════════════════════════
 (function setupClapDetect(){
-  const btn = document.getElementById('clapDetectBtn');
-  const lbl = document.getElementById('clapDetectLbl');
+  const btn = document.getElementById('ubarClapBtn');
   if(!btn) return;
-  let listening = false, clapStream = null, clapCtx = null;
-  let clapTimes = [], clapAnimId = null;
 
-  btn.addEventListener('click', async () => {
-    if(!listening){
-      // Start listening
-      try {
-        clapStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
-        clapCtx = new (window.AudioContext||window.webkitAudioContext)();
-        const src = clapCtx.createMediaStreamSource(clapStream);
-        const analyserNode = clapCtx.createAnalyser();
-        analyserNode.fftSize = 512;
-        src.connect(analyserNode);
-        const buf = new Float32Array(analyserNode.fftSize);
-        let lastHit = 0, threshold = 0.15;
-        clapTimes = [];
-        listening = true;
-        btn.classList.add('listening');
-        btn.textContent = '⬛ STOP';
-        lbl.textContent = 'Clap or tap a steady rhythm...';
+  let listening = false, clapCtx = null, clapNode = null;
+  let clapAnimId = null;
 
-        function detect(){
-          if(!listening) return;
-          analyserNode.getFloatTimeDomainData(buf);
-          const rms = Math.sqrt(buf.reduce((s,v)=>s+v*v,0)/buf.length);
-          const now = Date.now();
-          if(rms > threshold && now - lastHit > 200){
-            lastHit = now;
-            clapTimes.push(now);
-            if(clapTimes.length > 1){
-              const diffs = clapTimes.slice(-8).map((t,i,arr) => i===0 ? null : t-arr[i-1]).filter(Boolean);
-              const avgDiff = diffs.reduce((a,b)=>a+b,0)/diffs.length;
-              const bpm = Math.round(60000 / avgDiff);
-              if(bpm >= 20 && bpm <= 300){
-                lbl.textContent = `Detected: ${bpm} BPM`;
-                if(typeof setBPM === 'function') setBPM(bpm);
-              }
-            }
-          }
-          clapAnimId = requestAnimationFrame(detect);
-        }
-        detect();
-      } catch(err){
-        lbl.textContent = 'Mic access required';
-      }
-    } else {
-      // Stop
-      listening = false;
-      btn.classList.remove('listening');
-      btn.textContent = '👏 CLAP DETECT';
-      if(clapAnimId) cancelAnimationFrame(clapAnimId);
-      if(clapStream) clapStream.getTracks().forEach(t=>t.stop());
-      if(clapCtx) clapCtx.close();
-      setTimeout(() => { if(lbl) lbl.textContent = ''; }, 2000);
+  // Hit detection state
+  let clapTimes = [];         // wall-clock ms of detected hits
+  let _prevRms = 0;           // RMS follower
+  let _lastHit = 0;           // last detected hit time
+  const HIT_THRESH = 0.06;    // RMS onset threshold (lower = more sensitive)
+  const HIT_COOLDOWN = 160;   // ms min gap between hits
+  const INACTIVITY_MS = 3000; // reset after this silence
+
+  // BPM smoothing
+  let _smoothBpm = 0;
+  let _lastClapBpm = 0;
+  let _inactivityTimer = null;
+
+  function resetState(){
+    clapTimes = [];
+    _smoothBpm = 0;
+    _lastClapBpm = 0;
+    _prevRms = 0;
+  }
+
+  function updateBpmDisplay(bpm){
+    btn.textContent = '\u2714 ' + bpm + ' BPM';
+  }
+
+  function processHit(now){
+    // Flash glow on button
+    btn.classList.remove('clap-hit');
+    void btn.offsetWidth; // force reflow to restart animation
+    btn.classList.add('clap-hit');
+    setTimeout(() => btn.classList.remove('clap-hit'), 360);
+
+    clapTimes.push(now);
+    if(clapTimes.length > 10) clapTimes.shift();
+
+    // Need at least 2 hits to compute BPM
+    if(clapTimes.length < 2) return;
+
+    // Use last 6 intervals, weighted toward recent
+    const n = clapTimes.length;
+    const intervals = [];
+    for(let i = Math.max(1, n-6); i < n; i++){
+      intervals.push(clapTimes[i] - clapTimes[i-1]);
     }
+
+    // Filter out outliers (intervals > 3x median are spurious)
+    const sorted = [...intervals].sort((a,b)=>a-b);
+    const median = sorted[Math.floor(sorted.length/2)];
+    const filtered = intervals.filter(iv => iv > 150 && iv < 3000 && iv < median*2.5);
+    if(filtered.length === 0) return;
+
+    const avgMs = filtered.reduce((s,v)=>s+v,0) / filtered.length;
+    const rawBpm = 60000 / avgMs;
+
+    // Smooth BPM toward detected value
+    if(_smoothBpm === 0){
+      _smoothBpm = rawBpm;
+    } else {
+      // Use stronger smoothing if change is small, lighter if big correction
+      const diff = Math.abs(rawBpm - _smoothBpm);
+      const alpha = diff > 10 ? 0.5 : 0.3;
+      _smoothBpm = _smoothBpm * (1-alpha) + rawBpm * alpha;
+    }
+
+    const rounded = Math.round(_smoothBpm);
+    if(rounded >= 20 && rounded <= 300 && rounded !== _lastClapBpm){
+      _lastClapBpm = rounded;
+      if(typeof setBPM === 'function'){
+        setBPM(rounded); // full sync: updates M.bpm, UI sliders, metronome
+      } else if(typeof M !== 'undefined'){
+        M.bpm = rounded;
+        const numEl = document.getElementById('ubarBpmNum');
+        if(numEl) numEl.textContent = rounded;
+        const slEl = document.getElementById('ubarBpmSl');
+        if(slEl) slEl.value = rounded;
+      }
+      updateBpmDisplay(rounded);
+    }
+  }
+
+  function detect(){
+    if(!listening || !clapNode) return;
+    const buf = new Float32Array(clapNode.fftSize);
+    clapNode.getFloatTimeDomainData(buf);
+    let sum = 0;
+    for(let i = 0; i < buf.length; i++) sum += buf[i]*buf[i];
+    const rms = Math.sqrt(sum / buf.length);
+
+    const delta = rms - _prevRms;
+    const now = Date.now();
+
+    // Transient onset: RMS spikes up faster than decay
+    if(delta > HIT_THRESH && now - _lastHit > HIT_COOLDOWN){
+      _lastHit = now;
+      processHit(now);
+
+      // Schedule inactivity reset
+      clearTimeout(_inactivityTimer);
+      _inactivityTimer = setTimeout(() => {
+        resetState();
+        if(listening) btn.textContent = '\uD83D\uDC4F CLAP';
+      }, INACTIVITY_MS);
+    }
+
+    // RMS decay: fast attack, slow decay for stable floor
+    if(rms > _prevRms) _prevRms = rms;
+    else _prevRms = _prevRms * 0.88 + rms * 0.12;
+
+    clapAnimId = requestAnimationFrame(detect);
+  }
+
+  let _clapSrc = null; // track media stream source for cleanup
+
+  async function startListening(){
+    try {
+      // Use shared stream to avoid re-requesting permission
+      const stream = await _getSharedMicStream(null);
+      if(!clapCtx) clapCtx = new (window.AudioContext||window.webkitAudioContext)();
+      if(clapCtx.state === 'suspended') await clapCtx.resume();
+      // Disconnect old source if any
+      try{ if(_clapSrc){ _clapSrc.disconnect(); _clapSrc = null; } }catch(e){}
+      if(clapNode) try{ clapNode.disconnect(); }catch(e){}
+      clapNode = clapCtx.createAnalyser();
+      clapNode.fftSize = 256;                // smaller = faster response
+      clapNode.smoothingTimeConstant = 0;    // Raw data for transient detection
+      _clapSrc = clapCtx.createMediaStreamSource(stream);
+      _clapSrc.connect(clapNode);
+      resetState();
+      listening = true;
+      btn.classList.add('listening');
+      btn.textContent = '\uD83D\uDC4F CLAP...';
+      detect();
+    } catch(e){
+      btn.textContent = '\uD83D\uDC4F CLAP';
+      console.warn('Clap detect mic error:', e);
+    }
+  }
+
+  function stopListening(){
+    listening = false;
+    if(clapAnimId) cancelAnimationFrame(clapAnimId); clapAnimId = null;
+    clearTimeout(_inactivityTimer);
+    try{ if(_clapSrc){ _clapSrc.disconnect(); _clapSrc = null; } }catch(e){}
+    btn.classList.remove('listening');
+    btn.textContent = '\uD83D\uDC4F CLAP';
+    resetState();
+  }
+
+  btn.addEventListener('click', () => {
+    if(listening) stopListening(); else startListening();
   });
 })();
+
 
 // ════════════════════════════════════════════════
 //  LOUDNESS METER — seismograph + stats
@@ -5525,6 +5902,30 @@ function exportSimpleMIDI(filename, bytes){
     });
     const strip2 = document.getElementById('genPlayerStrip');
     if(strip2 && genChords.length > 0) strip2.style.display = '';
+    // Wire drop targets
+    setupDropTarget(strip);
+  }
+
+  // Drop target setup for chord player
+  function setupDropTarget(el){
+    if(!el || el._dropWired) return;
+    el._dropWired = true;
+    el.addEventListener('dragover', e => {
+      e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+      el.classList.add('drag-over');
+    });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      try {
+        const data = JSON.parse(e.dataTransfer.getData('application/x-chord'));
+        if(data && data.sym){
+          genChords.push({ sym: data.sym, notes: data.notes || '' });
+          renderGenChords();
+        }
+      } catch(err){}
+    });
   }
 
   function playGenChordAt(i){
@@ -5645,11 +6046,31 @@ function exportSimpleMIDI(filename, bytes){
     });
   }
   // Initial build after renderAll
-  setTimeout(buildDefaultChords, 200);
+  setTimeout(() => {
+    buildDefaultChords();
+    // Wire the gen player strip as drop target immediately
+    const strip = document.getElementById('genPlayerChords');
+    if(strip) setupDropTarget(strip);
+    const strip2 = document.getElementById('genPlayerStrip');
+    if(strip2) { strip2.style.display = ''; }
+  }, 200);
 })();
 
-// Fix splPeakLbl reference error (removed from HTML)
-// Already handled by splPeakStat
+// Wire drag from mini chord tiles and mode chord grids via delegation
+(function setupTheoryDrag(){
+  const theoryPanel = document.getElementById('theoryPanel');
+  if(!theoryPanel) return;
+  theoryPanel.addEventListener('dragstart', e => {
+    const tile = e.target.closest('[data-chord-sym]');
+    if(!tile) return;
+    const data = { sym: tile.dataset.chordSym, notes: tile.dataset.chordNotes || '', q: tile.dataset.chordQ || '' };
+    e.dataTransfer.setData('application/x-chord', JSON.stringify(data));
+    e.dataTransfer.effectAllowed = 'copy';
+    tile.style.opacity = '0.5';
+    tile.addEventListener('dragend', () => { tile.style.opacity = ''; }, { once: true });
+  });
+})();
+
 
 // Initial state
 updateGlobalPlayState();
@@ -5789,6 +6210,7 @@ updateListeningState();
 
 // ════════════════════════════════════════════════════════════════
 //  METRONOME OSCILLOSCOPE / RUSH-DRAG DETECTOR
+//  — Real waveform display, BPM-aligned tempo grid, live mic transient detection
 // ════════════════════════════════════════════════════════════════
 (function setupMetroOsc(){
   const cvs = document.getElementById('metroOscCvs');
@@ -5796,137 +6218,259 @@ updateListeningState();
   const ctx = cvs.getContext('2d');
   const statusEl = document.getElementById('metroOscStatus');
 
-  let metroBeats = []; // timestamps of scheduled beats from metronome
-  let inputTransients = []; // timestamps of detected audio transients
-  const WINDOW = 4000; // ms to display
+  let metroBeats = [];        // {t: ms} — metronome click timestamps
+  let inputTransients = [];   // {t: ms} — detected user hit timestamps
+  const WINDOW = 4000;        // ms to display
 
-  // Listen to beat events from metronome
-  window._metroOscBeat = function(beatTime){
-    metroBeats.push({ t: beatTime, type: 'click' });
-    if(metroBeats.length > 64) metroBeats.shift();
+  // Waveform ring buffer for display
+  const WAVE_CAP = 1024;
+  const waveBuf = new Float32Array(WAVE_CAP);
+  let waveHead = 0;
+
+  // Transient detection state
+  let _prevRms = 0;
+  const TRANSIENT_THRESH = 0.10;
+  const TRANSIENT_COOLDOWN = 80;   // ms min gap between detected hits
+  let _lastHitMs = 0;
+  let _smoothedOffset = 0;
+
+  // ── Public API called by other subsystems ──────────────────
+  window._metroOscBeat = function(tMs){
+    metroBeats.push({ t: tMs });
+    if(metroBeats.length > 128) metroBeats.shift();
   };
 
-  // Detect transients from mic input
-  window._metroOscTransient = function(t){
-    inputTransients.push({ t });
-    if(inputTransients.length > 64) inputTransients.shift();
+  window._metroOscPushWave = function(samples){
+    for(let i = 0; i < samples.length; i++){
+      waveBuf[waveHead % WAVE_CAP] = samples[i];
+      waveHead++;
+    }
   };
 
+  window._metroOscRms = function(rms){
+    const now = Date.now();
+    const delta = rms - _prevRms;
+    if(delta > TRANSIENT_THRESH && now - _lastHitMs > TRANSIENT_COOLDOWN){
+      inputTransients.push({ t: now });
+      if(inputTransients.length > 128) inputTransients.shift();
+      _lastHitMs = now;
+    }
+    _prevRms = _prevRms * 0.5 + rms * 0.5;
+  };
+
+  // ── Dedicated mic analyser for when main mic is off ────────
+  let _mNode = null, _mCtx = null, _mRunning = false;
+
+  function startMetroMicInput(){
+    if(_mRunning) return;
+    if(typeof micOn !== 'undefined' && micOn && typeof analyser !== 'undefined' && analyser) return;
+    (async () => {
+      try {
+        const stream = await _getSharedMicStream(null);
+        _mCtx = _mCtx || new (window.AudioContext||window.webkitAudioContext)();
+        if(_mCtx.state === 'suspended') await _mCtx.resume();
+        _mNode = _mCtx.createAnalyser();
+        _mNode.fftSize = 512;
+        _mCtx.createMediaStreamSource(stream).connect(_mNode);
+        _mRunning = true;
+        const buf = new Float32Array(512);
+        (function tick(){
+          if(!_mRunning) return;
+          _mNode.getFloatTimeDomainData(buf);
+          window._metroOscPushWave(buf.subarray(0, 64));
+          let s = 0;
+          for(let i = 0; i < buf.length; i++) s += buf[i]*buf[i];
+          window._metroOscRms(Math.sqrt(s / buf.length));
+          requestAnimationFrame(tick);
+        })();
+      } catch(e){ /* mic permission denied — visuals work, transients won't */ }
+    })();
+  }
+
+  // Hook: auto-start mic when metronome starts
+  window.addEventListener('load', () => {
+    const _origStartM = window.startM;
+    if(typeof _origStartM === 'function'){
+      window.startM = function(){
+        _origStartM.apply(this, arguments);
+        startMetroMicInput();
+      };
+    }
+  });
+
+  // ── Resize canvas ──────────────────────────────────────────
   function resize(){
     const dpr = window.devicePixelRatio || 1;
-    const w = cvs.offsetWidth, h = cvs.offsetHeight || 64;
-    cvs.width = w * dpr; cvs.height = h * dpr;
-    ctx.scale(dpr, dpr);
+    const w = cvs.offsetWidth, h = cvs.offsetHeight || 80;
+    const tw = Math.round(w*dpr), th = Math.round(h*dpr);
+    if(cvs.width !== tw || cvs.height !== th){
+      cvs.width = tw; cvs.height = th;
+      ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    }
   }
   resize();
   window.addEventListener('resize', resize);
 
+  // ── Main draw loop ─────────────────────────────────────────
   function draw(){
-    const w = cvs.offsetWidth, h = cvs.offsetHeight || 64;
+    resize();
+    const w = cvs.offsetWidth, h = cvs.offsetHeight || 80;
     const dark = document.body.classList.contains('dark');
     const now = Date.now();
     const tStart = now - WINDOW;
 
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = dark ? 'rgba(20,16,8,0.9)' : 'rgba(250,247,241,0.9)';
+    ctx.fillStyle = dark ? 'rgba(18,14,8,0.96)' : 'rgba(250,247,241,0.96)';
     ctx.fillRect(0, 0, w, h);
 
-    // Grid lines (quarter notes)
-    ctx.strokeStyle = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-    ctx.lineWidth = 1;
-    for(let i = 0; i <= 4; i++){
-      const x = (i / 4) * w;
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    // ─ TEMPO GRID ───────────────────────────────────────────
+    const bpm = (typeof M !== 'undefined') ? M.bpm : 120;
+    const sub  = (typeof M !== 'undefined') ? M.sub  : 1;
+    const beatMs = 60000 / bpm;
+    const subMs  = beatMs / Math.max(sub, 1);
+    const lastBeat = metroBeats.length > 0 ? metroBeats[metroBeats.length-1].t : now;
+
+    // Subdivision lines (lighter)
+    if(sub > 1){
+      let subT = lastBeat;
+      while(subT > tStart - subMs) subT -= subMs;
+      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = dark ? 'rgba(200,178,140,0.06)' : 'rgba(55,40,20,0.04)';
+      ctx.beginPath();
+      for(let t = subT; t <= now + beatMs; t += subMs){
+        const x = ((t - tStart) / WINDOW) * w;
+        if(x >= 0 && x <= w){ ctx.moveTo(x,0); ctx.lineTo(x,h); }
+      }
+      ctx.stroke();
     }
-    ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
 
-    function tToX(t){ return ((t - tStart) / WINDOW) * w; }
+    let gridT = lastBeat;
+    while(gridT > tStart) gridT -= beatMs;
+    gridT += beatMs;
 
-    // Draw click beats (metronome)
-    const recentBeats = metroBeats.filter(b => b.t >= tStart);
-    recentBeats.forEach(b => {
-      const x = tToX(b.t);
-      ctx.fillStyle = dark ? 'rgba(0,200,100,0.7)' : 'rgba(45,120,61,0.7)';
-      ctx.fillRect(x - 1, 0, 2, h);
-      ctx.fillStyle = dark ? '#0c8' : '#2d783d';
-      ctx.beginPath(); ctx.arc(x, h/4, 4, 0, Math.PI*2); ctx.fill();
+    ctx.lineWidth = 1;
+    for(let t = gridT; t <= now + beatMs; t += beatMs){
+      const x = ((t - tStart) / WINDOW) * w;
+      if(x < -2 || x > w + 2) continue;
+      const isClick = metroBeats.some(b => Math.abs(b.t - t) < 15);
+      ctx.lineWidth = isClick ? 1.5 : 1;
+      ctx.strokeStyle = isClick
+        ? (dark ? 'rgba(200,178,140,0.3)' : 'rgba(55,40,20,0.22)')
+        : (dark ? 'rgba(200,178,140,0.10)' : 'rgba(55,40,20,0.07)');
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+    }
+
+    // Center line
+    ctx.strokeStyle = dark ? 'rgba(200,178,140,0.12)' : 'rgba(55,40,20,0.10)';
+    ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+
+    // ─ WAVEFORM ─────────────────────────────────────────────
+    const dispN = Math.min(waveHead, WAVE_CAP);
+    if(dispN > 4){
+      ctx.beginPath();
+      ctx.strokeStyle = dark ? 'rgba(94,196,122,0.80)' : 'rgba(45,90,61,0.70)';
+      ctx.lineWidth = 1.5;
+      const rStart = ((waveHead - dispN) + WAVE_CAP) % WAVE_CAP;
+      for(let i = 0; i < dispN; i++){
+        const idx = (rStart + i) % WAVE_CAP;
+        const x = (i / (dispN-1)) * w;
+        const y = h/2 - waveBuf[idx] * h * 0.44;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
+
+    // ─ BEAT CLICK MARKERS (green — top) ────────────────────
+    metroBeats.filter(b => b.t >= tStart).forEach(b => {
+      const x = ((b.t - tStart) / WINDOW) * w;
+      ctx.fillStyle = dark ? 'rgba(0,215,105,0.9)' : 'rgba(40,125,60,0.9)';
+      ctx.fillRect(x-1,0,2,h*0.38);
+      ctx.beginPath(); ctx.arc(x,5,3.5,0,Math.PI*2); ctx.fill();
     });
 
-    // Draw input transients
-    const recentTransients = inputTransients.filter(t => t.t >= tStart);
-    recentTransients.forEach(t => {
-      const x = tToX(t.t);
-      ctx.fillStyle = dark ? 'rgba(255,160,0,0.7)' : 'rgba(180,80,0,0.7)';
-      ctx.fillRect(x - 1, 0, 2, h);
-      ctx.fillStyle = dark ? '#fa0' : '#b45000';
-      ctx.beginPath(); ctx.arc(x, 3*h/4, 4, 0, Math.PI*2); ctx.fill();
+    // ─ INPUT TRANSIENT MARKERS (amber — bottom) ────────────
+    inputTransients.filter(t => t.t >= tStart).forEach(t => {
+      const x = ((t.t - tStart) / WINDOW) * w;
+      ctx.fillStyle = dark ? 'rgba(255,170,0,0.9)' : 'rgba(185,75,0,0.9)';
+      ctx.fillRect(x-1,h*0.62,2,h*0.38);
+      ctx.beginPath(); ctx.arc(x,h-5,3.5,0,Math.PI*2); ctx.fill();
     });
 
-    // Rush/Drag analysis
-    if(statusEl && recentBeats.length >= 2 && recentTransients.length >= 2){
-      // Match each transient to nearest click
-      let avgOffset = 0, count = 0;
-      recentTransients.forEach(tr => {
-        const nearest = recentBeats.reduce((best, b) => {
-          return Math.abs(b.t - tr.t) < Math.abs(best.t - tr.t) ? b : best;
+    // ─ RUSH/DRAG STATUS ─────────────────────────────────────
+    if(statusEl){
+      const rb = metroBeats.filter(b => b.t >= tStart);
+      const rh = inputTransients.filter(t => t.t >= now - beatMs*4 && t.t >= tStart);
+      if(rb.length >= 1 && rh.length >= 1){
+        let total = 0, cnt = 0;
+        rh.slice(-6).forEach(tr => {
+          const nearest = rb.reduce((best, b) =>
+            Math.abs(b.t-tr.t) < Math.abs(best.t-tr.t) ? b : best
+          );
+          const off = tr.t - nearest.t;
+          if(Math.abs(off) < beatMs * 0.55){ total += off; cnt++; }
         });
-        const off = tr.t - nearest.t;
-        if(Math.abs(off) < 500){ avgOffset += off; count++; }
-      });
-      if(count > 0){
-        avgOffset /= count;
-        statusEl.className = 'metro-osc-status';
-        if(avgOffset < -40){
-          statusEl.textContent = `⚡ RUSHING (+${Math.abs(avgOffset).toFixed(0)}ms early)`;
-          statusEl.classList.add('rushing');
-        } else if(avgOffset > 40){
-          statusEl.textContent = `⏳ DRAGGING (${avgOffset.toFixed(0)}ms late)`;
-          statusEl.classList.add('dragging');
-        } else {
-          statusEl.textContent = `✓ IN GROOVE (${avgOffset>0?'+':''}${avgOffset.toFixed(0)}ms)`;
-          statusEl.classList.add('intune');
+        if(cnt > 0){
+          _smoothedOffset = _smoothedOffset * 0.65 + (total/cnt) * 0.35;
+          const ms = Math.round(_smoothedOffset);
+          statusEl.className = 'metro-osc-status';
+          if(_smoothedOffset < -25){
+            statusEl.textContent = '\u26A1 RUSHING  ' + Math.abs(ms) + 'ms early';
+            statusEl.classList.add('rushing');
+          } else if(_smoothedOffset > 25){
+            statusEl.textContent = '\u23F3 DRAGGING  ' + ms + 'ms late';
+            statusEl.classList.add('dragging');
+          } else {
+            statusEl.textContent = '\u2713 IN GROOVE  ' + (ms>0?'+':'') + ms + 'ms';
+            statusEl.classList.add('intune');
+          }
         }
+      } else if(rb.length === 0){
+        statusEl.textContent = '';
+        statusEl.className = 'metro-osc-status';
       }
     }
 
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
-
-  // Hook into metronome: patch flashUI to record beat times
-  const origFlashUI2 = window.origFlashUI || window.flashUI;
-  window._metroOscHooked = true;
 })();
 
-// Patch metronome sched() to emit beat events for the oscilloscope
+// ── Patch playClick to emit beat timestamps ────────────────────
 (function patchMetroForOsc(){
-  const origPlayClick = window.playClick;
-  if(typeof playClick === 'function'){
-    window.playClick = function(when, accent, sub){
-      if(origPlayClick) origPlayClick.call(this, when, accent, sub);
-      if(!sub && window._metroOscBeat){
-        // Convert web audio time to Date.now() equivalent
-        const ctx = typeof getMCtx === 'function' ? getMCtx() : null;
-        if(ctx){
-          const nowMs = Date.now() + (when - ctx.currentTime) * 1000;
-          setTimeout(() => window._metroOscBeat(Date.now()), Math.max(0, (when - ctx.currentTime)*1000));
-        }
+  const _orig = window.playClick;
+  if(typeof playClick !== 'function') return;
+  window.playClick = function(when, accent, sub){
+    if(_orig) _orig.call(this, when, accent, sub);
+    if(!sub && window._metroOscBeat){
+      const mctx = typeof getMCtx === 'function' ? getMCtx() : null;
+      if(mctx){
+        const delay = Math.max(0, (when - mctx.currentTime) * 1000);
+        setTimeout(() => window._metroOscBeat(Date.now()), delay);
       }
-    };
-  }
+    }
+  };
 })();
 
-// Hook mic transient detection into _metroOscTransient
-(function patchMicForMetroOsc(){
-  // We'll detect transients from the ring buffer RMS spike
-  let prevRMS = 0;
-  const TRANSIENT_THRESH = 0.15;
-  window._checkMetroTransient = function(rms){
-    if(rms - prevRMS > TRANSIENT_THRESH && window._metroOscTransient){
-      window._metroOscTransient(Date.now());
+// ── Feed main mic data to metro osc when main mic is active ───
+(function hookMainMicIntoMetroOsc(){
+  let _lastFeed = 0;
+  (function poll(){
+    if(typeof micOn !== 'undefined' && micOn &&
+       typeof analyser !== 'undefined' && analyser &&
+       typeof window._metroOscPushWave === 'function'){
+      const now = Date.now();
+      if(now - _lastFeed > 22){
+        const buf = new Float32Array(256);
+        analyser.getFloatTimeDomainData(buf);
+        window._metroOscPushWave(buf.subarray(0,64));
+        let s = 0;
+        for(let i = 0; i < buf.length; i++) s += buf[i]*buf[i];
+        if(window._metroOscRms) window._metroOscRms(Math.sqrt(s/buf.length));
+        _lastFeed = now;
+      }
     }
-    prevRMS = rms * 0.7 + prevRMS * 0.3;
-  };
+    requestAnimationFrame(poll);
+  })();
 })();
 
 // ════════════════════════════════════════════════════════════════
@@ -6477,34 +7021,6 @@ updateListeningState();
   // Generate on open
   document.getElementById('togLoopGen')?.addEventListener('click', () => {
     if(!lgStructure.length) generate();
-  });
-})();
-
-// ════════════════════════════════════════════════════════════════
-//  GLOBAL PLAY/STOP — patch to include loop gen
-// ════════════════════════════════════════════════════════════════
-(function patchGlobalPlayForLg(){
-  const origBtn = document.getElementById('globalPlayBtn');
-  if(!origBtn) return;
-  const origUpdateState = window.updateGlobalPlayState;
-  window.updateGlobalPlayState = function(){
-    if(origUpdateState) origUpdateState();
-    // Patch anyPlaying to include loop gen
-    const lgPlaying = window._lgIsPlaying && window._lgIsPlaying();
-    const btn = document.getElementById('globalPlayBtn');
-    const icon = document.getElementById('globalPlayIcon');
-    const lbl = document.getElementById('globalPlayLbl');
-    if(lgPlaying && btn){
-      btn.classList.add('active');
-      if(icon) icon.textContent = '■';
-      if(lbl)  lbl.textContent  = 'STOP ALL';
-    }
-  };
-
-  // Extend global stop to include loop gen
-  const existingHandler = origBtn.onclick;
-  origBtn.addEventListener('click', () => {
-    if(window._lgIsPlaying && window._lgIsPlaying() && window._lgStop) window._lgStop();
   });
 })();
 
