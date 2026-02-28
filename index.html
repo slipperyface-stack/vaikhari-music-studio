@@ -73,311 +73,363 @@
    DARK MODE — warm charcoal night
 ════════════════════════════════════════════ */
 body.dark {
-  --bg:     #111008;
-  --bg2:    #18160e;
-  --panel:  #1c1a10;
-  --panel2: #232016;
-  --panel3: #2c291c;
+  /* ════════════════════════════════════════════
+     DARK MODE DESIGN TOKENS
+     Bluish-neutral palette, soft on the eyes
+  ════════════════════════════════════════════ */
+  --bg-primary:     #0F1115;
+  --bg-secondary:   #161A21;
+  --bg-tertiary:    #1C2128;
+  --text-primary:   #E6EDF3;
+  --text-secondary: #9DA7B3;
+  --text-disabled:  #6B7280;
+  --border-subtle:  #2A2F3A;
+  --accent:         #4F8CFF;
+  --accent-hover:   #6BA3FF;
+  --success:        #22C55E;
+  --warning:        #F59E0B;
+  --danger:         #EF4444;
 
-  /* Borders — clearly visible on dark */
-  --ink:    rgba(245,228,195,1);
-  --border: rgba(220,198,158,0.65);
-  --bord2:  rgba(220,198,158,0.40);
+  /* Legacy token aliases — keep all existing component code working */
+  --bg:     #0F1115;
+  --bg2:    #161A21;
+  --panel:  #161A21;
+  --panel2: #1C2128;
+  --panel3: #222830;
 
-  /* Accents — vivid, high contrast on dark */
-  --forest: #52e878;
-  --forest2:#3ec85a;
-  --indigo: #9abcff;
-  --rust:   #ff8870;
-  --ochre:  #ffcc50;
-  --umber:  #e0aa58;
+  --ink:    rgba(230,237,243,1);
+  --border: #2A2F3A;
+  --bord2:  rgba(42,47,58,0.65);
 
-  /* Text — strong contrast on dark */
-  --t1: #faf2e2;
-  --t2: #ecdabb;
-  --t3: #d0b888;
-  --t4: #a89060;
+  --forest: #22C55E;
+  --forest2:#1aae52;
+  --indigo: #4F8CFF;
+  --rust:   #EF4444;
+  --ochre:  #F59E0B;
+  --umber:  #D97706;
 
-  --saffron:       #ff9640;
-  --saffron-dim:   #d07828;
-  --saffron-lt:    rgba(255,150,64,0.25);
-  --saffron-faint: rgba(255,150,64,0.12);
+  --t1: #E6EDF3;
+  --t2: #C0CAD6;
+  --t3: #9DA7B3;
+  --t4: #6B7280;
 
-  --pencil-soft:  rgba(220,198,158,0.20);
-  --pencil-mid:   rgba(220,198,158,0.45);
-  --pencil-2b:    #faf2e2;
-  --pencil-hb:    #d0b888;
-  --pencil-hb2:   #a89060;
-  --pencil-h:     #807048;
-  --paper:        #1c1a10;
-  --paper2:       #232016;
-  --red-ink:      #ff8870;
-  --amber-ink:    #ffcc50;
+  --saffron:       #F59E0B;
+  --saffron-dim:   #D97706;
+  --saffron-lt:    rgba(245,158,11,0.18);
+  --saffron-faint: rgba(245,158,11,0.08);
+
+  --pencil-soft:  rgba(42,47,58,0.55);
+  --pencil-mid:   rgba(42,47,58,0.85);
+  --pencil-2b:    #E6EDF3;
+  --pencil-hb:    #9DA7B3;
+  --pencil-hb2:   #6B7280;
+  --pencil-h:     #4A5060;
+  --paper:        #161A21;
+  --paper2:       #1C2128;
+  --red-ink:      #EF4444;
+  --amber-ink:    #F59E0B;
 }
 
 body.dark { background-image: none; }
 
 /* ── Header ── */
 body.dark header {
-  background: rgba(25,22,16,0.97);
-  border-color: var(--border);
-  box-shadow: 0 1px 12px rgba(0,0,0,0.5), 0 1px 0 rgba(200,178,140,0.06);
+  background: rgba(15,17,21,0.97);
+  border-color: #2A2F3A;
+  box-shadow: 0 1px 0 #2A2F3A, 0 4px 20px rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
 }
 
-/* ── Sticky bars ── */
-/* ── Sticky shell dark mode handled above ── */
+/* ── Sticky shell ── */
+body.dark #stickyShell {
+  background: #161A21;
+  border-color: #2A2F3A;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
 
 /* ── Panels ── */
 body.dark .panel,
 body.dark .spl-panel {
-  background: var(--panel);
-  border-color: var(--border);
-  box-shadow:
-    0 2px 16px rgba(0,0,0,0.45),
-    0 1px 0 rgba(200,178,140,0.06) inset;
+  background: #161A21;
+  border: 1px solid #2A2F3A;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
 }
-body.dark .panel::before {
-  background: linear-gradient(140deg, rgba(240,220,180,0.025) 0%, transparent 50%);
-}
+body.dark .panel::before { background: none; }
 body.dark .ph {
-  border-color: var(--bord2);
-  background: rgba(0,0,0,0.25);
+  border-color: #2A2F3A;
+  background: rgba(0,0,0,0.15);
 }
-body.dark .ph-t { color: var(--t1); letter-spacing: 2px; font-weight: 800; }
-body.dark .ph-r { color: var(--t2); font-weight: 700; }
+body.dark .ph-t { color: #E6EDF3; letter-spacing: 2px; font-weight: 700; }
+body.dark .ph-r { color: #9DA7B3; font-weight: 500; }
 body.dark .win-min-btn {
-  border-color: var(--border); color: var(--t1); background: var(--panel3); font-weight: 700;
+  border-color: #2A2F3A; color: #9DA7B3;
+  background: #1C2128; font-weight: 600;
+  transition: all 0.2s ease;
 }
-body.dark .win-min-btn:hover { background: var(--t3); color: var(--panel); border-color: var(--t2); }
+body.dark .win-min-btn:hover {
+  background: #2A2F3A; color: #E6EDF3;
+  border-color: #4A5060;
+}
 
 /* ── Form elements ── */
 body.dark select {
-  background: var(--panel2); color: var(--t2);
-  border-color: var(--border);
+  background: #1C2128; color: #E6EDF3;
+  border: 1px solid #2A2F3A;
+  transition: all 0.2s ease;
+}
+body.dark select:focus {
+  border-color: #4F8CFF;
+  box-shadow: 0 0 0 2px rgba(79,140,255,0.2);
+  outline: none;
 }
 body.dark input[type=range],
-body.dark .sl { accent-color: var(--ochre); }
+body.dark .sl { accent-color: #4F8CFF; }
 
 /* ── Button groups (.b) ── */
 body.dark .b {
-  color: var(--t1); border-color: var(--border);
-  background: rgba(220,198,158,0.08);
-  font-weight: 600;
+  color: #9DA7B3;
+  border-color: #2A2F3A;
+  background: transparent;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 body.dark .b:hover {
-  background: rgba(220,198,158,0.18);
-  color: var(--t1);
-  border-color: var(--t1);
+  background: #1C2128;
+  color: #E6EDF3;
+  border-color: #4A5060;
+  transform: translateY(-1px);
 }
 body.dark .b.on {
-  background: rgba(220,198,158,0.25);
-  border-color: var(--t1);
-  color: var(--t1);
-  font-weight: 800;
+  background: rgba(79,140,255,0.15);
+  border-color: #4F8CFF;
+  color: #4F8CFF;
+  font-weight: 700;
 }
 
 /* ── Panel toggle pills ── */
 body.dark .ptog {
-  border-color: var(--border);
-  color: var(--t1);
-  background: var(--panel2);
-  font-weight: 600;
+  border-color: #2A2F3A;
+  color: #9DA7B3;
+  background: #1C2128;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 body.dark .ptog:hover {
-  background: var(--panel3);
-  color: var(--t1);
-  border-color: var(--t2);
+  background: #222830;
+  color: #E6EDF3;
+  border-color: #4A5060;
+  transform: translateY(-1px);
 }
 body.dark .ptog.on {
-  background: rgba(82,232,120,0.22);
-  border-color: var(--forest);
-  color: var(--forest);
-  font-weight: 700;
+  background: rgba(34,197,94,0.13);
+  border-color: #22C55E;
+  color: #22C55E;
+  font-weight: 600;
 }
-body.dark .pbar-lbl { color: var(--t1); font-weight: 700; }
-body.dark .pbar-sep { background: var(--border); }
+body.dark .pbar-lbl { color: #9DA7B3; font-weight: 500; }
+body.dark .pbar-sep { background: #2A2F3A; }
 
 /* ── Universal bar ── */
-body.dark .ubar-lbl { color: var(--t1); font-weight: 700; }
-body.dark .ubar-group { border-color: var(--border); }
+body.dark .ubar-lbl { color: #9DA7B3; font-weight: 500; }
+body.dark .ubar-group { border-color: #2A2F3A; }
 body.dark .ubar-arr {
-  background: var(--panel3); border-color: var(--border); color: var(--t1); font-weight: 700;
+  background: #1C2128; border-color: #2A2F3A;
+  color: #E6EDF3; font-weight: 600;
+  transition: all 0.2s ease;
 }
 body.dark .ubar-arr:hover {
-  background: var(--t3); color: var(--panel); border-color: var(--t2);
+  background: rgba(79,140,255,0.15);
+  color: #4F8CFF; border-color: #4F8CFF;
 }
-body.dark #ubarBpmNum { color: var(--t1); font-weight: 800; }
-body.dark .ubar-bpm-unit { color: var(--t3); }
+body.dark #ubarBpmNum { color: #E6EDF3; font-weight: 800; }
+body.dark .ubar-bpm-unit { color: #6B7280; }
 body.dark .ubar-key {
-  border-color: var(--border); color: var(--t2); background: var(--panel2); font-weight: 600;
+  border-color: #2A2F3A; color: #9DA7B3;
+  background: #1C2128; font-weight: 500;
+  transition: all 0.2s ease;
 }
 body.dark .ubar-key:hover {
-  border-color: var(--forest); color: var(--forest);
-  background: rgba(82,232,120,0.10);
+  border-color: #4F8CFF; color: #4F8CFF;
+  background: rgba(79,140,255,0.1);
+  transform: translateY(-1px);
 }
 body.dark .ubar-key.on {
-  background: var(--forest); border-color: var(--forest);
-  color: #0a0802; font-weight: 800;
+  background: #4F8CFF; border-color: #4F8CFF;
+  color: #E6EDF3; font-weight: 700;
 }
 body.dark #ubarTapBtn,
 body.dark #ubarClapBtn {
-  border-color: var(--border); color: var(--t2); font-weight: 600;
+  border-color: #2A2F3A; color: #9DA7B3;
+  font-weight: 500; transition: all 0.2s ease;
 }
 body.dark #ubarTapBtn:hover {
-  border-color: var(--ochre); color: var(--ochre);
-  background: rgba(255,204,80,0.10);
+  border-color: #F59E0B; color: #F59E0B;
+  background: rgba(245,158,11,0.09);
 }
 
-/* ── Dark mode toggle pill ── */
+/* ── Dark mode toggle ── */
 body.dark .dark-toggle {
-  border-color: rgba(200,178,140,0.18); color: var(--t3);
+  border-color: #2A2F3A; color: #6B7280;
+  transition: all 0.2s ease;
 }
 body.dark .dark-toggle:hover {
-  border-color: var(--ochre); color: var(--ochre);
+  border-color: #4F8CFF; color: #4F8CFF;
 }
 body.dark .dark-toggle .dt-icon { transform: rotate(20deg); }
 
 /* ── dB Meter ── */
-body.dark .spl-bar-fill { background: rgba(25,22,16,0.82); }
+body.dark .spl-bar-fill { background: rgba(15,17,21,0.8); }
 
 /* ── Metronome ── */
-body.dark .mlbl { color: var(--t2); font-weight: 600; }
-body.dark .acc-lbl { color: var(--t2); font-weight: 600; }
+body.dark .mlbl { color: #9DA7B3; font-weight: 500; }
+body.dark .acc-lbl { color: #9DA7B3; font-weight: 500; }
 body.dark .acc-b {
-  border-color: var(--border); color: var(--t2); background: var(--panel2);
+  border-color: #2A2F3A; color: #9DA7B3;
+  background: #1C2128; transition: all 0.2s ease;
 }
+body.dark .acc-b:hover { border-color: #4A5060; color: #E6EDF3; }
 body.dark .acc-b.on {
-  background: rgba(240,184,64,0.20);
-  border-color: var(--ochre); color: var(--ochre);
+  background: rgba(245,158,11,0.15);
+  border-color: #F59E0B; color: #F59E0B;
 }
 body.dark .snd-b {
-  border-color: var(--border); color: var(--t2); background: var(--panel2);
+  border-color: #2A2F3A; color: #9DA7B3;
+  background: #1C2128; transition: all 0.2s ease;
+}
+body.dark .snd-b:hover {
+  background: #222830; color: #E6EDF3; border-color: #4A5060;
 }
 body.dark .snd-b.on {
-  background: rgba(78,216,112,0.15);
-  border-color: var(--forest); color: var(--forest);
+  background: rgba(34,197,94,0.13);
+  border-color: #22C55E; color: #22C55E;
 }
 
 /* ── Drum panel ── */
 body.dark .drum-genre-btn {
-  background: var(--panel2); border-color: var(--border); color: var(--t2);
+  background: #1C2128; border-color: #2A2F3A;
+  color: #9DA7B3; transition: all 0.2s ease;
 }
 body.dark .drum-genre-btn:hover {
-  border-color: var(--indigo); color: var(--indigo);
-  background: rgba(138,176,248,0.12);
+  border-color: #4F8CFF; color: #4F8CFF;
+  background: rgba(79,140,255,0.09);
+  transform: translateY(-1px);
 }
 body.dark .drum-genre-btn.on {
-  background: rgba(138,176,248,0.18);
-  border-color: var(--indigo); color: var(--indigo); font-weight: 700;
+  background: rgba(79,140,255,0.15);
+  border-color: #4F8CFF; color: #4F8CFF; font-weight: 600;
 }
-body.dark .dstep { background: var(--panel2); border-color: var(--border); }
-body.dark .dstep:hover { border-color: var(--t2); background: var(--panel3); }
-body.dark .dstep.on { background: var(--indigo); border-color: var(--indigo); }
-body.dark .dstep.on:hover { background: #b8caff; }
-body.dark .dstep.beat-start { border-left-color: rgba(210,188,148,0.30); }
-body.dark .dstep.playing { box-shadow: 0 0 0 2px var(--ochre); }
+body.dark .dstep { background: #1C2128; border-color: #2A2F3A; }
+body.dark .dstep:hover { border-color: #4A5060; background: #222830; }
+body.dark .dstep.on { background: #4F8CFF; border-color: #4F8CFF; }
+body.dark .dstep.on:hover { background: #6BA3FF; }
+body.dark .dstep.beat-start { border-left-color: rgba(79,140,255,0.35); }
+body.dark .dstep.playing { box-shadow: 0 0 0 2px #F59E0B; }
 body.dark .loop-len-btn {
-  border-color: var(--border); color: var(--t2); background: var(--panel2);
+  border-color: #2A2F3A; color: #9DA7B3;
+  background: #1C2128; transition: all 0.2s ease;
 }
 body.dark .loop-len-btn.on {
-  border-color: var(--indigo); color: var(--indigo);
-  background: rgba(138,176,248,0.16); font-weight: 700;
+  border-color: #4F8CFF; color: #4F8CFF;
+  background: rgba(79,140,255,0.13); font-weight: 600;
 }
-body.dark .cplx-dot { background: var(--panel2); border-color: var(--border); }
-body.dark .cplx-dot.on { background: var(--indigo); border-color: var(--indigo); }
-body.dark .drum-row-lbl { color: var(--t2); }
-body.dark .drum-ctrl-lbl { color: var(--t2); font-weight: 600; }
-body.dark .drum-ctrl-val { color: var(--t1); }
+body.dark .cplx-dot { background: #1C2128; border-color: #2A2F3A; }
+body.dark .cplx-dot.on { background: #4F8CFF; border-color: #4F8CFF; }
+body.dark .drum-row-lbl { color: #9DA7B3; }
+body.dark .drum-ctrl-lbl { color: #9DA7B3; font-weight: 500; }
+body.dark .drum-ctrl-val { color: #E6EDF3; }
 body.dark .drum-shuffle-btn {
-  border-color: var(--border); color: var(--t2); background: var(--panel2);
+  border-color: #2A2F3A; color: #9DA7B3;
+  background: #1C2128; transition: all 0.2s ease;
 }
-body.dark .drum-shuffle-btn:hover {
-  border-color: var(--t1); color: var(--t1);
-}
+body.dark .drum-shuffle-btn:hover { border-color: #C0CAD6; color: #E6EDF3; }
 body.dark .drum-play-btn {
-  background: rgba(138,176,248,0.10);
-  border-color: var(--indigo); color: var(--indigo);
+  background: rgba(79,140,255,0.1);
+  border-color: #4F8CFF; color: #4F8CFF;
+  transition: all 0.2s ease;
 }
 body.dark .drum-play-btn:hover {
-  background: rgba(138,176,248,0.20);
+  background: rgba(79,140,255,0.2); transform: translateY(-1px);
 }
 body.dark .drum-play-btn.playing {
-  background: rgba(240,120,96,0.14);
-  border-color: var(--rust); color: var(--rust);
+  background: rgba(239,68,68,0.13);
+  border-color: #EF4444; color: #EF4444;
 }
 
 /* ── Indian panels ── */
 body.dark .ir-bols {
-  background: var(--saffron-faint); color: var(--saffron);
+  background: rgba(245,158,11,0.08); color: #F59E0B;
 }
 body.dark .ir-beat {
-  border-color: var(--border); color: var(--t2); background: var(--panel2);
+  border-color: #2A2F3A; color: #9DA7B3;
+  background: #1C2128; transition: all 0.2s ease;
 }
 body.dark .ir-beat.sam {
-  border-color: var(--saffron); color: var(--saffron);
-  background: rgba(245,145,58,0.14);
+  border-color: #F59E0B; color: #F59E0B;
+  background: rgba(245,158,11,0.11);
 }
-body.dark .ir-beat.khali {
-  border-color: var(--border); color: var(--t3);
-}
+body.dark .ir-beat.khali { border-color: #2A2F3A; color: #6B7280; }
 body.dark .ir-beat.lit {
-  background: var(--saffron) !important;
-  color: #141008 !important;
+  background: #F59E0B !important;
+  color: #0F1115 !important;
 }
 body.dark .ir-taal-btn {
-  background: var(--panel2); border-color: var(--border); color: var(--t2);
+  background: #1C2128; border-color: #2A2F3A;
+  color: #9DA7B3; transition: all 0.2s ease;
 }
 body.dark .ir-taal-btn:hover {
-  border-color: var(--saffron); color: var(--saffron);
-  background: var(--saffron-faint);
+  border-color: #F59E0B; color: #F59E0B;
+  background: rgba(245,158,11,0.08);
 }
 body.dark .ir-taal-btn.on {
-  background: var(--saffron-lt);
-  border-color: var(--saffron); color: var(--saffron); font-weight: 700;
+  background: rgba(245,158,11,0.15);
+  border-color: #F59E0B; color: #F59E0B; font-weight: 600;
 }
 body.dark .ir-play-btn {
-  background: var(--saffron-faint);
-  border-color: var(--saffron); color: var(--saffron);
+  background: rgba(245,158,11,0.08);
+  border-color: #F59E0B; color: #F59E0B;
+  transition: all 0.2s ease;
 }
 body.dark .ir-play-btn.playing {
-  background: rgba(240,120,96,0.14);
-  border-color: var(--rust); color: var(--rust);
+  background: rgba(239,68,68,0.12);
+  border-color: #EF4444; color: #EF4444;
 }
 
-/* ── Theory panel ── */
-body.dark .clbl { color: var(--t2); font-weight: 600; }
+/* ── Theory / Tuner panels ── */
+body.dark .clbl { color: #9DA7B3; font-weight: 500; }
 body.dark .tun-sel {
-  background: var(--panel2); color: var(--t1); border-color: var(--border);
+  background: #1C2128; color: #E6EDF3;
+  border: 1px solid #2A2F3A;
 }
 
-/* ── Canvas in dark mode ── */
+/* ── Canvas backgrounds ── */
 body.dark #oscCvs,
 body.dark #specCvs {
-  border-color: var(--border);
-  background: #0c0b07;
+  border-color: #2A2F3A;
+  background: #0D1017;
 }
 
 /* ── Scrollbars ── */
-body.dark ::-webkit-scrollbar { width: 5px; }
-body.dark ::-webkit-scrollbar-track { background: var(--bg); }
+body.dark ::-webkit-scrollbar { width: 8px; }
+body.dark ::-webkit-scrollbar-track { background: #0F1115; }
 body.dark ::-webkit-scrollbar-thumb {
-  background: var(--panel3); border-radius: 3px;
+  background: #2A2F3A; border-radius: 4px;
 }
-body.dark ::-webkit-scrollbar-thumb:hover { background: var(--t4); }
+body.dark ::-webkit-scrollbar-thumb:hover { background: #3A4150; }
+
+/* ── Selection ── */
+body.dark ::selection { background: rgba(79,140,255,0.3); }
 
 /* ── Misc text ── */
-body.dark .vol-row .mlbl { color: var(--t2); font-weight: 600; }
-body.dark .clbl { color: var(--t3); }
-body.dark .ir-lbl { color: var(--t3); }
-body.dark .ir-val { color: var(--t2); }
-
-body.dark .ubar-bpm-right { color: var(--t3); }
+body.dark .vol-row .mlbl { color: #9DA7B3; font-weight: 500; }
+body.dark .ir-lbl { color: #9DA7B3; }
+body.dark .ir-val { color: #E6EDF3; }
+body.dark .ubar-bpm-right { color: #9DA7B3; }
 
 
 
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 html { font-size:13px; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 body {
   background: var(--bg);
@@ -399,7 +451,7 @@ header {
   border-bottom: 1.5px solid var(--border);
   background: rgba(247,243,233,0.95);
   backdrop-filter: blur(6px);
-  position: sticky; top: 0; z-index: 300;
+  /* position handled by parent #stickyShell */
 }
 .logo { font-family: var(--head); font-size: 22px; font-weight: 800; color: var(--t1); letter-spacing: -0.3px; line-height: 1.1; }
 .logo em { color: var(--forest); font-style: italic; }
@@ -408,29 +460,6 @@ header {
 .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--t4); margin-right: 5px; animation: blink 2s infinite; }
 .dot.on { background: var(--forest); animation: none; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
-
-/* ── STOPWATCH ── */
-.stopwatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.stopwatch-display {
-  font-family: var(--mono); font-size: 18px; font-weight: 600;
-  color: var(--t1); letter-spacing: 2px; cursor: pointer;
-  padding: 2px 6px; border-radius: 3px;
-  transition: color 0.15s;
-  min-width: 86px; text-align: center;
-}
-.stopwatch-display.running { color: var(--forest); }
-.stopwatch-display.paused  { color: var(--ochre); }
-.stopwatch-lbl { font-size: 9px; color: var(--t4); letter-spacing: 1.5px; font-family: var(--mono); text-align: center; }
-.stopwatch-btns { display: flex; gap: 4px; }
-.sw-btn {
-  font-size: 9px; font-family: var(--mono); letter-spacing: 0.5px;
-  padding: 2px 7px; border: 1px solid var(--border);
-  border-radius: 2px; background: transparent;
-  color: var(--t3); cursor: pointer; transition: all 0.12s;
-}
-.sw-btn:hover { border-color: var(--forest); color: var(--forest); }
-.sw-btn.start { border-color: var(--forest); color: var(--forest); }
-.sw-btn.stop  { border-color: var(--rust); color: var(--rust); }
 
 /* ── MIC BUTTON in header ── */
 .header-mic-btn {
@@ -453,18 +482,17 @@ header {
    UNIVERSAL CONTROLS BAR
 ════════════════════════════════════════════ */
 #universalBar {
-  display: flex; align-items: center; gap: 0;
-  padding: 0 24px;
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 24px;
   background: transparent;
-  /* NOT sticky — parent stickyShell handles that */
   flex-wrap: wrap;
 }
 .ubar-group {
   display: flex; align-items: center; gap: 10px;
-  padding: 7px 20px 7px 0; margin-right: 20px;
+  padding: 0 20px 0 0; margin-right: 6px;
   border-right: 1px solid var(--bord2);
 }
-.ubar-group:last-child { border-right: none; margin-right: 0; }
+.ubar-group:last-child { border-right: none; margin-right: 0; padding-right: 0; }
 .ubar-lbl {
   font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
   color: var(--t2); text-transform: uppercase; white-space: nowrap; font-weight: 700;
@@ -516,20 +544,20 @@ header {
   100% { background: rgba(122,48,32,0.07); box-shadow: 0 0 0 0 rgba(122,48,32,0); color: var(--rust); border-color: var(--rust); }
 }
 body.dark #ubarClapBtn.listening {
-  border-color: var(--red-ink); color: var(--red-ink);
-  background: rgba(224,112,96,0.10);
+  border-color: #EF4444; color: #EF4444;
+  background: rgba(239,68,68,0.09);
   animation: clap-pulse-dark 1.6s ease-in-out infinite;
 }
 body.dark #ubarClapBtn.clap-hit {
   animation: clap-hit-flash-dark 0.35s ease-out forwards !important;
 }
 @keyframes clap-pulse-dark {
-  0%,100% { box-shadow: 0 0 0 0 rgba(224,112,96,0.35); }
-  50%      { box-shadow: 0 0 0 5px rgba(224,112,96,0.0); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+  50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0.0); }
 }
 @keyframes clap-hit-flash-dark {
-  0%   { background: rgba(224,112,96,0.45); box-shadow: 0 0 0 7px rgba(224,112,96,0.25); color: #fff; }
-  100% { background: rgba(224,112,96,0.10); box-shadow: 0 0 0 0 rgba(224,112,96,0); color: var(--red-ink); }
+  0%   { background: rgba(239,68,68,0.4); box-shadow: 0 0 0 7px rgba(239,68,68,0.2); color: #E6EDF3; }
+  100% { background: rgba(239,68,68,0.09); box-shadow: 0 0 0 0 rgba(239,68,68,0); color: #EF4444; }
 }
 /* Key buttons */
 .ubar-keys { display: flex; flex-wrap: wrap; gap: 3px; }
@@ -542,20 +570,18 @@ body.dark #ubarClapBtn.clap-hit {
 .ubar-key.on { background: var(--forest); border-color: var(--forest); color: #fff; font-weight: 800; }
 
 /* ── LAYOUT — bounded window manager ── */
-main { padding: 0; min-height: calc(100vh - 140px); }
+main { padding: 0; padding-top: var(--chrome-h, 180px); min-height: 100vh; }
 #panelGrid {
   position: relative;
   width: 100%;
-  min-height: calc(100vh - var(--header-h,140px));
-  overflow: hidden;
+  min-height: calc(100vh - var(--chrome-h, 180px));
+  overflow: visible;
   background: transparent;
 }
 /* Desktop: panels are absolute-positioned windows */
 @media(min-width: 769px) {
   .panel, .spl-panel {
     position: absolute !important;
-    min-width: 280px;
-    min-height: 200px;
     box-shadow: 0 4px 20px rgba(55,40,20,0.15), inset 0 1px 0 rgba(255,252,245,0.8);
   }
 }
@@ -586,11 +612,10 @@ main { padding: 0; min-height: calc(100vh - 140px); }
   overflow: hidden;
   position: relative;
   min-width: 0;
-  box-shadow: 0 1px 3px rgba(55,40,20,0.08), inset 0 1px 0 rgba(255,252,245,0.8);
+  box-shadow: 0 2px 8px rgba(55,40,20,0.10), inset 0 1px 0 rgba(255,252,245,0.7);
   display: flex;
   flex-direction: column;
-  width: 360px;
-  height: 420px;
+  /* Size is set by window manager — no defaults that fight it */
 }
 /* Panels start invisible on desktop until window manager places them */
 @media(min-width: 769px) {
@@ -601,16 +626,17 @@ main { padding: 0; min-height: calc(100vh - 140px); }
     visibility: visible;
   }
 }
-/* .ph and .ctrl are fixed; panel body clips at boundary - no scroll */
+/* Header and control rows are always full-width, never shrink */
 .panel .ph   { flex-shrink: 0; }
 .panel .ctrl { flex-shrink: 0; }
+/* Panel body fills remaining space, NO scroll ever */
 .panel-body {
   flex: 1;
   overflow: hidden;
   min-height: 0;
 }
-/* Allow scroll only when manually resized larger */
-.panel[style*="height"] .panel-body { overflow-y: auto; }
+/* No scroll on any manually-resized panel either */
+.panel[style*="height"] .panel-body { overflow: hidden; }
 /* Resize handle — dedicated draggable element */
 .resize-handle {
   position: absolute; bottom: 0; right: 0;
@@ -661,7 +687,8 @@ body.dark .spl-panel:hover .resize-handle { opacity: 1; }
 }
 .win-min-btn:hover { color: var(--panel); border-color: var(--t1); background: var(--t1); }
 /* Compact state */
-.panel.win-compact, .spl-panel.win-compact { height: 200px !important; overflow: hidden; }
+/* Compact: height collapses to show only the elements left visible */
+.panel.win-compact, .spl-panel.win-compact { height: auto !important; overflow: hidden; min-height: 0 !important; }
 /* ── Metronome compact: ONLY play btn + accent row + subdivision selector ── */
 #metroPanel.win-compact .mrow-swing,
 #metroPanel.win-compact .mrow-beat,
@@ -676,7 +703,7 @@ body.dark .spl-panel:hover .resize-handle { opacity: 1; }
 /* Tighten compact spacing */
 #metroPanel.win-compact .mbody { padding: 8px 10px; }
 #metroPanel.win-compact .play-b { margin-top: 4px; }
-#metroPanel.win-compact { height: 152px !important; }
+/* Metronome compact height auto-fits its 3 visible elements */
 /* Tuner compact: show seismo + needle only */
 #tunerPanel.win-compact .tun-wrap { display: none !important; }
 /* General compact: hide secondary controls */
@@ -723,15 +750,17 @@ body.dark .spl-panel:hover .resize-handle { opacity: 1; }
 .bg { display: flex; }
 .b {
   background: transparent;
-  border: 1.5px solid var(--border); border-right: none;
+  border: 1.5px solid var(--border);
+  margin-left: -1.5px;
   color: var(--t1); padding: 4px 11px; cursor: pointer;
   font-family: var(--mono); font-size: 11px;
   transition: all 0.12s; white-space: nowrap; font-weight: 600;
+  position: relative; z-index: 0;
 }
-.b:first-child { border-radius: 3px 0 0 3px; }
-.b:last-child  { border-right: 1.5px solid var(--border); border-radius: 0 3px 3px 0; }
-.b:hover { background: rgba(40,25,8,0.10); color: var(--t1); border-color: var(--t1); }
-.b.on   { background: rgba(40,25,8,0.18); border-color: var(--t1); color: var(--t1); font-weight: 800; }
+.b:first-child { border-radius: 3px 0 0 3px; margin-left: 0; }
+.b:last-child  { border-radius: 0 3px 3px 0; }
+.b:hover { background: rgba(40,25,8,0.10); color: var(--t1); border-color: var(--t1); z-index: 1; }
+.b.on   { background: rgba(40,25,8,0.18); border-color: var(--t1); color: var(--t1); font-weight: 800; z-index: 2; }
 
 /* ── OSCILLOSCOPE canvas ── */
 .osc-wrap { padding: 10px 14px 4px; }
@@ -916,7 +945,7 @@ body.dark .spl-panel:hover .resize-handle { opacity: 1; }
   display: block; width: 100%; height: 62px;
   background: var(--panel2);
 }
-body.dark #seismoCvs { background: #0f0d09; }
+body.dark #seismoCvs { background: #0D1017; }
 .seismo-badge {
   position: absolute; top: 8px; left: 10px;
   display: flex; align-items: baseline; gap: 6px;
@@ -927,7 +956,7 @@ body.dark #seismoCvs { background: #0f0d09; }
   color: var(--t1); line-height: 1; letter-spacing: -1px;
   text-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
-body.dark .seismo-note { color: var(--t1); }
+body.dark .seismo-note { color: #E6EDF3; }
 .seismo-oct {
   font-family: var(--mono); font-size: 11px; color: var(--t2);
   letter-spacing: 1px; font-weight: 700;
@@ -1317,22 +1346,17 @@ input[type=range].sl::-webkit-slider-thumb { -webkit-appearance: none; appearanc
 
 /* ── Live mode (kept for live analysis show/hide) ── */
 
-/* ── PANEL CONTROLS BAR — always visible at top ── */
-/* ── Sticky shell wrapping both control bars ── */
+/* ── Sticky shell — fixed chrome that never scrolls ── */
 #stickyShell {
-  position: sticky;
-  top: 57px;        /* sits right below the header */
-  z-index: 250;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
   background: var(--bg2);
   border-bottom: 1.5px solid var(--border);
   box-shadow: 0 2px 8px rgba(55,40,20,0.07);
 }
-body.dark #stickyShell {
-  background: rgba(25,22,16,0.98);
-  border-color: var(--border);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
-}
-
 #panelControlsBar {
   display: flex;
   align-items: center;
@@ -1368,6 +1392,69 @@ body.dark #stickyShell {
 .ptog:hover { border-color: var(--forest); color: var(--forest); background: var(--panel3); }
 .ptog.on  { background: var(--forest); border-color: var(--forest); color: #fff; font-weight: 700; }
 #practiceGrid { display: none !important; }
+
+/* ── Bar hide/show toggle buttons ── */
+.bar-hide-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  margin-left: auto; flex-shrink: 0;
+  border: 1.5px solid var(--bord2);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--t4);
+  font-size: 10px; line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.bar-hide-btn:hover {
+  border-color: var(--t2); color: var(--t2);
+  background: var(--panel3);
+}
+body.dark .bar-hide-btn {
+  border-color: #2A2F3A; color: #6B7280;
+}
+body.dark .bar-hide-btn:hover {
+  border-color: #9DA7B3; color: #E6EDF3;
+  background: #1C2128;
+}
+
+/* ── Collapsed bar states ── */
+#panelControlsBar.bar-hidden {
+  padding-top: 0; padding-bottom: 0;
+  overflow: hidden;
+  max-height: 0;
+  border-bottom-color: transparent;
+}
+#universalBar.bar-hidden {
+  padding-top: 0; padding-bottom: 0;
+  overflow: hidden;
+  max-height: 0;
+}
+#panelControlsBar { transition: max-height 0.22s ease, padding 0.22s ease; max-height: 200px; }
+#universalBar     { transition: max-height 0.22s ease, padding 0.22s ease; max-height: 200px; }
+
+/* ── Collapsed indicator strip — shown when a bar is hidden ── */
+.bar-collapsed-strip {
+  display: none;
+  align-items: center; justify-content: space-between;
+  padding: 3px 24px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
+  color: var(--t4); text-transform: uppercase;
+  border-bottom: 1px solid var(--bord2);
+  cursor: pointer; transition: background 0.15s;
+}
+.bar-collapsed-strip:hover { background: var(--panel2); color: var(--t2); }
+.bar-collapsed-strip span { pointer-events: none; }
+#panelControlsBar.bar-hidden + .bar-collapsed-strip,
+#universalBar.bar-hidden + .bar-collapsed-strip {
+  display: flex;
+}
+body.dark .bar-collapsed-strip {
+  color: #6B7280; border-color: #2A2F3A;
+}
+body.dark .bar-collapsed-strip:hover { background: #1C2128; color: #9DA7B3; }
 
 /* ════════════════════════════════════════════
    PANEL DRAG-TO-REARRANGE
@@ -1557,38 +1644,28 @@ body.dark #stickyShell {
 @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 .global-play-btn {
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 18px; border: 2px solid var(--indigo);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  width: 54px; height: 54px;
+  border: 2px solid var(--indigo);
   background: rgba(61,74,138,0.08); color: var(--indigo);
-  font-family: var(--mono); font-size: 11px; font-weight: 800;
-  letter-spacing: 2px; cursor: pointer; border-radius: 4px; transition: all 0.18s;
-  white-space: nowrap; position: relative; overflow: hidden;
+  cursor: pointer; border-radius: 5px; transition: all 0.15s;
+  flex-shrink: 0;
 }
-.global-play-btn:hover { background: rgba(61,74,138,0.18); transform: translateY(-1px); box-shadow: 0 3px 12px rgba(61,74,138,0.25); }
-.global-play-btn:active { transform: translateY(0); }
-.global-play-btn .gpb-icon { font-size: 13px; line-height: 1; transition: all 0.15s; }
+.global-play-btn:hover { background: rgba(61,74,138,0.20); transform: scale(1.05); box-shadow: 0 2px 12px rgba(61,74,138,0.28); }
+.global-play-btn:active { transform: scale(0.97); }
+.global-play-btn .gpb-icon { font-size: 22px; line-height: 1; display: block; }
 .global-play-btn.playing {
-  background: rgba(61,74,138,0.16); border-color: var(--indigo);
-  box-shadow: 0 0 0 3px rgba(61,74,138,0.18);
+  background: rgba(61,74,138,0.18); border-color: var(--indigo);
   animation: gpb-pulse 2s ease-in-out infinite;
 }
-.global-play-btn.playing:hover { box-shadow: 0 0 0 4px rgba(61,74,138,0.28); }
 @keyframes gpb-pulse {
   0%,100% { box-shadow: 0 0 0 2px rgba(61,74,138,0.2); }
-  50%      { box-shadow: 0 0 0 6px rgba(61,74,138,0.0); }
+  50%      { box-shadow: 0 0 0 7px rgba(61,74,138,0.0); }
 }
-/* Module play indicators on the button itself */
-.gpb-modules {
-  display: flex; gap: 3px; align-items: center; margin-left: 4px;
-}
-.gpb-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: rgba(61,74,138,0.25); transition: all 0.2s;
-}
-.gpb-dot.active { background: var(--indigo); box-shadow: 0 0 4px var(--indigo); }
-body.dark .global-play-btn { border-color: var(--indigo); color: var(--indigo); }
-body.dark .global-play-btn:hover { background: rgba(143,168,232,0.15); }
-body.dark .global-play-btn.playing { background: rgba(143,168,232,0.12); }
+body.dark .global-play-btn { border-color: #4F8CFF; color: #4F8CFF; }
+body.dark .global-play-btn:hover { background: rgba(79,140,255,0.15); }
+body.dark .global-play-btn.playing { background: rgba(79,140,255,0.13); }
 
 .input-group { display: flex; gap: 4px; align-items: center; }
 .header-midi-btn {
@@ -1605,8 +1682,8 @@ body.dark .global-play-btn.playing { background: rgba(143,168,232,0.12); }
   width: 6px; height: 6px; border-radius: 50%; background: var(--t4); transition: background 0.2s; flex-shrink: 0;
 }
 .header-midi-btn.act .header-midi-dot { background: var(--rust); }
-body.dark .header-mic-btn  { background: rgba(94,196,122,0.08); border-color: var(--forest); color: var(--forest); }
-body.dark .header-midi-btn { background: rgba(224,112,96,0.08); border-color: var(--rust);   color: var(--rust); }
+body.dark .header-mic-btn  { background: rgba(34,197,94,0.09); border-color: #22C55E; color: #22C55E; }
+body.dark .header-midi-btn { background: rgba(239,68,68,0.09); border-color: #EF4444; color: #EF4444; }
 
 /* Volume knob */
 .vol-knob-wrap {
@@ -1658,7 +1735,7 @@ body.dark .header-midi-btn { background: rgba(224,112,96,0.08); border-color: va
 /* ══════════════════════════════════════════════
    UPDATED PANEL LAYOUT — horizontal row
 ══════════════════════════════════════════════ */
-main { padding: 10px 16px 32px; }
+main { padding: var(--chrome-h, 180px) 0 32px; }
 #panelGrid {
   display: flex;
   flex-direction: row;
@@ -1821,6 +1898,15 @@ main { padding: 10px 16px 32px; }
 }
 .gen-chord-chip:hover { border-color: var(--forest); color: var(--forest); }
 .gen-chord-chip.playing { background: var(--forest); color: #fff; border-color: var(--forest); }
+.gen-chord-chip.drag-before { border-left: 3px solid var(--forest); }
+.gen-chord-chip.drag-preview { opacity: 0.45; }
+.gen-player-chords.drag-over { background: var(--panel3); border: 1.5px dashed var(--forest); border-radius: 4px; }
+.seq-chip-del {
+  font-size: 8px; color: var(--t4); margin-left: 5px; vertical-align: middle;
+  cursor: pointer; opacity: 0.6; line-height: 1;
+}
+.seq-chip-del:hover { opacity: 1; color: var(--red-ink, #c44); }
+.seq-chip-sym { pointer-events: none; }
 
 /* osc note detector badge */
 .osc-wrap { position: relative; }
@@ -1831,17 +1917,17 @@ main { padding: 10px 16px 32px; }
   padding: 3px 8px; border-radius: 3px;
   pointer-events: none; z-index: 5;
 }
-body.dark .osc-note-badge { background: rgba(143,168,232,0.9); color: #0f0d09; }
+body.dark .osc-note-badge { background: rgba(79,140,255,0.88); color: #E6EDF3; }
 
 /* spl stats dark */
-body.dark .spl-stat { background: var(--panel3); border-color: var(--border); }
-body.dark .spl-stat-lbl { color: var(--t4); }
-body.dark .spl-stat-val { color: var(--t1); }
-body.dark .spl-clock { color: var(--t4); }
+body.dark .spl-stat { background: #1C2128; border-color: #2A2F3A; }
+body.dark .spl-stat-lbl { color: #6B7280; }
+body.dark .spl-stat-val { color: #E6EDF3; }
+body.dark .spl-clock { color: #6B7280; }
 
 /* gen detect dark */
-body.dark .gen-detect-bar { background: var(--panel3); border-color: var(--bord2); }
-body.dark .gen-detect-hint { color: var(--t4); }
+body.dark .gen-detect-bar { background: #1C2128; border-color: #2A2F3A; }
+body.dark .gen-detect-hint { color: #6B7280; }
 
 
 /* ════════════════════════════════════════════
@@ -1858,14 +1944,14 @@ body.dark .gen-detect-hint { color: var(--t4); }
   border: 1px solid var(--forest); border-radius: 3px;
   padding: 2px 8px; min-width: 32px; text-align: center;
 }
-body.dark .spec-note-badge { color: #0ff; background: rgba(0,255,255,0.1); border-color: #0ff; }
+body.dark .spec-note-badge { color: #4F8CFF; background: rgba(79,140,255,0.1); border-color: #4F8CFF; }
 .spec-chord-badge {
   font-family: var(--mono); font-size: 13px; font-weight: 600;
   color: var(--indigo); background: rgba(74,74,196,0.1);
   border: 1px solid var(--indigo); border-radius: 3px;
   padding: 2px 8px; display: none;
 }
-body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); border-color: #f80; }
+body.dark .spec-chord-badge { color: #F59E0B; background: rgba(245,158,11,0.1); border-color: #F59E0B; }
 .spec-chord-badge.visible { display: inline-block; }
 .spec-peak-freq {
   font-family: var(--mono); font-size: 10px; color: var(--t3); margin-left: auto;
@@ -1874,6 +1960,54 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
 /* ════════════════════════════════════════════
    LOOP / SONG GENERATOR PANEL
 ════════════════════════════════════════════ */
+/* ── Generator panel two-column layout ── */
+#theoryPanel { display: flex !important; flex-direction: column; }
+#genBody { flex: 1; overflow: hidden; }
+#genChordGrid { overflow-y: auto; }
+#genSeqPane { overflow-y: auto; }
+
+/* Drop zone for sequence */
+#lgSeqDrop {
+  display: flex; flex-wrap: wrap; align-content: flex-start;
+  gap: 4px; min-height: 80px;
+  border: 1.5px dashed var(--bord2); border-radius: 4px;
+  padding: 6px; transition: all 0.15s; background: var(--panel2);
+}
+#lgSeqDrop.drag-over {
+  border-color: var(--forest); background: rgba(45,90,61,0.06);
+}
+#lgSeqDrop:empty::after {
+  content: 'Drag chords here…';
+  font-family: var(--mono); font-size: 10px; color: var(--t4);
+  letter-spacing: 1px; align-self: center; width: 100%; text-align: center;
+  pointer-events: none;
+}
+/* Sequence chord chips (draggable within sequence) */
+.seq-chip {
+  display: inline-flex; flex-direction: column; align-items: center;
+  padding: 5px 10px; border: 1px solid var(--bord2); border-radius: 4px;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  color: var(--t2); background: var(--panel); cursor: grab;
+  transition: all 0.12s; position: relative; user-select: none;
+}
+.seq-chip:hover { border-color: var(--forest); color: var(--forest); }
+.seq-chip.playing { background: var(--forest); color: #fff; border-color: var(--forest); }
+.seq-chip.drag-over-left  { border-left: 3px solid var(--indigo); }
+.seq-chip.drag-over-right { border-right: 3px solid var(--indigo); }
+.seq-chip-notes { font-size: 8px; color: var(--t4); font-weight: 400; margin-top: 2px; }
+.seq-chip-del {
+  position: absolute; top: -6px; right: -6px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--rust); color: #fff; font-size: 9px; line-height: 14px;
+  text-align: center; cursor: pointer; display: none; font-weight: 700;
+  z-index: 5;
+}
+.seq-chip:hover .seq-chip-del { display: block; }
+
+/* Thaat dropdown wrapper */
+#thaatDropWrap { display: none; }
+#thaatDropWrap.show { display: flex !important; }
+
 .lg-row {
   display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
   margin-bottom: 8px;
@@ -1986,12 +2120,8 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
 .panel.win-mini .tmeter,
 .panel.win-mini .tun-wrap,
 .panel.win-mini .gen-detect-bar,
-.panel.win-mini .gen-player-strip,
 .panel.win-mini .theory-ctrl,
-.panel.win-mini #chordsV,
-.panel.win-mini #scalesV,
-.panel.win-mini #modesV,
-.panel.win-mini #indianV,
+.panel.win-mini #genBody,
 .spl-panel.win-mini .spl-body { display: none !important; }
 
 /* ════════════════════════════════════════════
@@ -2009,64 +2139,6 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
 </style>
 </head>
 <body>
-
-<header>
-  <div class="logo">Vai<em>khari</em><span class="logo-sub">Music Studio</span></div>
-  <div class="hbar">
-    <!-- Global status indicators -->
-    <div class="hbar-indicators">
-      <div class="status-pill" id="listeningPill" title="Listening active">
-        <span class="status-dot listening-dot" id="listeningDot"></span>
-        <span class="status-pill-lbl">LISTENING</span>
-      </div>
-      <div class="status-pill" id="playingPill" title="Playing active">
-        <span class="status-dot playing-dot" id="playingDot"></span>
-        <span class="status-pill-lbl">PLAYING</span>
-      </div>
-    </div>
-    <!-- Global Play/Stop -->
-    <button class="global-play-btn" id="globalPlayBtn" title="Play / stop all active modules">
-      <span class="gpb-icon" id="globalPlayIcon">▶</span>
-      <span id="globalPlayLbl">PLAY ALL</span>
-      <span class="gpb-modules">
-        <span class="gpb-dot" id="gpbDotMetro"  title="Metronome"></span>
-        <span class="gpb-dot" id="gpbDotDrums"  title="Drum loops"></span>
-        <span class="gpb-dot" id="gpbDotIR"     title="Indian rhythms"></span>
-        <span class="gpb-dot" id="gpbDotGen"    title="Chord player"></span>
-        <span class="gpb-dot" id="gpbDotLg"     title="Loop generator"></span>
-      </span>
-    </button>
-    <!-- Mic + Input selector -->
-    <div class="input-group">
-      <button class="header-mic-btn" id="micBtn" title="Left: toggle mic · Right-click: select input">
-        <span class="header-mic-dot" id="mic-dot"></span>
-        <span id="micBtnTxt">MIC</span>
-      </button>
-      <button class="header-midi-btn" id="midiBtn" title="MIDI on/off · Right-click: select device">
-        <span class="header-midi-dot" id="midi-dot"></span>
-        <span id="midiBtnTxt">MIDI</span>
-      </button>
-    </div>
-    <!-- Volume knob + output -->
-    <div class="vol-knob-wrap" title="Master volume">
-      <input type="range" id="masterVolKnob" class="vol-knob-slider" min="0" max="100" value="80" orient="vertical">
-      <div class="vol-knob-lbl">VOL</div>
-    </div>
-    <button class="indian-master-btn" id="indianBtn">🪔 INDIAN</button>
-    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">
-      <span class="dt-icon" id="dtIcon">🌙</span>
-      <span id="dtLabel">DARK</span>
-    </button>
-    <div class="stopwatch-wrap">
-      <div class="stopwatch-display" id="swDisplay" title="Click to start / pause">00:00:00</div>
-      <div class="stopwatch-lbl">PRACTICE TIME</div>
-      <div class="stopwatch-btns">
-        <button class="sw-btn start" id="swStartBtn">▶ START</button>
-        <button class="sw-btn" id="swResetBtn">↺ RESET</button>
-      </div>
-    </div>
-  </div>
-</header>
 
 <!-- Input selector popup (right-click mic) -->
 <div id="inputSelectPopup" class="input-popup" style="display:none">
@@ -2087,16 +2159,50 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
   Root note controls all Indian sections automatically.
 </div>
 
-<!-- ══ STICKY CONTROLS SHELL ══ -->
+<!-- ══ STICKY CHROME — header + controls, never moves on scroll ══ -->
 <div id="stickyShell">
 
-<!-- ══ PANEL CONTROLS BAR — always visible ══ -->
+<header>
+  <div class="logo">Vai<em>khari</em><span class="logo-sub">Music Studio</span></div>
+  <div class="hbar">
+    <div class="hbar-indicators">
+      <div class="status-pill" id="listeningPill" title="Listening active">
+        <span class="status-dot listening-dot" id="listeningDot"></span>
+        <span class="status-pill-lbl">LISTENING</span>
+      </div>
+      <div class="status-pill" id="playingPill" title="Playing active">
+        <span class="status-dot playing-dot" id="playingDot"></span>
+        <span class="status-pill-lbl">PLAYING</span>
+      </div>
+    </div>
+    <div class="input-group">
+      <button class="header-mic-btn" id="micBtn" title="Left: toggle mic · Right-click: select input">
+        <span class="header-mic-dot" id="mic-dot"></span>
+        <span id="micBtnTxt">MIC</span>
+      </button>
+      <button class="header-midi-btn" id="midiBtn" title="MIDI on/off · Right-click: select device">
+        <span class="header-midi-dot" id="midi-dot"></span>
+        <span id="midiBtnTxt">MIDI</span>
+      </button>
+    </div>
+    <div class="vol-knob-wrap" title="Master volume">
+      <input type="range" id="masterVolKnob" class="vol-knob-slider" min="0" max="100" value="80" orient="vertical">
+      <div class="vol-knob-lbl">VOL</div>
+    </div>
+    <button class="indian-master-btn" id="indianBtn">🪔 INDIAN</button>
+    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">
+      <span class="dt-icon" id="dtIcon">🌙</span>
+      <span id="dtLabel">DARK</span>
+    </button>
+  </div>
+</header>
+
+<!-- ══ PANEL CONTROLS BAR ══ -->
 <div id="panelControlsBar">
   <span class="pbar-lbl">PANELS:</span>
   <button class="ptog" data-panel="tunerPanel" id="togTuner"><span class="ptog-dot listen-dot" id="dotTuner"></span>🎵 Tuner</button>
   <button class="ptog" data-panel="metroPanel" id="togMetro"><span class="ptog-dot play-dot" id="dotMetro"></span>🥁 Metronome</button>
   <button class="ptog" data-panel="theoryPanel" id="togTheory">🎹 Generator</button>
-  <button class="ptog" data-panel="loopGenPanel" id="togLoopGen">🎼 Loop/Song</button>
   <button class="ptog" data-panel="drumsPanel" id="togDrums"><span class="ptog-dot play-dot" id="dotDrums"></span>🥁 Drum Loops</button>
   <div class="pbar-sep"></div>
   <button class="ptog" data-panel="dbMeterPanel" id="togLoudness"><span class="ptog-dot listen-dot" id="dotLoudness"></span>🔊 Loudness</button>
@@ -2106,10 +2212,17 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
   <span class="indian-only-toggles" style="display:none;align-items:center;gap:8px">
     <button class="ptog" data-panel="indianRhythmsPanel" id="togIR"><span class="ptog-dot play-dot" id="dotIR"></span>🥁 Indian Rhythms</button>
   </span>
+  <button class="bar-hide-btn" id="hidePanelBar" title="Hide panel selector">▲</button>
 </div>
+<div class="bar-collapsed-strip" id="panelBarStrip" onclick="document.getElementById('hidePanelBar').click()">
+  <span>PANELS</span><span>▼ show</span>
+</div>
+
 <!-- ══ UNIVERSAL CONTROLS BAR ══ -->
 <div id="universalBar">
-  <!-- TEMPO -->
+  <button class="global-play-btn" id="globalPlayBtn" title="Play / stop all active modules">
+    <span class="gpb-icon" id="globalPlayIcon">▶</span>
+  </button>
   <div class="ubar-group">
     <span class="ubar-lbl">TEMPO</span>
     <div class="ubar-bpm-block">
@@ -2132,7 +2245,6 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
       </div>
     </div>
   </div>
-  <!-- KEY -->
   <div class="ubar-group">
     <span class="ubar-lbl">KEY / ROOT</span>
     <div class="ubar-keys" id="ubarKeyBtns">
@@ -2150,6 +2262,10 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
       <button class="ubar-key" data-root="B">B</button>
     </div>
   </div>
+  <button class="bar-hide-btn" id="hideUbarBtn" title="Hide controls bar" style="align-self:center; margin-left:auto">▲</button>
+</div>
+<div class="bar-collapsed-strip" id="ubarStrip" onclick="document.getElementById('hideUbarBtn').click()">
+  <span>TEMPO &amp; KEY</span><span>▼ show</span>
 </div>
 
 </div><!-- /stickyShell -->
@@ -2246,126 +2362,157 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
     </div><!-- /specPanel -->
 
   <!-- Theory panel -->
-  <div class="panel" id="theoryPanel" style="display:none">
+  <!-- GENERATOR PANEL (merged: chord generator + sequence creator) -->
+  <div class="panel" id="theoryPanel" style="display:none; width:100%">
     <div class="ph">
-      <span class="ph-t">CHORD GENERATOR</span>
-      <span class="ph-r">INTERACTIVE</span>
+      <span class="ph-t">GENERATOR</span>
+      <span class="ph-r" id="genPanelStatus">READY</span>
     </div>
-    <!-- Mic note detection bar -->
+
+    <!-- Mic / MIDI note detection bar -->
     <div class="gen-detect-bar" id="genDetectBar">
       <span class="gen-detect-dot" id="genDetectDot"></span>
       <span class="gen-detect-note" id="genDetectNote">--</span>
       <span class="gen-detect-hint">🎤 Sing or play a note to highlight</span>
       <span class="gen-midi-note" id="genMidiNote"></span>
     </div>
-    <!-- Player strip -->
-    <div class="gen-player-strip" id="genPlayerStrip">
-      <div class="gen-player-chords" id="genPlayerChords" title="Drop chord tiles here to build progression"></div>
-      <div class="gen-player-btns">
-        <button class="gen-btn" id="genPlayBtn">▶ PLAY</button>
-        <button class="gen-btn" id="genLoopBtn">⟳ LOOP</button>
-        <button class="gen-btn" id="genShuffleBtn">⇌ SUGGEST</button>
-        <select class="gen-bars-sel" id="genBarsSel">
-          <option value="4">4 bars</option>
-          <option value="8" selected>8 bars</option>
-          <option value="12">12 bars</option>
-          <option value="16">16 bars</option>
-          <option value="32">32 bars</option>
-        </select>
-        <button class="gen-btn gen-btn-dl" id="genDlBtn">⬇ MIDI</button>
-      </div>
-    </div>
-    <div class="theory-ctrl">
-      <div class="bg" id="viewBtns">
-        <button class="b on" data-view="chords">CHORDS</button>
-        <button class="b" data-view="scales">SCALES</button>
-        <button class="b" data-view="modes">MODES</button>
-        <button class="b indian-tab-btn" data-view="indian" id="indianTabBtn" style="display:none">🪔 THAATS</button>
-      </div>
-    </div>
-    <div id="chordsV"></div>
-    <div id="scalesV"><div id="scaleDisp"></div></div>
-    <div id="modesV"></div>
-    <div id="indianV"><div id="thaatDisp"></div></div>
-  </div>
 
-  <!-- LOOP / SONG GENERATOR PANEL -->
-  <div class="panel" id="loopGenPanel" style="display:none">
-    <div class="ph">
-      <span class="ph-t">LOOP &amp; SONG GENERATOR</span>
-      <span class="ph-r" id="loopGenStatus">STOPPED</span>
-    </div>
-    <div class="panel-body" style="padding:10px 12px">
-      <!-- Genre + Mode row -->
-      <div class="lg-row">
-        <span class="lg-lbl">GENRE</span>
-        <div class="bg" id="lgGenreBtns" style="flex-wrap:wrap;gap:3px">
-          <button class="b on" data-genre="pop">POP</button>
-          <button class="b" data-genre="rock">ROCK</button>
-          <button class="b" data-genre="jazz">JAZZ</button>
-          <button class="b" data-genre="blues">BLUES</button>
-          <button class="b" data-genre="classical">CLASSICAL</button>
-          <button class="b" data-genre="edm">EDM</button>
-          <button class="b" data-genre="rnb">R&amp;B</button>
-          <button class="b" data-genre="folk">FOLK</button>
-          <button class="b" data-genre="hindustani">HINDUSTANI</button>
-        </div>
+    <!-- ── Top controls: Scale / Mode dropdowns + Thaat (Indian only) ── -->
+    <div class="theory-ctrl" id="genTopCtrl">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="ubar-lbl">SCALE</span>
+        <select class="gen-bars-sel" id="genScaleSel" style="min-width:140px">
+          <option value="">— Scale —</option>
+          <option value="Major">Major</option>
+          <option value="Natural Minor">Natural Minor</option>
+          <option value="Harmonic Minor">Harmonic Minor</option>
+          <option value="Dorian">Dorian</option>
+          <option value="Mixolydian">Mixolydian</option>
+          <option value="Phrygian">Phrygian</option>
+          <option value="Lydian">Lydian</option>
+          <option value="Pentatonic Maj">Pentatonic Maj</option>
+          <option value="Pentatonic Min">Pentatonic Min</option>
+          <option value="Blues">Blues</option>
+        </select>
       </div>
-      <!-- Type: Loop or Song -->
-      <div class="lg-row">
-        <span class="lg-lbl">TYPE</span>
-        <div class="bg" id="lgTypeBtns">
-          <button class="b on" data-lgtype="loop">LOOP</button>
-          <button class="b" data-lgtype="song">SONG</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="ubar-lbl">MODE</span>
+        <select class="gen-bars-sel" id="genModeSel" style="min-width:140px">
+          <option value="">— Mode —</option>
+          <option value="Ionian">Ionian (Major)</option>
+          <option value="Dorian">Dorian</option>
+          <option value="Phrygian">Phrygian</option>
+          <option value="Lydian">Lydian</option>
+          <option value="Mixolydian">Mixolydian</option>
+          <option value="Aeolian">Aeolian (Natural Minor)</option>
+          <option value="Locrian">Locrian</option>
+        </select>
+      </div>
+      <div id="thaatDropWrap" style="display:none;align-items:center;gap:6px">
+        <span class="ubar-lbl">THAAT</span>
+        <select class="gen-bars-sel" id="genThaatSel" style="min-width:140px">
+          <option value="">— Select Thaat —</option>
+          <option value="Bilawal">Bilawal</option>
+          <option value="Khamaj">Khamaj</option>
+          <option value="Kafi">Kafi</option>
+          <option value="Asavari">Asavari</option>
+          <option value="Bhairavi">Bhairavi</option>
+          <option value="Bhairav">Bhairav</option>
+          <option value="Kalyan">Kalyan</option>
+          <option value="Marwa">Marwa</option>
+          <option value="Purvi">Purvi</option>
+          <option value="Todi">Todi</option>
+        </select>
+      </div>
+      <button class="fn-btn" id="fn4chordGen" style="margin-left:auto">○ Jazz Up</button>
+    </div>
+
+    <!-- ── Two-column body: chord grid left, sequence right ── -->
+    <div id="genBody" style="display:flex;gap:0;min-height:0;flex:1;overflow:hidden">
+
+      <!-- Left: chords for current scale/mode/thaat -->
+      <div id="genChordGrid" style="flex:1;min-width:0;border-right:1px solid var(--bord2);overflow-y:auto;padding:10px 12px">
+        <div id="chordsV"></div>
+        <div id="scalesV" style="display:none"><div id="scaleDisp"></div></div>
+        <div id="modesV" style="display:none"></div>
+        <div id="indianV" style="display:none;padding:12px 14px"><div id="thaatDisp"></div></div>
+      </div>
+
+      <!-- Right: chord sequence creator -->
+      <div id="genSeqPane" style="width:340px;flex-shrink:0;display:flex;flex-direction:column;padding:10px 12px;gap:8px;overflow-y:auto">
+
+        <!-- Sequence playback controls -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <button class="gen-btn" id="lgPlayBtn" style="min-width:80px">▶ PLAY</button>
+          <button class="gen-btn" id="lgLoopBtn">⟳ LOOP</button>
+          <button class="gen-btn" id="lgShuffleBtn">⇌ SHUFFLE</button>
+          <select class="gen-bars-sel" id="lgLoopBars" title="Bars per chord">
+            <option value="1">1 bar</option>
+            <option value="2">2 bars</option>
+            <option value="4" selected>4 bars</option>
+            <option value="8">8 bars</option>
+          </select>
+          <button class="gen-btn gen-btn-dl" id="lgDlBtn">⬇ MIDI</button>
         </div>
-        <!-- Loop length (shown for loop) -->
-        <div id="lgLoopLenWrap" style="display:flex;align-items:center;gap:4px;margin-left:8px">
-          <span class="lg-lbl">BARS</span>
-          <select class="gen-bars-sel" id="lgLoopBars">
-            <option value="4">4</option>
-            <option value="6">6</option>
-            <option value="8" selected>8</option>
-            <option value="12">12</option>
-            <option value="16">16</option>
-            <option value="32">32</option>
+
+        <!-- Sequence label -->
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--t4);display:flex;justify-content:space-between;align-items:center">
+          <span>CHORD SEQUENCE</span>
+          <button class="gen-btn" id="lgClearBtn" style="font-size:9px;padding:2px 7px">✕ CLEAR</button>
+        </div>
+
+        <!-- Drop zone: sequence chips -->
+        <div id="lgSeqDrop" class="gen-player-chords" title="Drag chords here to build sequence" style="min-height:80px;flex-wrap:wrap;align-content:flex-start"></div>
+
+        <!-- Generate controls row -->
+        <div class="lg-row" style="margin-top:4px;gap:6px;flex-wrap:wrap">
+          <span class="lg-lbl">GENRE</span>
+          <select class="gen-bars-sel" id="lgGenreSel">
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="jazz">Jazz</option>
+            <option value="blues">Blues</option>
+            <option value="classical">Classical</option>
+            <option value="edm">EDM</option>
+            <option value="rnb">R&amp;B</option>
+            <option value="folk">Folk</option>
+            <option value="hindustani">Hindustani</option>
+          </select>
+          <span class="lg-lbl">TYPE</span>
+          <select class="gen-bars-sel" id="lgTypeSel">
+            <option value="loop">Loop</option>
+            <option value="song">Song</option>
+          </select>
+          <span class="lg-lbl" id="lgBarsLbl">BARS</span>
+          <select class="gen-bars-sel" id="lgLoopBarsSong" style="display:none">
+            <option value="4">4</option><option value="6">6</option>
+            <option value="8" selected>8</option><option value="12">12</option><option value="16">16</option>
+          </select>
+          <span class="lg-lbl" id="lgMinsLbl" style="display:none">MINS</span>
+          <select class="gen-bars-sel" id="lgSongMins" style="display:none">
+            <option value="1">1</option><option value="2">2</option>
+            <option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
           </select>
         </div>
-        <!-- Song length (shown for song) -->
-        <div id="lgSongLenWrap" style="display:none;align-items:center;gap:4px;margin-left:8px">
-          <span class="lg-lbl">MINS</span>
-          <select class="gen-bars-sel" id="lgSongMins">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
+
+        <div class="lg-row" style="gap:6px">
+          <span class="lg-lbl">COMPLEXITY</span>
+          <div class="complexity-dots" id="lgComplexityDots"></div>
+          <span class="drum-ctrl-val" id="lgComplexityVal">3</span>
+          <button class="b" id="lgJazzUpBtn" style="margin-left:auto">○ Jazz+</button>
         </div>
-      </div>
-      <!-- Complexity -->
-      <div class="lg-row">
-        <span class="lg-lbl">COMPLEXITY</span>
-        <div class="complexity-dots" id="lgComplexityDots"></div>
-        <span class="drum-ctrl-val" id="lgComplexityVal">3</span>
-        <button class="b" id="lgJazzUpBtn">○ Jazz+</button>
-      </div>
-      <!-- Generated structure display -->
-      <div id="lgStructure" style="margin:8px 0"></div>
-      <!-- Chord editor / selected section chords -->
-      <div id="lgChordEditor" style="display:none">
-        <div class="sec-lbl" style="margin-bottom:4px" id="lgEditorTitle">CHORDS</div>
-        <div class="gen-player-chords" id="lgEditorChords"></div>
-      </div>
-      <!-- Action buttons -->
-      <div class="lg-btn-row">
-        <button class="gen-btn" id="lgGenerateBtn">⚡ GENERATE</button>
-        <button class="gen-btn" id="lgPlayBtn">▶ PLAY</button>
-        <button class="gen-btn" id="lgLoopBtn">⟳ LOOP</button>
-        <button class="gen-btn" id="lgShuffleBtn">⇌ SHUFFLE</button>
-        <button class="gen-btn gen-btn-dl" id="lgDlBtn">⬇ MIDI</button>
-      </div>
-    </div>
-  </div><!-- /loopGenPanel -->
+
+        <!-- Generate button -->
+        <div style="display:flex;gap:6px">
+          <button class="gen-btn" id="lgGenerateBtn" style="flex:1">⚡ GENERATE</button>
+        </div>
+
+        <!-- Song structure / sections (when generated) -->
+        <div id="lgStructure"></div>
+
+      </div><!-- /genSeqPane -->
+    </div><!-- /genBody -->
+  </div><!-- /theoryPanel -->
 
   <!-- TUNER PANEL -->
   <div class="panel" id="tunerPanel" style="display:none">
@@ -2555,48 +2702,8 @@ body.dark .spec-chord-badge { color: #f80; background: rgba(255,128,0,0.1); bord
 })();
 
 // ════════════════════════════════════════════════
-//  PRACTICE STOPWATCH
-// ════════════════════════════════════════════════
-(function(){
-  let swRunning = false, swElapsed = 0, swStart = 0, swTick = null;
-  const swDisplay  = document.getElementById('swDisplay');
-  const swStartBtn = document.getElementById('swStartBtn');
-  const swResetBtn = document.getElementById('swResetBtn');
 
-  function fmt(ms) {
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sc = s % 60;
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`;
-  }
-  function tick() { swDisplay.textContent = fmt(swElapsed + (Date.now() - swStart)); }
 
-  function startSw() {
-    if (swRunning) return;
-    swRunning = true; swStart = Date.now();
-    swTick = setInterval(tick, 500);
-    swDisplay.classList.remove('paused'); swDisplay.classList.add('running');
-    swStartBtn.textContent = '⏸ PAUSE'; swStartBtn.className = 'sw-btn stop';
-  }
-  function pauseSw() {
-    if (!swRunning) return;
-    swRunning = false; swElapsed += Date.now() - swStart;
-    clearInterval(swTick);
-    swDisplay.classList.remove('running'); swDisplay.classList.add('paused');
-    swStartBtn.textContent = '▶ RESUME'; swStartBtn.className = 'sw-btn start';
-  }
-  function resetSw() {
-    pauseSw(); swElapsed = 0;
-    swDisplay.textContent = '00:00:00';
-    swDisplay.classList.remove('running','paused');
-    swStartBtn.textContent = '▶ START'; swStartBtn.className = 'sw-btn start';
-  }
-
-  swStartBtn.addEventListener('click', () => swRunning ? pauseSw() : startSw());
-  swResetBtn.addEventListener('click', resetSw);
-  swDisplay.addEventListener('click',  () => swRunning ? pauseSw() : startSw());
-})();
 
 // ════════════════════════════════════════════════
 //  AUDIO / MIC
@@ -3795,14 +3902,49 @@ document.getElementById('ubarKeyBtns').addEventListener('click',e=>{
   renderAll();
 });
 
-document.getElementById('viewBtns').addEventListener('click',e=>{
-  const v=e.target.dataset.view; if(!v)return;
-  cView=v;
-  document.querySelectorAll('#viewBtns .b').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
-  document.getElementById('chordsV').style.display=v==='chords'?'block':'none';
-  document.getElementById('scalesV').style.display=v==='scales'?'block':'none';
-  document.getElementById('modesV').style.display=v==='modes'?'block':'none';
-  document.getElementById('indianV').style.display=v==='indian'?'block':'none';
+// ── View switching driven by Scale / Mode dropdowns ──────────────────
+function switchView(v) {
+  cView = v;
+  document.getElementById('chordsV').style.display = v === 'chords' ? 'block' : 'none';
+  document.getElementById('scalesV').style.display = v === 'scales' ? 'block' : 'none';
+  document.getElementById('modesV').style.display  = v === 'modes'  ? 'block' : 'none';
+  document.getElementById('indianV').style.display = v === 'indian' ? 'block' : 'none';
+  // Reset dropdowns to placeholder when not using them
+  if(v !== 'scales') { const el = document.getElementById('genScaleSel'); if(el) el.value = ''; }
+  if(v !== 'modes')  { const el = document.getElementById('genModeSel');  if(el) el.value = ''; }
+}
+
+// Scale dropdown → show scale detail, make it draggable
+document.getElementById('genScaleSel')?.addEventListener('change', e => {
+  const v = e.target.value;
+  if(!v) { switchView('chords'); return; }
+  if(typeof renderScales === 'function') renderScales(v);
+  switchView('scales');
+});
+
+// Mode dropdown → show mode detail
+document.getElementById('genModeSel')?.addEventListener('change', e => {
+  const v = e.target.value;
+  if(!v) { switchView('chords'); return; }
+  if(typeof renderModes === 'function') renderModes(v);
+  switchView('modes');
+});
+
+// Thaat dropdown (Indian mode only)
+document.getElementById('genThaatSel')?.addEventListener('change', e => {
+  const v = e.target.value;
+  if(!v) { switchView('chords'); return; }
+  // Scroll/focus to the matching thaat in the indian view
+  switchView('indian');
+  const thaatDisp = document.getElementById('thaatDisp');
+  if(thaatDisp) {
+    // Click the matching thaat header to open it
+    const hdrs = thaatDisp.querySelectorAll('.thaat-hdr');
+    hdrs.forEach(hdr => {
+      const name = hdr.querySelector('.thaat-name')?.textContent;
+      if(name === v && !hdr.classList.contains('open')) hdr.click();
+    });
+  }
 });
 
 function renderAll(){
@@ -3813,6 +3955,14 @@ function renderAll(){
 }
 renderAll();
 
+// ── Top-level Jazz Up button ────────────────────────────────────────
+document.getElementById('fn4chordGen')?.addEventListener('click', () => {
+  use4 = !use4;
+  const btn = document.getElementById('fn4chordGen');
+  if(btn){ btn.textContent = use4 ? '● Jazz Up ON' : '○ Jazz Up'; btn.classList.toggle('on', use4); }
+  renderAll();
+});
+
 // ════════════════════════════════════════════════
 //  INDIAN MODE MASTER TOGGLE
 // ════════════════════════════════════════════════
@@ -3822,12 +3972,14 @@ document.getElementById('indianBtn').addEventListener('click',()=>{
   btn.classList.toggle('on',indianMode);
   btn.textContent=indianMode?'🪔 INDIAN ON':'🪔 INDIAN';
   document.getElementById('indianBanner').classList.toggle('show',indianMode);
-  document.getElementById('indianTabBtn').style.display=indianMode?'':'none';
+  // Show/hide Thaat dropdown in Generator panel
+  const thaatWrap = document.getElementById('thaatDropWrap');
+  if(thaatWrap) thaatWrap.style.display = indianMode ? 'flex' : 'none';
   document.querySelectorAll('.snd-b.dha-style').forEach(b=>b.style.display=indianMode?'':'none');
   // Show/hide Indian panel toggles in header
   document.querySelector('.indian-only-toggles').style.display = indianMode ? 'flex' : 'none';
-  // Show/hide the new Indian panels
-  document.getElementById('indianRhythmsPanel').style.display = indianMode ? '' : 'none';
+  // Indian rhythms panel: never auto-open — only via panel selector
+  if(!indianMode) document.getElementById('indianRhythmsPanel').style.display = 'none';
   renderAll();
 });
 
@@ -4209,25 +4361,182 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
 
 // ════════════════════════════════════════════════════════
 //  WINDOW MANAGER — draggable/resizable panels
+//  Smart placement: finds topmost/leftmost gap, no collisions
+//  Per-panel min sizes, resize locked at min size
 // ════════════════════════════════════════════════════════
 (function initWindowManager() {
   const grid = document.getElementById('panelGrid');
   let isMobile = () => window.innerWidth <= 768;
 
-  // Default window positions — tile them in a grid on first open
-  const COLS = 3;
-  const COL_W = 370, COL_H = 430, GAP = 12, OFFSET_X = 12, OFFSET_Y = 12;
-  let placedCount = 0;
+  // ── Per-panel content minimums — the absolute floor below which
+  //    content gets crumpled. Panels will never open smaller than this.
+  const CONTENT_MIN = {
+    dbMeterPanel:       { w: 300, h: 370 },
+    oscPanel:           { w: 360, h: 260 },
+    specPanel:          { w: 360, h: 230 },
+    theoryPanel:        { w: null, h: 540 },  // full width — set dynamically
+    tunerPanel:         { w: 290, h: 390 },
+    metroPanel:         { w: 320, h: 420 },
+    drumsPanel:         { w: 370, h: 440 },
+    indianRhythmsPanel: { w: 340, h: 360 },
+  };
+  const DEFAULT_CONTENT_MIN = { w: 300, h: 320 };
 
-  function getDefaultPos(panel) {
-    const col = placedCount % COLS;
-    const row = Math.floor(placedCount / COLS);
-    return {
-      x: OFFSET_X + col * (COL_W + GAP),
-      y: OFFSET_Y + row * (COL_H + GAP)
-    };
+  // ── Compute open size: 60% of available screen used, 40% empty.
+  //    We pick the number of columns that best achieves this ratio,
+  //    but never go below CONTENT_MIN. Panels snap next to each other.
+  function computeOpenSize(panelId) {
+    const cm = CONTENT_MIN[panelId] || DEFAULT_CONTENT_MIN;
+    const availW = (grid.offsetWidth || window.innerWidth) - GAP * 2;
+    const chromeH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--chrome-h') || '180');
+    const availH = window.innerHeight - chromeH; // subtract fixed chrome height
+
+    // How many panels can fit across at content-min width?
+    // We target 60% of screen width used. With N panels side by side:
+    //   N * panelW + (N-1)*GAP = 0.60 * availW  →  panelW = (0.60*availW - (N-1)*GAP) / N
+    // Try N = 1, 2, 3 — pick largest N where panelW >= content min width
+    let openW, openH = cm.h;
+    if(cm.w === null) {
+      // Full-width panel — expand to all available space
+      openW = availW;
+    } else {
+      openW = cm.w;
+      for (let n = 3; n >= 1; n--) {
+        const w = Math.floor((0.60 * availW - (n - 1) * GAP) / n);
+        if (w >= cm.w) { openW = w; break; }
+      }
+    }
+
+    // Height: 60% of available viewport, never below content min
+    openH = Math.max(cm.h, Math.floor(availH * 0.60));
+
+    return { openW, openH, minW: cm.w || 300, minH: cm.h };
   }
 
+  function getSpec(panel) {
+    const s = computeOpenSize(panel.id);
+    return { minW: s.minW, minH: s.minH, openW: s.openW, openH: s.openH };
+  }
+
+  // ── Smart placement: find top-left gap that fits the panel ──
+  const GAP = 14;
+
+  function getPlacedPanels(excluding) {
+    const placed = [];
+    grid.querySelectorAll('.panel,.spl-panel').forEach(p => {
+      if (p === excluding || p.style.display === 'none') return;
+      placed.push({
+        el: p,
+        x: parseInt(p.style.left || 0),
+        y: parseInt(p.style.top  || 0),
+        w: p.offsetWidth  || parseInt(p.style.width  || 0),
+        h: p.offsetHeight || parseInt(p.style.height || 0),
+      });
+    });
+    return placed;
+  }
+
+  function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh, gap) {
+    const g = gap || 0;
+    return ax < bx + bw + g && ax + aw + g > bx &&
+           ay < by + bh + g && ay + ah + g > by;
+  }
+
+  function findBestPosition(panel) {
+    const spec = getSpec(panel);
+    const W = spec.openW, H = spec.openH;
+    const placed = getPlacedPanels(panel);
+    const gridW = (grid.offsetWidth || window.innerWidth) - GAP;
+
+    const xs = [GAP];
+    const ys = [GAP];
+    placed.forEach(r => {
+      if (r.x + r.w + GAP + W <= gridW) xs.push(r.x + r.w + GAP);
+      ys.push(r.y + r.h + GAP);
+    });
+    xs.sort((a, b) => a - b);
+    ys.sort((a, b) => a - b);
+
+    for (const y of ys) {
+      for (const x of xs) {
+        if (x + W > gridW) continue;
+        const collides = placed.some(r =>
+          rectsOverlap(x, y, W, H, r.x, r.y, r.w, r.h, GAP)
+        );
+        if (!collides) return { x, y };
+      }
+    }
+    // Fallback: stack below everything
+    let maxBottom = GAP;
+    placed.forEach(r => { if (r.y + r.h > maxBottom) maxBottom = r.y + r.h; });
+    return { x: GAP, y: maxBottom + GAP };
+  }
+
+  // ── Reflow: redistribute visible panels to eliminate overlaps ──
+  function reflow() {
+    if (isMobile()) return;
+    const gridW = (grid.offsetWidth || window.innerWidth) - GAP;
+    const panels = [];
+    grid.querySelectorAll('.panel,.spl-panel').forEach(p => {
+      if (p.style.display !== 'none' && p.dataset.wmSetup) panels.push(p);
+    });
+    if (panels.length === 0) return;
+
+    // Sort panels by current top then left (preserve rough visual order)
+    panels.sort((a, b) => {
+      const ay = parseInt(a.style.top || 0), by2 = parseInt(b.style.top || 0);
+      if (Math.abs(ay - by2) > 30) return ay - by2;
+      return parseInt(a.style.left || 0) - parseInt(b.style.left || 0);
+    });
+
+    const placed = [];
+    for (const panel of panels) {
+      const spec = getSpec(panel);
+      // Respect user-resized dimensions, but never go below content min
+      const W = Math.max(spec.minW, panel.offsetWidth || spec.openW);
+      const H = Math.max(spec.minH, panel.offsetHeight || spec.openH);
+
+      // Candidate positions from already-placed panels
+      const xs = [GAP];
+      const ys = [GAP];
+      placed.forEach(r => {
+        if (r.x + r.w + GAP + W <= gridW) xs.push(r.x + r.w + GAP);
+        ys.push(r.y + r.h + GAP);
+      });
+      xs.sort((a, b) => a - b);
+      ys.sort((a, b) => a - b);
+
+      let best = null;
+      outer: for (const y of ys) {
+        for (const x of xs) {
+          if (x + W > gridW) continue;
+          const collides = placed.some(r =>
+            rectsOverlap(x, y, W, H, r.x, r.y, r.w, r.h, GAP)
+          );
+          if (!collides) { best = { x, y }; break outer; }
+        }
+      }
+      if (!best) {
+        let maxB = GAP;
+        placed.forEach(r => { if (r.y + r.h > maxB) maxB = r.y + r.h; });
+        best = { x: GAP, y: maxB + GAP };
+      }
+
+      panel.style.left = best.x + 'px';
+      panel.style.top  = best.y + 'px';
+      placed.push({ x: best.x, y: best.y, w: W, h: H });
+    }
+    updateGridHeight();
+  }
+
+  // Debounced resize → reflow
+  let reflowTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(reflowTimer);
+    reflowTimer = setTimeout(reflow, 180);
+  });
+
+  // ── Z-order ────────────────────────────────────────────────
   function bringToFront(panel) {
     let maxZ = 10;
     grid.querySelectorAll('.panel,.spl-panel').forEach(p => {
@@ -4237,21 +4546,26 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
     panel.style.zIndex = maxZ + 1;
   }
 
+  // ── Panel initialisation ────────────────────────────────────
   function initPanel(panel) {
     if (panel.dataset.wmSetup) return;
     panel.dataset.wmSetup = '1';
 
+    const spec = getSpec(panel);
+
     if (!isMobile()) {
-      // Position absolutely
-      const pos = getDefaultPos(panel);
-      placedCount++;
-      panel.style.left = pos.x + 'px';
-      panel.style.top  = pos.y + 'px';
+      const pos = findBestPosition(panel);
+      panel.style.left     = pos.x + 'px';
+      panel.style.top      = pos.y + 'px';
       panel.style.position = 'absolute';
+      // Open at computed 60/40 size, never below content min
+      panel.style.width    = spec.openW + 'px';
+      panel.style.height   = spec.openH + 'px';
+      panel.style.overflow = 'hidden';
       bringToFront(panel);
     }
 
-    // Drag via title bar
+    // ── Drag via title bar ────────────────────────────────────
     const titleBar = panel.querySelector('.ph');
     if (titleBar) {
       let dragging = false, startX, startY, startL, startT;
@@ -4262,8 +4576,7 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
         dragging = true;
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        startX = clientX;
-        startY = clientY;
+        startX = clientX; startY = clientY;
         startL = parseInt(panel.style.left || 0);
         startT = parseInt(panel.style.top  || 0);
         panel.classList.add('dragging');
@@ -4278,7 +4591,8 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
         const dx = clientX - startX;
         const dy = clientY - startY;
         const gridRect = grid.getBoundingClientRect();
-        const newL = Math.max(0, Math.min(gridRect.width - 60,  startL + dx));
+        const panW = panel.offsetWidth;
+        const newL = Math.max(0, Math.min(gridRect.width - panW, startL + dx));
         const newT = Math.max(0, startT + dy);
         panel.style.left = newL + 'px';
         panel.style.top  = newT + 'px';
@@ -4286,10 +4600,7 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
       }
 
       function onDragEnd() {
-        if (dragging) {
-          dragging = false;
-          panel.classList.remove('dragging');
-        }
+        if (dragging) { dragging = false; panel.classList.remove('dragging'); }
       }
 
       titleBar.addEventListener('mousedown',  onDragStart);
@@ -4300,15 +4611,16 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
       window.addEventListener('touchend',   onDragEnd);
     }
 
-    panel.addEventListener('mousedown', () => bringToFront(panel));
+    panel.addEventListener('mousedown',  () => bringToFront(panel));
     panel.addEventListener('touchstart', () => bringToFront(panel), { passive: true });
 
-    // SE-corner resize handle
+    // ── SE-corner resize — clamped to spec.minW / spec.minH ──
     if (!panel.querySelector('.resize-handle')) {
       const rh = document.createElement('div');
       rh.className = 'resize-handle';
       panel.appendChild(rh);
       let resizing = false, rStartX, rStartY, rStartW, rStartH;
+
       rh.addEventListener('mousedown', e => {
         if (isMobile()) return;
         resizing = true;
@@ -4317,24 +4629,25 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
         panel.classList.add('resizing');
         e.preventDefault(); e.stopPropagation();
       });
+
       window.addEventListener('mousemove', e => {
         if (!resizing) return;
-        const newW = Math.max(260, rStartW + e.clientX - rStartX);
-        const newH = Math.max(120, rStartH + e.clientY - rStartY);
+        const newW = Math.max(spec.minW, rStartW + e.clientX - rStartX);
+        const newH = Math.max(spec.minH, rStartH + e.clientY - rStartY);
         panel.style.width  = newW + 'px';
         panel.style.height = newH + 'px';
         setTimeout(resizeCanvases, 10);
       });
+
       window.addEventListener('mouseup', () => {
         if (resizing) { resizing = false; panel.classList.remove('resizing'); }
       });
     }
 
-    // Expose globally for syncToggles
     window._wmInitPanel = function(p){ initPanel(p); addMinBtn(p); };
   }
 
-  // Add minimize button to each panel's title bar
+  // ── Compact toggle button ─────────────────────────────────
   function addMinBtn(panel) {
     if (panel.querySelector('.win-min-btn')) return;
     const ph = panel.querySelector('.ph');
@@ -4343,7 +4656,6 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
     btn.className = 'win-min-btn';
     btn.title = 'Toggle compact view';
     btn.setAttribute('aria-label', 'Toggle compact view');
-    // Only 2 states: full ↔ compact
     let isCompact = false;
     btn.textContent = '◻';
     btn.addEventListener('click', e => {
@@ -4358,16 +4670,8 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
     ph.appendChild(btn);
   }
 
-  // Panel toggle: position before showing
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(m => {
-      m.addedNodes.forEach(n => {
-        if (n.nodeType === 1 && (n.matches?.('.panel,.spl-panel') || n.classList?.contains('panel'))) {
-          initPanel(n);
-          addMinBtn(n);
-        }
-      });
-    });
+  // ── Watch for panels being shown ────────────────────────────
+  const observer = new MutationObserver(() => {
     grid.querySelectorAll('.panel,.spl-panel').forEach(p => {
       if (p.style.display !== 'none' && !p.dataset.wmSetup) {
         initPanel(p);
@@ -4383,26 +4687,19 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
     if (p.style.display !== 'none') initPanel(p);
   });
 
-  // Re-init on show — hook into syncToggles when it becomes available
-  const wmSyncHook = function(panelId, isOn) {
-    if (isOn) {
-      const p = document.getElementById(panelId);
-      if (p && !p.dataset.wmSetup) {
-        initPanel(p);
-        addMinBtn(p);
-      }
-    }
-  };
-  // Inject after page load when syncToggles is defined
+  // Hook syncToggles to run initPanel when a panel is shown
   window.addEventListener('load', () => {
     const origSync = window.syncToggles;
     window.syncToggles = function(panelId, isOn) {
       if (origSync) origSync(panelId, isOn);
-      wmSyncHook(panelId, isOn);
+      if (isOn) {
+        const p = document.getElementById(panelId);
+        if (p && !p.dataset.wmSetup) { initPanel(p); addMinBtn(p); }
+      }
     };
   });
 
-  // Handle resize → update grid height
+  // Keep grid tall enough to contain all panels
   function updateGridHeight() {
     if (isMobile()) return;
     let maxBottom = 400;
@@ -4412,9 +4709,9 @@ document.querySelectorAll('.ptog[data-panel]').forEach(btn => {
       const h = p.offsetHeight;
       if (t + h > maxBottom) maxBottom = t + h;
     });
-    grid.style.minHeight = (maxBottom + 40) + 'px';
+    grid.style.minHeight = (maxBottom + 60) + 'px';
   }
-  setInterval(updateGridHeight, 1000);
+  setInterval(updateGridHeight, 800);
 
   window.addEventListener('resize', () => {
     if (isMobile()) {
@@ -5086,36 +5383,21 @@ function updateGlobalPlayState(){
 
   const btn  = document.getElementById('globalPlayBtn');
   const icon = document.getElementById('globalPlayIcon');
-  const lbl  = document.getElementById('globalPlayLbl');
   if(!btn) return;
 
   if(anyPlaying){
     btn.classList.add('playing');
     icon.textContent = '■';
-    lbl.textContent  = 'STOP ALL';
+    btn.title = 'Stop all';
   } else {
     btn.classList.remove('playing');
     icon.textContent = '▶';
-    lbl.textContent  = 'PLAY ALL';
+    btn.title = 'Play all active panels';
   }
 
   // Header playing pill
   const pill = document.getElementById('playingPill');
   if(pill) pill.classList.toggle('playing-active', anyPlaying);
-
-  // Per-module dots on the button
-  const dotMap = {
-    metro: 'gpbDotMetro',
-    drums: 'gpbDotDrums',
-    ir:    'gpbDotIR',
-    gen:   'gpbDotGen',
-    lg:    'gpbDotLg',
-  };
-  Object.entries(dotMap).forEach(([id, dotId]) => {
-    const m = window._gps.modules[id];
-    const dot = document.getElementById(dotId);
-    if(dot) dot.classList.toggle('active', !!(m && m.isPlaying()));
-  });
 
   // Legacy panel toggle dots
   const panelDotMap = { metro:'dotMetro', drums:'dotDrums', ir:'dotIR' };
@@ -5166,26 +5448,10 @@ window._gps.register('ir', {
   },
 });
 
-// ── Register: Chord Generator player ─────────
-window._genPlayingRef = false;
+// ── Register: Generator (chord sequence player) ──────────
+window._lgPlayingRef = false;
 window._gps.register('gen', {
   panelId:   'theoryPanel',
-  isPlaying: () => window._genPlayingRef,
-  start: () => {
-    const btn = document.getElementById('genPlayBtn');
-    if(btn && !window._genPlayingRef) btn.click();
-  },
-  stop: () => {
-    const btn = document.getElementById('genPlayBtn');
-    if(btn && window._genPlayingRef) btn.click();
-  },
-});
-
-// ── Register: Loop / Song Generator ──────────
-// (startLg / stopLg / lgPlaying are available after initLoopSongGenerator runs)
-window._lgPlayingRef = false;
-window._gps.register('lg', {
-  panelId:   'loopGenPanel',
   isPlaying: () => !!(window._lgIsPlaying && window._lgIsPlaying()),
   start: () => { if(window._lgStart) window._lgStart(); },
   stop:  () => { if(window._lgStop)  window._lgStop();  },
@@ -5213,15 +5479,10 @@ window._gps.register('lg', {
     updateGlobalPlayState();
   });
 
-  watchBtn('genPlayBtn', () => {
-    const btn = document.getElementById('genPlayBtn');
-    window._genPlayingRef = !!(btn && (btn.classList.contains('playing') || btn.classList.contains('active')));
+  watchBtn('lgPlayBtn', () => {
+    window._lgPlayingRef = !!(window._lgIsPlaying && window._lgIsPlaying());
     updateGlobalPlayState();
   });
-
-  watchBtn('lgPlayBtn', () => updateGlobalPlayState());
-  // Also watch second lg play button if it exists
-  watchBtn('lgPlayBtn2', () => updateGlobalPlayState());
 })();
 
 // ── Global button click ───────────────────────
@@ -5867,208 +6128,112 @@ function exportSimpleMIDI(filename, bytes){
   a.click(); URL.revokeObjectURL(url);
 }
 
-// ════════════════════════════════════════════════
-//  CHORD GENERATOR — basic player strip
-// ════════════════════════════════════════════════
-(function setupGenPlayer(){
-  let genChords = [];    // array of {sym, notes, q} objects
-  let genPlaying = false, genLooping = false, genStep = 0, genTimerId = null;
+// ── Sequence chip builder (shared by drag-drop and renderStructure) ──────
+function buildSeqChip(ch, idx){
+  const chip = document.createElement('div');
+  chip.className = 'gen-chord-chip';
+  chip.draggable = true;
+  chip.dataset.i = idx !== undefined ? idx : '';
+  chip.dataset.chord = JSON.stringify(ch);
+  chip.title = ch.notes || '';
 
-  function buildDefaultChords(){
-    if(typeof renderAll !== 'undefined') renderAll(); // ensure theory is rendered
-    const cards = document.querySelectorAll('#chordsV .dc');
-    if(cards.length === 0) return;
-    genChords = [];
-    cards.forEach(card => {
-      const sym  = card.querySelector('.cn')?.textContent.trim() || '';
-      const notes = card.querySelector('.cno')?.textContent.trim() || '';
-      if(sym) genChords.push({ sym, notes });
-    });
-    renderGenChords();
-  }
+  const sym = document.createElement('span');
+  sym.className = 'seq-chip-sym';
+  sym.textContent = ch.sym;
+  chip.appendChild(sym);
 
-  function renderGenChords(){
-    const strip = document.getElementById('genPlayerChords');
-    if(!strip) return;
-    strip.innerHTML = '';
-    genChords.forEach((ch, i) => {
-      const chip = document.createElement('div');
-      chip.className = 'gen-chord-chip';
-      chip.textContent = ch.sym;
-      chip.title = ch.notes;
-      chip.dataset.i = i;
-      chip.addEventListener('click', () => playGenChordAt(i));
-      strip.appendChild(chip);
-    });
-    const strip2 = document.getElementById('genPlayerStrip');
-    if(strip2 && genChords.length > 0) strip2.style.display = '';
-    // Wire drop targets
-    setupDropTarget(strip);
-  }
+  const del = document.createElement('span');
+  del.className = 'seq-chip-del';
+  del.textContent = '✕';
+  del.title = 'Remove';
+  del.addEventListener('click', e => {
+    e.stopPropagation();
+    chip.remove();
+    if(typeof syncSeqFromDOM === 'function') syncSeqFromDOM();
+  });
+  chip.appendChild(del);
 
-  // Drop target setup for chord player
-  function setupDropTarget(el){
-    if(!el || el._dropWired) return;
-    el._dropWired = true;
-    el.addEventListener('dragover', e => {
-      e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
-      el.classList.add('drag-over');
-    });
-    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-    el.addEventListener('drop', e => {
-      e.preventDefault();
-      el.classList.remove('drag-over');
-      try {
-        const data = JSON.parse(e.dataTransfer.getData('application/x-chord'));
-        if(data && data.sym){
-          genChords.push({ sym: data.sym, notes: data.notes || '' });
-          renderGenChords();
-        }
-      } catch(err){}
-    });
-  }
-
-  function playGenChordAt(i){
-    genStep = i;
-    document.querySelectorAll('.gen-chord-chip').forEach((c,ci) => c.classList.toggle('playing', ci===i));
-    // Play audio via web audio if mic ctx is available
-    playChordAudio(genChords[i]);
-    // Highlight matching chord in theory panel
-    const cards = document.querySelectorAll('#chordsV .dc');
-    cards.forEach((card,ci) => card.classList.toggle('dlit', ci===i));
-  }
-
-  function playChordAudio(chord){
-    try {
-      const ctx = new (window.AudioContext||window.webkitAudioContext)();
-      const notes = chord.notes.split(/[·,\s]+/).filter(Boolean);
-      notes.forEach(n => {
-        const freq = noteNameToFreq(n);
-        if(!freq) return;
-        const osc = ctx.createOscillator();
-        const env = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        env.gain.setValueAtTime(0,ctx.currentTime);
-        env.gain.linearRampToValueAtTime(0.18, ctx.currentTime+0.05);
-        env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+1.2);
-        osc.connect(env); env.connect(ctx.destination);
-        osc.start(ctx.currentTime); osc.stop(ctx.currentTime+1.3);
-      });
-      setTimeout(() => ctx.close(), 2000);
-    } catch(e){}
-  }
-
-  const NOTE_FREQS = {C:261.63,'C#':277.18,D:293.66,'D#':311.13,E:329.63,F:349.23,'F#':369.99,G:392,'G#':415.3,A:440,'A#':466.16,B:493.88};
-  function noteNameToFreq(name){
-    const m = name.match(/^([A-G]#?)/);
-    if(!m) return null;
-    return (NOTE_FREQS[m[1]] || 0) * (name.includes('4') ? 1 : name.includes('3') ? 0.5 : name.includes('5') ? 2 : 1);
-  }
-
-  function startGenPlay(){
-    genPlaying = true;
-    const barsEl = document.getElementById('genBarsSel');
-    const bars = barsEl ? parseInt(barsEl.value) : 8;
-    const interval = typeof M !== 'undefined' ? (60000/M.bpm)*4 : 2000; // 1 bar
-    playGenChordAt(genStep);
-    genTimerId = setInterval(() => {
-      genStep = (genStep + 1) % genChords.length;
-      playGenChordAt(genStep);
-    }, interval);
-    const playBtn = document.getElementById('genPlayBtn');
-    if(playBtn){ playBtn.textContent = '■ STOP'; playBtn.classList.add('active'); }
-  }
-
-  function stopGenPlay(){
-    genPlaying = false;
-    clearInterval(genTimerId);
-    document.querySelectorAll('.gen-chord-chip').forEach(c => c.classList.remove('playing'));
-    document.querySelectorAll('#chordsV .dc').forEach(c => c.classList.remove('dlit'));
-    const playBtn = document.getElementById('genPlayBtn');
-    if(playBtn){ playBtn.textContent = '▶ PLAY'; playBtn.classList.remove('active'); }
-  }
-
-  document.getElementById('genPlayBtn')?.addEventListener('click', () => {
-    if(genChords.length === 0) buildDefaultChords();
-    genPlaying ? stopGenPlay() : startGenPlay();
+  // Click to audition
+  chip.addEventListener('click', e => {
+    if(e.target.classList.contains('seq-chip-del')) return;
+    if(typeof playChordAudioLg === 'function') playChordAudioLg(ch);
+    document.querySelectorAll('#lgSeqDrop .gen-chord-chip').forEach(c => c.classList.toggle('playing', c === chip));
   });
 
-  document.getElementById('genLoopBtn')?.addEventListener('click', (e) => {
-    genLooping = !genLooping;
-    e.target.classList.toggle('active', genLooping);
-  });
+  return chip;
+}
 
-  document.getElementById('genShuffleBtn')?.addEventListener('click', () => {
-    buildDefaultChords();
-    // Shuffle order
-    for(let i=genChords.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [genChords[i],genChords[j]]=[genChords[j],genChords[i]];
-    }
-    renderGenChords();
-  });
+function syncSeqFromDOM(){
+  const drop = document.getElementById('lgSeqDrop');
+  if(!drop) return;
+  drop.querySelectorAll('.gen-chord-chip').forEach((c, i) => { c.dataset.i = i; });
+  // Also sync into initLoopSongGenerator's lgAllChords if wired
+  if(typeof window._syncSeqIntoEngine === 'function') window._syncSeqIntoEngine();
+}
 
-  document.getElementById('genDlBtn')?.addEventListener('click', () => {
-    if(genChords.length === 0) buildDefaultChords();
-    exportSimpleMIDI('chord_progression', buildChordMIDI(genChords));
-  });
-
-  function buildChordMIDI(chords){
-    const tpq = 480;
-    const bpm = typeof M !== 'undefined' ? M.bpm : 120;
-    const usec = Math.round(60000000/bpm);
-    const NOTE_MIDI = {C:60,'C#':61,D:62,'D#':63,E:64,F:65,'F#':66,G:67,'G#':68,A:69,'A#':70,B:71};
-    const events = [];
-    events.push({delta:0,type:'meta',meta:0x51,data:[(usec>>16)&0xff,(usec>>8)&0xff,usec&0xff]});
-    let lastTick = 0;
-    chords.forEach((ch, i) => {
-      const tick = i * tpq * 4; // 1 chord per bar
-      const notes = ch.notes.split(/[·,\s]+/).filter(Boolean).slice(0,4);
-      const midiNotes = notes.map(n => { const r=n.match(/^([A-G]#?)/); return r ? (NOTE_MIDI[r[1]]||60) : 60; });
-      midiNotes.forEach(n => {
-        events.push({delta: i===0&&midiNotes[0]===n ? 0 : (tick-lastTick), type:'noteon', ch:0, note:n, vel:80});
-        lastTick = tick;
-      });
-      midiNotes.forEach(n => {
-        events.push({delta: tpq*4-10, type:'noteoff', ch:0, note:n, vel:0});
-      });
-    });
-    events.push({delta:0,type:'meta',meta:0x2f,data:[]});
-    return buildMIDIBytesGlobal(events, tpq);
-  }
-
-  // Auto-build when theory view changes
-  const viewBtns = document.getElementById('viewBtns');
-  if(viewBtns){
-    viewBtns.addEventListener('click', () => {
-      setTimeout(buildDefaultChords, 50);
-    });
-  }
-  // Initial build after renderAll
-  setTimeout(() => {
-    buildDefaultChords();
-    // Wire the gen player strip as drop target immediately
-    const strip = document.getElementById('genPlayerChords');
-    if(strip) setupDropTarget(strip);
-    const strip2 = document.getElementById('genPlayerStrip');
-    if(strip2) { strip2.style.display = ''; }
-  }, 200);
-})();
-
-// Wire drag from mini chord tiles and mode chord grids via delegation
+// ── Theory panel drag: chord tiles → sequence drop zone ──────────────
 (function setupTheoryDrag(){
   const theoryPanel = document.getElementById('theoryPanel');
   if(!theoryPanel) return;
+
+  // Drag source: any element with data-chord-sym (chord cards, scale chords, mode chords)
   theoryPanel.addEventListener('dragstart', e => {
     const tile = e.target.closest('[data-chord-sym]');
     if(!tile) return;
     const data = { sym: tile.dataset.chordSym, notes: tile.dataset.chordNotes || '', q: tile.dataset.chordQ || '' };
     e.dataTransfer.setData('application/x-chord', JSON.stringify(data));
     e.dataTransfer.effectAllowed = 'copy';
-    tile.style.opacity = '0.5';
-    tile.addEventListener('dragend', () => { tile.style.opacity = ''; }, { once: true });
+    tile.classList.add('drag-preview');
+    tile.addEventListener('dragend', () => tile.classList.remove('drag-preview'), { once: true });
   });
+
+  // Drop target: sequence area #lgSeqDrop
+  function wireSeqDrop(){
+    const drop = document.getElementById('lgSeqDrop');
+    if(!drop || drop._wired) return;
+    drop._wired = true;
+
+    drop.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      drop.classList.add('drag-over');
+      const chips = [...drop.querySelectorAll('.gen-chord-chip')];
+      chips.forEach(c => c.classList.remove('drag-before'));
+      const after = chips.find(c => {
+        const r = c.getBoundingClientRect();
+        return e.clientX < r.left + r.width / 2;
+      });
+      if(after) after.classList.add('drag-before');
+    });
+
+    drop.addEventListener('dragleave', e => {
+      if(!drop.contains(e.relatedTarget)) {
+        drop.classList.remove('drag-over');
+        drop.querySelectorAll('.drag-before').forEach(c => c.classList.remove('drag-before'));
+      }
+    });
+
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      drop.classList.remove('drag-over');
+      drop.querySelectorAll('.drag-before').forEach(c => c.classList.remove('drag-before'));
+      try {
+        const data = JSON.parse(e.dataTransfer.getData('application/x-chord'));
+        if(!data || !data.sym) return;
+        const chips = [...drop.querySelectorAll('.gen-chord-chip')];
+        const after = chips.find(c => {
+          const r = c.getBoundingClientRect();
+          return e.clientX < r.left + r.width / 2;
+        });
+        const chip = buildSeqChip({ sym: data.sym, notes: data.notes || '', q: data.q || '' });
+        if(after) drop.insertBefore(chip, after);
+        else drop.appendChild(chip);
+        syncSeqFromDOM();
+      } catch(err){}
+    });
+  }
+
+  setTimeout(wireSeqDrop, 300);
 })();
 
 
@@ -6334,7 +6499,7 @@ updateListeningState();
       let subT = lastBeat;
       while(subT > tStart - subMs) subT -= subMs;
       ctx.lineWidth = 0.5;
-      ctx.strokeStyle = dark ? 'rgba(200,178,140,0.06)' : 'rgba(55,40,20,0.04)';
+      ctx.strokeStyle = dark ? 'rgba(42,47,58,0.25)' : 'rgba(55,40,20,0.04)';
       ctx.beginPath();
       for(let t = subT; t <= now + beatMs; t += subMs){
         const x = ((t - tStart) / WINDOW) * w;
@@ -6354,13 +6519,13 @@ updateListeningState();
       const isClick = metroBeats.some(b => Math.abs(b.t - t) < 15);
       ctx.lineWidth = isClick ? 1.5 : 1;
       ctx.strokeStyle = isClick
-        ? (dark ? 'rgba(200,178,140,0.3)' : 'rgba(55,40,20,0.22)')
-        : (dark ? 'rgba(200,178,140,0.10)' : 'rgba(55,40,20,0.07)');
+        ? (dark ? 'rgba(79,140,255,0.35)' : 'rgba(55,40,20,0.22)')
+        : (dark ? 'rgba(79,140,255,0.12)' : 'rgba(55,40,20,0.07)');
       ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
     }
 
     // Center line
-    ctx.strokeStyle = dark ? 'rgba(200,178,140,0.12)' : 'rgba(55,40,20,0.10)';
+    ctx.strokeStyle = dark ? 'rgba(42,47,58,0.5)' : 'rgba(55,40,20,0.10)';
     ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
 
     // ─ WAVEFORM ─────────────────────────────────────────────
@@ -6477,7 +6642,6 @@ updateListeningState();
 //  LOOP / SONG GENERATOR ENGINE
 // ════════════════════════════════════════════════════════════════
 (function initLoopSongGenerator(){
-  if(!document.getElementById('loopGenPanel')) return;
 
   // ── Theory engine (re-uses CHR, QI, na, cn etc. from parent scope) ──
   const CHR_G = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -6666,68 +6830,24 @@ updateListeningState();
     updateLgStatus('READY');
   }
 
+  // Render sequence from lgStructure into the flat drop zone
   function renderStructure(){
-    const el = document.getElementById('lgStructure');
-    if(!el) return;
-    el.innerHTML = '';
-    lgStructure.forEach((sec, si) => {
-      const div = document.createElement('div');
-      div.className = 'lg-section' + (sec.open ? ' open' : '');
-      div.dataset.si = si;
-
-      const preview = sec.chords.map(c => c.sym).join(' → ');
-      div.innerHTML = `
-        <div class="lg-sec-hdr">
-          <span class="lg-sec-name">${sec.name}</span>
-          <span class="lg-sec-bars">${sec.bars} bars</span>
-          <span class="lg-sec-chords-preview">${preview}</span>
-          <span style="font-size:9px;color:var(--t4);margin-left:auto">${sec.open?'▲':'▼'}</span>
-        </div>
-        <div class="lg-sec-body">
-          <div class="chord-edit-row" id="lgChords-${si}"></div>
-        </div>`;
-
-      div.querySelector('.lg-sec-hdr').addEventListener('click', () => {
-        sec.open = !sec.open;
-        div.classList.toggle('open', sec.open);
-        if(sec.open) renderSectionChords(sec, si);
-        const arr = div.querySelector('.lg-sec-hdr span:last-child');
-        if(arr) arr.textContent = sec.open ? '▲' : '▼';
+    const drop = document.getElementById('lgSeqDrop');
+    if(!drop) return;
+    drop.innerHTML = '';
+    let idx = 0;
+    lgStructure.forEach(sec => {
+      sec.chords.forEach(ch => {
+        const chip = buildSeqChip(ch, idx++);
+        // Store chord data on element for syncSeqFromDOM
+        chip.dataset.chord = JSON.stringify(ch);
+        drop.appendChild(chip);
       });
-
-      el.appendChild(div);
     });
+    syncSeqFromDOM();
   }
 
-  function renderSectionChords(sec, si){
-    const row = document.getElementById('lgChords-' + si);
-    if(!row) return;
-    row.innerHTML = '';
-    sec.chords.forEach((ch, ci) => {
-      const chip = document.createElement('div');
-      chip.className = 'lg-chord-chip';
-      chip.dataset.si = si; chip.dataset.ci = ci;
-      chip.innerHTML = `
-        <span class="chip-rom">${ch.rom}</span>
-        <span class="chip-name">${ch.sym}</span>
-        <span class="chip-notes">${ch.notes}</span>`;
-      chip.addEventListener('click', () => openChordEditor(si, ci));
-      row.appendChild(chip);
-    });
-    // Add + button
-    const addBtn = document.createElement('button');
-    addBtn.className = 'lg-chord-chip';
-    addBtn.innerHTML = '<span class="chip-name" style="font-size:18px;line-height:1">+</span>';
-    addBtn.title = 'Add chord';
-    addBtn.addEventListener('click', () => {
-      // Add a IV chord by default
-      const root = (typeof cRoot !== 'undefined') ? cRoot : 'C';
-      const newCh = { root: naG(root,5), quality: 'maj', sym: naG(root,5), notes: cnG(naG(root,5),'maj').join('·'), rom: 'NEW' };
-      sec.chords.push(newCh);
-      renderSectionChords(sec, si);
-    });
-    row.appendChild(addBtn);
-  }
+  function renderSectionChords(sec, si){ /* no-op — now handled by renderStructure flat layout */ }
 
   // Chord editor modal
   function openChordEditor(si, ci){
@@ -6799,9 +6919,12 @@ updateListeningState();
 
   // ── Playback ──
   function getAllChords(){
-    const all = [];
-    lgStructure.forEach(sec => sec.chords.forEach(ch => all.push(ch)));
-    return all;
+    // lgAllChords is kept in sync with the DOM via syncSeqFromDOM
+    return lgAllChords.length ? lgAllChords : (() => {
+      const all = [];
+      lgStructure.forEach(sec => sec.chords.forEach(ch => all.push(ch)));
+      return all;
+    })();
   }
 
   function playChordAudioLg(chord){
@@ -6831,14 +6954,25 @@ updateListeningState();
   let lgAllChords = [];
   let lgChordIdx = 0, lgTotalBars = 0;
 
+  // Expose engine sync so module-level syncSeqFromDOM can update lgAllChords
+  window._syncSeqIntoEngine = function(){
+    const drop = document.getElementById('lgSeqDrop');
+    if(!drop) return;
+    lgAllChords = [...drop.querySelectorAll('.gen-chord-chip')].map(c => {
+      try { return JSON.parse(c.dataset.chord || 'null'); } catch(e){ return null; }
+    }).filter(Boolean);
+  };
+
   function startLg(){
+    // Sync from DOM first (user may have manually added/removed chips)
+    syncSeqFromDOM();
     lgAllChords = getAllChords();
     if(!lgAllChords.length){ generate(); lgAllChords = getAllChords(); }
     lgChordIdx = 0;
-    playLgChord();
-    updateLgStatus('PLAYING');
     lgPlaying = true;
     updateLgBtns();
+    updateLgStatus('PLAYING');
+    playLgChord();
     if(typeof updateGlobalPlayState === 'function') updateGlobalPlayState();
   }
 
@@ -6849,43 +6983,35 @@ updateListeningState();
     }
     const ch = lgAllChords[lgChordIdx];
     playChordAudioLg(ch);
-    // Highlight playing chip
-    document.querySelectorAll('.lg-chord-chip').forEach(c => c.classList.remove('playing'));
-    // Find current section/chord index
-    let cumulative = 0;
-    lgStructure.forEach((sec, si) => {
-      sec.chords.forEach((_, ci) => {
-        if(cumulative === lgChordIdx){
-          const chip = document.querySelector(`#lgChords-${si} .lg-chord-chip:nth-child(${ci+1})`);
-          if(chip) chip.classList.add('playing');
-        }
-        cumulative++;
-      });
-    });
+    // Highlight current chip in the flat sequence drop zone
+    const chips = document.querySelectorAll('#lgSeqDrop .gen-chord-chip');
+    chips.forEach((c, i) => c.classList.toggle('playing', i === lgChordIdx));
     lgChordIdx++;
-    const barMs = bpmToBarMs();
+    const barsPerChord = parseInt(document.getElementById('lgLoopBars')?.value || '4');
+    const barMs = bpmToBarMs() * barsPerChord;
     lgTimerId = setTimeout(playLgChord, barMs);
   }
 
   function stopLg(){
     lgPlaying = false;
     clearTimeout(lgTimerId);
-    document.querySelectorAll('.lg-chord-chip').forEach(c => c.classList.remove('playing'));
+    document.querySelectorAll('#lgSeqDrop .gen-chord-chip').forEach(c => c.classList.remove('playing'));
+    lgChordIdx = 0;
     updateLgStatus('STOPPED');
     updateLgBtns();
     if(typeof updateGlobalPlayState === 'function') updateGlobalPlayState();
   }
 
   function updateLgStatus(txt){
-    const el = document.getElementById('loopGenStatus');
+    const el = document.getElementById('genPanelStatus');
     if(el) el.textContent = txt;
   }
 
   function updateLgBtns(){
     const playBtn = document.getElementById('lgPlayBtn');
     const loopBtn = document.getElementById('lgLoopBtn');
-    if(playBtn) playBtn.textContent = lgPlaying ? '■ STOP' : '▶ PLAY';
-    if(loopBtn) loopBtn.classList.toggle('on', lgLooping);
+    if(playBtn){ playBtn.textContent = lgPlaying ? '■ STOP' : '▶ PLAY'; playBtn.classList.toggle('active', lgPlaying); }
+    if(loopBtn) loopBtn.classList.toggle('active', lgLooping);
   }
 
   // ── MIDI Export ──
@@ -6895,17 +7021,16 @@ updateListeningState();
     const usec = Math.round(60000000 / bpm);
     const events = [];
     let tick = 0;
+    const barsPerChord = parseInt(document.getElementById('lgLoopBars')?.value || '4');
     const barTicks = tpq * 4;
+    const chordDuration = barTicks * barsPerChord;
 
-    lgStructure.forEach(sec => {
-      const chordDuration = Math.round(barTicks * sec.bars / Math.max(1, sec.chords.length));
-      sec.chords.forEach(ch => {
-        const notes = ch.notes.split('·').filter(Boolean).slice(0,4);
+    getAllChords().forEach(ch => {
+        const notes = (ch.notes || '').split(/[·,\s]+/).filter(Boolean).slice(0,4);
         const midiNotes = notes.map(n => (NOTE_MIDI_G[n] || 60));
         midiNotes.forEach(mn => events.push({ tick, type: 'on',  note: mn, vel: 80 }));
         midiNotes.forEach(mn => events.push({ tick: tick + chordDuration - 10, type: 'off', note: mn, vel: 0 }));
         tick += chordDuration;
-      });
     });
 
     events.sort((a,b) => a.tick - b.tick || (a.type==='off'?-1:1));
@@ -6931,48 +7056,40 @@ updateListeningState();
     return new Uint8Array([...hdr,...trk]);
   }
 
-  // ── Complexity dots ──
-  const cplxDots = document.getElementById('lgComplexityDots');
-  if(cplxDots){
-    for(let i = 1; i <= 5; i++){
-      const d = document.createElement('div');
-      d.className = 'complexity-dot' + (i <= lgComplexity ? ' on' : '');
-      d.dataset.v = i;
-      d.addEventListener('click', () => {
-        lgComplexity = i;
-        document.querySelectorAll('#lgComplexityDots .complexity-dot').forEach(x => x.classList.toggle('on', parseInt(x.dataset.v) <= lgComplexity));
-        const val = document.getElementById('lgComplexityVal');
-        if(val) val.textContent = lgComplexity;
-      });
-      cplxDots.appendChild(d);
-    }
-  }
-
   // ── Event listeners ──
-  const lgGenreBtns = document.getElementById('lgGenreBtns');
-  if(lgGenreBtns){
-    lgGenreBtns.addEventListener('click', e => {
-      const g = e.target.dataset.genre; if(!g) return;
-      lgGenre = g;
-      lgGenreBtns.querySelectorAll('.b').forEach(b => b.classList.toggle('on', b.dataset.genre === g));
-    });
-  }
+  // Genre buttons
+  const lgGenreBtnsEl = document.getElementById('lgGenreBtns');
+  if(lgGenreBtnsEl) lgGenreBtnsEl.addEventListener('click', e => {
+    const btn = e.target.closest('[data-genre]');
+    if(!btn) return;
+    lgGenre = btn.dataset.genre;
+    lgGenreBtnsEl.querySelectorAll('[data-genre]').forEach(b => b.classList.toggle('on', b === btn));
+  });
 
-  const lgTypeBtns = document.getElementById('lgTypeBtns');
-  if(lgTypeBtns){
-    lgTypeBtns.addEventListener('click', e => {
-      const t = e.target.dataset.lgtype; if(!t) return;
-      lgType = t;
-      lgTypeBtns.querySelectorAll('.b').forEach(b => b.classList.toggle('on', b.dataset.lgtype === t));
-      const loopWrap = document.getElementById('lgLoopLenWrap');
-      const songWrap = document.getElementById('lgSongLenWrap');
-      if(loopWrap) loopWrap.style.display = t === 'loop' ? 'flex' : 'none';
-      if(songWrap) songWrap.style.display = t === 'song' ? 'flex' : 'none';
-    });
-  }
+  // Genre select
+  const lgGenreSel = document.getElementById('lgGenreSel');
+  if(lgGenreSel) lgGenreSel.addEventListener('change', e => { lgGenre = e.target.value; });
+
+  // Type select
+  const lgTypeSel = document.getElementById('lgTypeSel');
+  if(lgTypeSel) lgTypeSel.addEventListener('change', e => {
+    lgType = e.target.value;
+    const barsLbl   = document.getElementById('lgBarsLbl');
+    const songBars  = document.getElementById('lgLoopBarsSong');
+    const minsLbl   = document.getElementById('lgMinsLbl');
+    const songMins  = document.getElementById('lgSongMins');
+    const isLoop = lgType === 'loop';
+    if(barsLbl)  barsLbl.style.display  = isLoop ? '' : 'none';
+    if(songBars) songBars.style.display = isLoop ? '' : 'none';
+    if(minsLbl)  minsLbl.style.display  = isLoop ? 'none' : '';
+    if(songMins) songMins.style.display = isLoop ? 'none' : '';
+  });
 
   const lgLoopBarsSel = document.getElementById('lgLoopBars');
   if(lgLoopBarsSel) lgLoopBarsSel.addEventListener('change', e => { lgLoopBars = parseInt(e.target.value); });
+
+  const lgLoopBarsSongSel = document.getElementById('lgLoopBarsSong');
+  if(lgLoopBarsSongSel) lgLoopBarsSongSel.addEventListener('change', e => { lgLoopBars = parseInt(e.target.value); });
 
   const lgSongMinsSel = document.getElementById('lgSongMins');
   if(lgSongMinsSel) lgSongMinsSel.addEventListener('change', e => { lgSongMins = parseInt(e.target.value); });
@@ -6986,16 +7103,35 @@ updateListeningState();
     });
   }
 
+  // Complexity dots init
+  (function initComplexityDots(){
+    const cplxDots = document.getElementById('lgComplexityDots');
+    if(!cplxDots) return;
+    cplxDots.innerHTML = '';
+    for(let i = 1; i <= 5; i++){
+      const d = document.createElement('div');
+      d.className = 'complexity-dot' + (i <= lgComplexity ? ' on' : '');
+      d.dataset.v = i;
+      d.addEventListener('click', () => {
+        lgComplexity = i;
+        cplxDots.querySelectorAll('.complexity-dot').forEach(x => x.classList.toggle('on', parseInt(x.dataset.v) <= lgComplexity));
+        const val = document.getElementById('lgComplexityVal');
+        if(val) val.textContent = lgComplexity;
+      });
+      cplxDots.appendChild(d);
+    }
+  })();
+
   const lgGenBtn = document.getElementById('lgGenerateBtn');
   if(lgGenBtn) lgGenBtn.addEventListener('click', () => { if(lgPlaying) stopLg(); generate(); });
 
-  const lgPlayBtn2 = document.getElementById('lgPlayBtn');
-  if(lgPlayBtn2) lgPlayBtn2.addEventListener('click', () => lgPlaying ? stopLg() : startLg());
+  const lgPlayBtn = document.getElementById('lgPlayBtn');
+  if(lgPlayBtn) lgPlayBtn.addEventListener('click', () => lgPlaying ? stopLg() : startLg());
 
-  const lgLoopBtn2 = document.getElementById('lgLoopBtn');
-  if(lgLoopBtn2) lgLoopBtn2.addEventListener('click', () => {
+  const lgLoopBtn = document.getElementById('lgLoopBtn');
+  if(lgLoopBtn) lgLoopBtn.addEventListener('click', () => {
     lgLooping = !lgLooping;
-    lgLoopBtn2.classList.toggle('on', lgLooping);
+    lgLoopBtn.classList.toggle('active', lgLooping);
   });
 
   const lgShuffleBtn = document.getElementById('lgShuffleBtn');
@@ -7008,9 +7144,20 @@ updateListeningState();
 
   const lgDlBtn = document.getElementById('lgDlBtn');
   if(lgDlBtn) lgDlBtn.addEventListener('click', () => {
-    if(!lgStructure.length){ generate(); }
+    syncSeqFromDOM();
+    if(!lgAllChords.length && !lgStructure.length) generate();
     const bytes = buildLgMIDI();
-    if(typeof exportSimpleMIDI === 'function') exportSimpleMIDI('vaikhari-loop.mid', bytes);
+    if(typeof exportSimpleMIDI === 'function') exportSimpleMIDI('vaikhari-sequence.mid', bytes);
+  });
+
+  const lgClearBtn = document.getElementById('lgClearBtn');
+  if(lgClearBtn) lgClearBtn.addEventListener('click', () => {
+    if(lgPlaying) stopLg();
+    const drop = document.getElementById('lgSeqDrop');
+    if(drop) drop.innerHTML = '';
+    lgAllChords = [];
+    lgStructure = [];
+    updateLgStatus('READY');
   });
 
   // Global play/stop integration
@@ -7018,13 +7165,48 @@ updateListeningState();
   window._lgStop  = stopLg;
   window._lgIsPlaying = () => lgPlaying;
 
-  // Generate on open
-  document.getElementById('togLoopGen')?.addEventListener('click', () => {
+  // Auto-generate on first load
+  setTimeout(() => {
     if(!lgStructure.length) generate();
+  }, 400);
+
+  // Also auto-generate when panel is first opened
+  document.getElementById('togTheory')?.addEventListener('click', () => {
+    if(!lgStructure.length) setTimeout(generate, 50);
   });
 })();
 
+// ── Chrome height sync — keeps main below the fixed shell ──────────
+(function () {
+  const shell = document.getElementById('stickyShell');
+  function syncChromeHeight() {
+    if (!shell) return;
+    const h = shell.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--chrome-h', h + 'px');
+  }
+  syncChromeHeight();
+  window.addEventListener('resize', syncChromeHeight);
+  // Re-measure after bar hide/show transitions finish
+  shell.addEventListener('transitionend', syncChromeHeight);
+})();
 
+// ── Bar hide/show toggles ───────────────────────────────────────────
+(function () {
+  function setupBarToggle(btnId, barId) {
+    const btn = document.getElementById(btnId);
+    const bar = document.getElementById(barId);
+    if (!btn || !bar) return;
+
+    btn.addEventListener('click', () => {
+      const hidden = bar.classList.toggle('bar-hidden');
+      btn.textContent = hidden ? '▼' : '▲';
+      btn.title = hidden ? 'Show' : 'Hide';
+    });
+  }
+
+  setupBarToggle('hidePanelBar', 'panelControlsBar');
+  setupBarToggle('hideUbarBtn',  'universalBar');
+})();
 
 </script>
 </body>
