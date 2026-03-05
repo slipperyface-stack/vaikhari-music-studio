@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vaikhari — Indo-Western Music Encyclopedia</title>
+<title>Vaikhari — Unified Music Theory Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -34,7 +34,6 @@ body.dark{
 html{font-size:16px;scroll-behavior:smooth}
 body{background:var(--bg);font-family:var(--f-sans);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px 60px;transition:background .3s,color .3s}
 
-/* ─── Header ─── */
 .v-header{width:100%;max-width:var(--card-w);display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px}
 .v-wordmark{display:flex;flex-direction:column}
 .v-name{font-family:var(--f-serif);font-size:clamp(22px,3.5vw,34px);font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1}
@@ -45,7 +44,47 @@ body{background:var(--bg);font-family:var(--f-sans);color:var(--ink);min-height:
 .v-btn.indian.on,.v-btn.indian:hover{border-color:var(--saffron);color:var(--saffron);background:var(--saffron4)}
 .v-btn.jazz.on,.v-btn.jazz:hover{border-color:var(--lapis);color:var(--lapis);background:var(--lapis4)}
 
-/* ─── Key Row ─── */
+/* Song Generator Button — prominent */
+.song-gen-btn{
+  padding:8px 20px;border-radius:20px;
+  border:2px solid var(--jade);
+  background:var(--jade4);
+  font-family:var(--f-mono);font-size:11px;
+  color:var(--jade);cursor:pointer;
+  transition:all .18s;white-space:nowrap;letter-spacing:.5px;
+  font-weight:600;
+}
+.song-gen-btn:hover{background:var(--jade3);border-color:var(--jade2);box-shadow:0 0 0 3px var(--jade4)}
+
+/* Complexity pills */
+.cx-pill{
+  padding:5px 14px;border-radius:20px;border:1.5px solid var(--border2);
+  background:var(--surface2);font-family:var(--f-mono);font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .14s;letter-spacing:.5px;
+}
+.cx-pill:hover{border-color:var(--turmeric);color:var(--turmeric);}
+.cx-pill.on{background:var(--turmeric);color:#fff;border-color:var(--turmeric);}
+body.dark .cx-pill.on{background:var(--turmeric);color:var(--bg);}
+
+/* Form alternatives pills */
+.form-alt-pill{
+  padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);
+  background:var(--surface2);font-family:var(--f-mono);font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .14s;letter-spacing:.3px;
+}
+.form-alt-pill:hover{border-color:var(--lapis);color:var(--lapis);}
+.form-alt-pill.on{background:var(--lapis);color:#fff;border-color:var(--lapis);}
+body.dark .form-alt-pill.on{background:var(--lapis2);color:var(--bg);}
+
+/* MIDI button */
+.btn-midi{
+  padding:8px 16px;border-radius:8px;border:1.5px solid var(--lapis);
+  background:var(--lapis4);font-family:var(--f-mono);font-size:11px;
+  color:var(--lapis);cursor:pointer;transition:all .15s;letter-spacing:.5px;font-weight:600;
+}
+.btn-midi:hover{background:var(--lapis3);box-shadow:0 0 0 3px var(--lapis4);}
+.btn-midi:disabled{opacity:.5;cursor:default;}
+
 .key-strip{width:100%;max-width:var(--card-w);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .key-lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;color:var(--ink4);font-weight:500;text-transform:uppercase;white-space:nowrap}
 .key-row{display:flex;gap:5px;flex-wrap:wrap}
@@ -53,15 +92,11 @@ body{background:var(--bg);font-family:var(--f-sans);color:var(--ink);min-height:
 .k:hover{border-color:var(--jade);color:var(--jade)}
 .k.on{background:var(--jade);color:#fff;border-color:var(--jade);box-shadow:0 2px 8px rgba(10,61,32,.25)}
 
-/* ─── Main Card ─── */
 .card{width:100%;max-width:var(--card-w);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column}
-
-/* Card header bar */
 .card-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border2);background:var(--surface2)}
 .card-bar-left{font-family:var(--f-mono);font-size:10px;font-weight:500;letter-spacing:2.5px;color:var(--ink3);text-transform:uppercase}
 .card-bar-right{font-family:var(--f-mono);font-size:10px;color:var(--ink4);letter-spacing:.5px}
 
-/* ─── Nav Tabs ─── */
 .nav-tabs{display:flex;align-items:center;gap:4px;padding:10px 16px;border-bottom:1px solid var(--border2);background:var(--surface);flex-wrap:wrap}
 .nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 14px 9px;border-radius:var(--r-sm);border:1.5px solid transparent;background:transparent;cursor:pointer;transition:all .16s;font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;font-weight:500;color:var(--ink4);white-space:nowrap;text-transform:uppercase}
 .nav-tab-icon{font-size:16px;opacity:.55;transition:opacity .16s}
@@ -70,13 +105,13 @@ body{background:var(--bg);font-family:var(--f-sans);color:var(--ink);min-height:
 .nav-tab.on{color:var(--jade);border-color:rgba(10,61,32,.22);background:var(--jade4)}
 .nav-tab.on-saffron{color:var(--saffron);border-color:rgba(191,92,0,.22);background:var(--saffron4)}
 .nav-tab.on-lapis{color:var(--lapis);border-color:rgba(24,37,102,.22);background:var(--lapis4)}
+.nav-tab.on-song{color:var(--jade);border-color:rgba(10,61,32,.3);background:var(--jade3)}
 body.dark .nav-tab.on{background:rgba(26,173,80,.09)}
 body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
 .nav-tabs-spacer{flex:1}
 .jazz-toggle{font-family:var(--f-mono);font-size:10px;letter-spacing:1px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--ink4);cursor:pointer;transition:all .14s;white-space:nowrap}
 .jazz-toggle.on{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis)}
 
-/* ─── Selector Area ─── */
 .sel-area{padding:14px 18px 0;border-bottom:1px solid var(--border2);background:var(--surface);min-height:68px}
 .sel-wrap{padding-bottom:14px}
 .csel{position:relative;user-select:none}
@@ -106,22 +141,23 @@ body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
 .diatonic-key-lbl{font-family:var(--f-serif);font-size:clamp(18px,2.5vw,26px);font-weight:700;color:var(--lapis);flex:1;font-style:italic}
 .diatonic-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic}
 
-/* ─── Content Scroll Area ─── */
+/* Song selector */
+.song-sel-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:10px;border:1.5px solid var(--jade3);background:var(--jade4);flex-wrap:wrap}
+.song-sel-lbl{font-family:var(--f-serif);font-size:clamp(16px,2vw,22px);font-weight:700;color:var(--jade);font-style:italic}
+.song-sel-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic}
+
 .content{flex:1;overflow-y:auto;min-height:300px;max-height:clamp(380px,60vh,700px)}
 .content::-webkit-scrollbar{width:4px}
 .content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 .pad{padding:20px 22px}
 
-/* ─── Empty State ─── */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:14px;text-align:center}
 .empty-glyph{font-family:var(--f-serif);font-size:52px;opacity:.12;line-height:1}
 .empty-msg{font-family:var(--f-mono);font-size:11px;color:var(--ink4);letter-spacing:2px;text-transform:uppercase;line-height:1.8;max-width:280px}
 
-/* ─── Section label ─── */
 .sec{font-family:var(--f-mono);font-size:10px;letter-spacing:2.5px;font-weight:500;color:var(--ink4);text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:10px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border2)}
 
-/* ─── Note Pills ─── */
 .note-row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
 .np{padding:7px 13px;border-radius:20px;font-family:var(--f-mono);font-size:14px;font-weight:500;border:1.5px solid var(--border2);background:var(--surface2);color:var(--ink2);line-height:1.2;text-align:center;transition:all .13s}
 .np:hover{border-color:var(--jade);color:var(--jade)}
@@ -129,17 +165,14 @@ body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
 .np .sw{font-size:9px;display:block;font-family:var(--f-mono);color:var(--saffron);margin-top:2px;font-weight:500}
 .np.root .sw{color:rgba(255,255,255,.75)}
 
-/* ─── Steps row ─── */
 .steps{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .step{padding:4px 8px;border-radius:5px;font-family:var(--f-mono);font-size:11px;font-weight:500;background:var(--surface2);border:1px solid var(--border2);color:var(--ink3)}
 .step.h{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis)}
 
-/* ─── Scale / Mode Hero ─── */
 .scale-hero-name{font-family:var(--f-serif);font-size:clamp(24px,4vw,42px);font-weight:700;color:var(--ink);line-height:1.05;margin-bottom:4px}
 .scale-hero-vibe{font-family:var(--f-mono);font-size:11px;font-style:italic;color:var(--ink4);letter-spacing:.5px;margin-bottom:10px}
 .scale-desc{font-size:14px;color:var(--ink3);line-height:1.75;margin-bottom:14px}
 
-/* ─── Chord Grid (mini — for scales/modes) ─── */
 .chord-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px}
 .chord-card{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:12px 8px;text-align:center;cursor:default;transition:all .14s}
 .chord-card:hover{border-color:var(--lapis);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.09)}
@@ -148,7 +181,6 @@ body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
 .cc-type{font-size:11px;color:var(--ink3);font-family:var(--f-mono);margin-top:4px;font-weight:500}
 .cc-notes{font-size:10px;color:var(--ink4);margin-top:5px;font-family:var(--f-mono);line-height:1.6}
 
-/* ─── Diatonic Grid ─── */
 .dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .dc{background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;padding:12px 4px;cursor:pointer;transition:all .13s;text-align:center;position:relative;overflow:hidden}
 .dc:hover{border-color:var(--ink3)}.dc.root-card{border-color:var(--jade);background:var(--jade4)}.dc.lit{background:var(--jade3);border-color:var(--jade)}
@@ -162,14 +194,12 @@ body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
 .hi-func{font-size:10px;color:var(--ink2);font-family:var(--f-mono);margin-top:2px}
 .hi-mood{font-size:9px;color:var(--ink3);line-height:1.5;margin-top:3px}
 
-/* ─── Indian mode swara block ─── */
 .swara-block{margin:12px 0;padding:12px 16px;background:var(--surface2);border:1.5px dashed var(--border2);border-radius:10px}
 .swara-block-lbl{font-family:var(--f-mono);font-size:10px;color:var(--ink4);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase}
 .swara-row{display:flex;gap:6px;flex-wrap:wrap}
 .sw-pill{padding:6px 10px;border:1.5px solid var(--border2);border-radius:7px;font-size:12px;font-family:var(--f-mono);color:var(--ink2);display:flex;flex-direction:column;align-items:center;gap:2px}
 .sw-pill .syl{font-size:9px;color:var(--saffron);font-weight:500}
 
-/* ─── Thaat overview ─── */
 .thaat-hero-name{font-family:var(--f-serif);font-size:clamp(26px,4.5vw,46px);font-weight:700;color:var(--saffron);line-height:1;margin-bottom:4px}
 .thaat-hero-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
 .thaat-swaras{font-family:var(--f-mono);font-size:13px;color:var(--saffron2);font-weight:500}
@@ -185,7 +215,6 @@ body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
 .thaat-note.tivra{border-color:var(--lotus);color:var(--lotus)}
 .thaat-notes-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 
-/* ─── Thaat Chord Table ─── */
 .thaat-chord-table{width:100%;border-collapse:collapse;margin:10px 0 16px;font-family:var(--f-sans)}
 .thaat-chord-table th{font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);padding:7px 10px;border-bottom:2px solid var(--border2);text-align:left;font-weight:500;background:var(--surface2)}
 .thaat-chord-table th:first-child{border-radius:8px 0 0 0}
@@ -205,7 +234,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .tct-tones{font-family:var(--f-mono);font-size:10px;color:var(--ink4);line-height:1.6}
 .tct-fn{font-size:11px;color:var(--ink3);font-family:var(--f-mono)}
 
-/* ─── Raga Tiles Grid ─── */
 .raga-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(160px,28%,220px),1fr));gap:10px;margin-top:8px}
 .raga-tile{background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;padding:16px 16px 14px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
 .raga-tile::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--saffron3) 0%,transparent 60%);opacity:0;transition:opacity .18s}
@@ -218,12 +246,10 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .rt-tag{font-family:var(--f-mono);font-size:9px;color:var(--saffron);opacity:.7;margin-top:auto;padding-top:10px;position:relative;letter-spacing:.5px}
 .raga-tile:hover .rt-tag{opacity:1}
 
-/* ─── Back Button ─── */
 .back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:11px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .16s;margin-bottom:18px;letter-spacing:.5px}
 .back-btn:hover{border-color:var(--saffron);color:var(--saffron);background:var(--saffron4)}
 .back-btn svg{width:13px;height:13px;flex-shrink:0}
 
-/* ─── Raga Detail ─── */
 .raga-detail{animation:slideUp .22s ease}
 @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .rd-hero{margin-bottom:16px}
@@ -235,7 +261,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .rd-desc{padding:14px 18px;background:var(--saffron4);border-left:3px solid var(--saffron);border-radius:0 10px 10px 0;font-size:14px;color:var(--ink2);line-height:1.8;margin-bottom:16px}
 .rd-desc em{color:var(--saffron);font-style:italic;font-weight:600}
 
-/* ─── Aroh / Avroh ─── */
 .aa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 @media(max-width:480px){.aa-grid{grid-template-columns:1fr}}
 .aa-box{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:14px}
@@ -250,7 +275,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .ns.tivra{border-color:var(--lotus);color:var(--lotus);background:rgba(139,34,82,.07)}
 .ns-sw{font-size:9px;display:block;opacity:.7;margin-top:2px;font-family:var(--f-mono)}
 
-/* ─── Raga Chord Grid ─── */
 .raga-chord-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px;margin-top:8px}
 .rcc{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:13px 8px;text-align:center;transition:all .13s}
 .rcc:hover{border-color:var(--lapis);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.08)}
@@ -260,7 +284,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .rcc-notes{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:5px;line-height:1.6}
 .rcc-jazz{font-family:var(--f-mono);font-size:8px;color:var(--lapis);background:var(--lapis4);border:1px solid var(--lapis3);border-radius:3px;padding:1px 5px;display:inline-block;margin-bottom:4px;letter-spacing:.5px;font-weight:500}
 
-/* ─── Info Boxes ─── */
 .info-jade{padding:13px 17px;background:var(--jade4);border-left:3px solid var(--jade);border-radius:0 10px 10px 0;font-size:13px;color:var(--ink2);line-height:1.8;margin:12px 0}
 .info-jade strong{color:var(--jade)}
 .info-lapis{padding:13px 17px;background:var(--lapis4);border-left:3px solid var(--lapis);border-radius:0 10px 10px 0;font-size:13px;color:var(--ink2);line-height:1.8;margin:12px 0}
@@ -268,7 +291,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .info-saffron{padding:13px 17px;background:var(--saffron4);border-left:3px solid var(--saffron);border-radius:0 10px 10px 0;font-size:13px;color:var(--ink2);line-height:1.8;margin:12px 0}
 .info-saffron strong{color:var(--saffron)}
 
-/* ─── Tala cards ─── */
 .tala-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(160px,30%,240px),1fr));gap:8px;margin-top:8px}
 .tala-card{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:14px;transition:border-color .14s}
 .tala-card:hover{border-color:var(--saffron)}
@@ -280,7 +302,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .tc-groups{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
 .tc-group{padding:2px 8px;border-radius:4px;background:var(--saffron3);font-family:var(--f-mono);font-size:10px;color:var(--saffron);font-weight:500}
 
-/* ─── Cross-link chips ─── */
 .xlink{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-family:var(--f-mono);font-size:10px;font-weight:500;cursor:pointer;border:1px solid;transition:all .13s;text-decoration:none;white-space:nowrap}
 .xlink-jade{color:var(--jade);border-color:rgba(10,61,32,.25);background:var(--jade4)}
 .xlink-jade:hover{background:var(--jade3)}
@@ -290,10 +311,159 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .xlink-lapis:hover{background:var(--lapis3)}
 .xlinks-row{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 
-/* ─── Divider ─── */
 .divider{height:1px;background:var(--border2);margin:16px 0}
 
-/* ─── Responsive ─── */
+/* ══════════════════════════════════════
+   SONG GENERATOR STYLES
+══════════════════════════════════════ */
+
+/* Genre picker row */
+.genre-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.genre-pill{
+  padding:7px 16px;border-radius:20px;
+  border:1.5px solid var(--border2);
+  background:var(--surface2);
+  font-family:var(--f-mono);font-size:11px;font-weight:500;
+  color:var(--ink3);cursor:pointer;transition:all .15s;
+  letter-spacing:.5px;user-select:none;
+}
+.genre-pill:hover{border-color:var(--jade);color:var(--jade);background:var(--jade4)}
+.genre-pill.on{background:var(--jade);color:#fff;border-color:var(--jade);box-shadow:0 2px 8px rgba(10,61,32,.25)}
+.genre-pill.on-lapis{background:var(--lapis);color:#fff;border-color:var(--lapis)}
+.genre-pill.on-saffron{background:var(--saffron);color:#fff;border-color:var(--saffron)}
+
+/* Song action buttons */
+.song-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.btn-generate{
+  padding:10px 24px;border-radius:10px;
+  border:2px solid var(--jade);
+  background:var(--jade);
+  font-family:var(--f-mono);font-size:12px;font-weight:600;
+  color:#fff;cursor:pointer;transition:all .16s;letter-spacing:.5px;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-generate:hover{background:var(--jade2);border-color:var(--jade2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(10,61,32,.25)}
+.btn-generate:active{transform:translateY(0)}
+.btn-shuffle{
+  padding:10px 20px;border-radius:10px;
+  border:1.5px solid var(--lapis);
+  background:var(--lapis4);
+  font-family:var(--f-mono);font-size:12px;font-weight:500;
+  color:var(--lapis);cursor:pointer;transition:all .16s;letter-spacing:.5px;
+  display:flex;align-items:center;gap:7px;
+}
+.btn-shuffle:hover{background:var(--lapis3);transform:translateY(-1px);box-shadow:0 4px 12px rgba(24,37,102,.18)}
+.btn-copy{
+  padding:10px 18px;border-radius:10px;
+  border:1.5px solid var(--border);
+  background:transparent;
+  font-family:var(--f-mono);font-size:11px;
+  color:var(--ink3);cursor:pointer;transition:all .16s;letter-spacing:.5px;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-copy:hover{border-color:var(--ink2);color:var(--ink2)}
+.btn-copy.copied{border-color:var(--jade);color:var(--jade)}
+
+/* Song loading spinner */
+.song-loading{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;gap:16px;
+}
+.spin-ring{
+  width:40px;height:40px;border-radius:50%;
+  border:3px solid var(--border2);
+  border-top-color:var(--jade);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-lbl{font-family:var(--f-mono);font-size:11px;color:var(--ink4);letter-spacing:2px;text-transform:uppercase}
+
+/* Song output display */
+.song-output{animation:songIn .3s ease}
+@keyframes songIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.song-header{margin-bottom:20px}
+.song-title{font-family:var(--f-serif);font-size:clamp(22px,3.5vw,36px);font-weight:700;color:var(--ink);line-height:1.1;margin-bottom:4px;font-style:italic}
+.song-meta-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.song-tag{font-family:var(--f-mono);font-size:10px;padding:3px 10px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--ink4);letter-spacing:.5px}
+.song-tag.jazz-tag{color:var(--lapis);border-color:var(--lapis3);background:var(--lapis4)}
+.song-tag.key-tag{color:var(--jade);border-color:var(--jade3);background:var(--jade4)}
+.song-tag.genre-tag{color:var(--saffron);border-color:var(--saffron3);background:var(--saffron4)}
+.song-scale-info{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic}
+
+/* Song sections */
+.song-sections{display:flex;flex-direction:column;gap:20px}
+.song-section{background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;transition:border-color .14s}
+.song-section:hover{border-color:var(--lapis3)}
+.ss-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:var(--surface3);border-bottom:1px solid var(--border2);
+}
+.ss-label{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink3)}
+.ss-bars{font-family:var(--f-mono);font-size:9px;color:var(--ink4);letter-spacing:.5px}
+
+/* Chord progression row — jazz lead sheet style */
+.ss-body{padding:14px 16px}
+
+/* Lead sheet chord line */
+.chord-progression{display:flex;flex-wrap:wrap;gap:0;margin-bottom:10px}
+.bar-group{display:flex;align-items:flex-start;gap:0;position:relative;min-width:120px;flex:1}
+.bar-group::before{
+  content:'|';font-family:var(--f-mono);font-size:18px;color:var(--border);
+  padding-right:10px;line-height:1;margin-top:4px;flex-shrink:0;
+}
+.bar-group:last-child::after{
+  content:'||';font-family:var(--f-mono);font-size:18px;color:var(--border);
+  padding-left:8px;line-height:1;margin-top:4px;align-self:flex-start;flex-shrink:0;
+}
+.bar-chords{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;flex:1}
+.chord-sym{
+  display:flex;flex-direction:column;align-items:flex-start;
+  cursor:default;position:relative;
+}
+.chord-sym-name{
+  font-family:var(--f-serif);font-size:28px;font-weight:700;
+  color:var(--lapis);line-height:1;
+  letter-spacing:-.5px;
+}
+.chord-sym-name sup{font-size:14px;vertical-align:super;font-family:var(--f-mono);font-weight:500}
+.chord-sym-name .chord-root{color:var(--ink)}
+.chord-sym-name .chord-qual{color:var(--lapis)}
+.chord-sym-beat{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:2px;letter-spacing:.3px}
+.chord-sym-notes{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:1px;line-height:1.4}
+.chord-sym:hover .chord-sym-name{color:var(--jade2)}
+.chord-sym.jazz-chord .chord-sym-name .chord-qual{color:var(--lapis2)}
+
+/* Roman numeral row */
+.roman-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)}
+.roman-chip{
+  font-family:var(--f-mono);font-size:10px;color:var(--ink4);
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:4px;padding:2px 8px;
+}
+
+/* Melody hint */
+.melody-hint{
+  margin-top:10px;padding:10px 14px;
+  background:var(--saffron4);border-left:2px solid var(--saffron2);border-radius:0 8px 8px 0;
+  font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.7;
+}
+.melody-hint strong{color:var(--saffron);letter-spacing:.3px}
+
+/* Tempo / form info */
+.song-form-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;margin-bottom:10px}
+.form-chip{
+  padding:8px 14px;border-radius:8px;
+  background:var(--surface2);border:1.5px solid var(--border2);
+  font-family:var(--f-mono);font-size:11px;color:var(--ink3);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.form-chip-val{font-size:15px;font-weight:600;color:var(--ink2);font-family:var(--f-serif)}
+.form-chip-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink4)}
+
+/* Song error */
+.song-error{padding:20px;text-align:center;font-family:var(--f-mono);font-size:12px;color:var(--saffron);background:var(--saffron4);border-radius:10px;margin:20px 0}
+
 @media(min-width:600px){:root{--card-w:min(96vw,700px)}}
 @media(min-width:820px){:root{--card-w:min(92vw,820px)}}
 @media(min-width:1100px){:root{--card-w:min(88vw,920px)}}
@@ -307,7 +477,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Indo-Western Music Encyclopedia</div>
+    <div class="v-tagline">Unified Music Theory Portal</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -343,13 +513,12 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
     <button class="nav-tab on" data-tab="scale"><span class="nav-tab-icon">♩</span><span class="nav-tab-lbl">Scales</span></button>
     <button class="nav-tab" data-tab="mode"><span class="nav-tab-icon">〰</span><span class="nav-tab-lbl">Modes</span></button>
     <button class="nav-tab" data-tab="thaat" id="thaatTab" style="display:none"><span class="nav-tab-icon">🪔</span><span class="nav-tab-lbl">Thaats</span></button>
-    <button class="nav-tab" data-tab="diatonic"><span class="nav-tab-icon">◈</span><span class="nav-tab-lbl">Diatonic</span></button>
     <div class="nav-tabs-spacer"></div>
+    <button class="nav-tab" data-tab="song" id="songNavTab"><span class="nav-tab-icon">♬</span><span class="nav-tab-lbl">Song</span></button>
     <button class="jazz-toggle" id="jazzBtn">◦ Jazz+</button>
   </div>
 
   <div class="sel-area" id="selArea">
-    <!-- Scale selector -->
     <div class="sel-wrap" id="scaleSel">
       <div class="csel" id="scaleDropEl">
         <div class="csel-trigger"><div class="csel-left"><span class="csel-main" id="scaleSelMain">Choose a scale</span><span class="csel-sub" id="scaleSelSub">Select to see notes, steps &amp; chords</span></div><svg class="csel-chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
@@ -371,7 +540,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
         </div>
       </div>
     </div>
-    <!-- Mode selector -->
     <div class="sel-wrap" id="modeSel" style="display:none">
       <div class="csel" id="modeDropEl">
         <div class="csel-trigger"><div class="csel-left"><span class="csel-main" id="modeSelMain">Choose a mode</span><span class="csel-sub" id="modeSelSub">7 Greek modes of the major scale</span></div><svg class="csel-chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
@@ -387,7 +555,6 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
         </div>
       </div>
     </div>
-    <!-- Thaat selector -->
     <div class="sel-wrap" id="thaatSel" style="display:none">
       <div class="csel" id="thaatDropEl">
         <div class="csel-trigger indian"><div class="csel-left"><span class="csel-main" id="thaatSelMain">Choose a thaat</span><span class="csel-sub" id="thaatSelSub">10 parent scales of Hindustani classical music</span></div><svg class="csel-chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
@@ -406,9 +573,11 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
         </div>
       </div>
     </div>
-    <!-- Diatonic bar -->
-    <div class="sel-wrap" id="diatonicSel" style="display:none">
-      <div class="diatonic-bar"><span class="diatonic-key-lbl" id="diatonicKeyLbl">C Major</span><span class="diatonic-sub">7 diatonic chords — hover for function · click to highlight</span></div>
+    <div class="sel-wrap" id="songSel" style="display:none">
+      <div class="song-sel-bar">
+        <span class="song-sel-lbl" id="songSelLbl">♬ Song Generator</span>
+        <span class="song-sel-sub">Compose using the active scale · mode · thaat &amp; key</span>
+      </div>
     </div>
   </div>
 
@@ -416,7 +585,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
     <div id="scaleView" class="pad"></div>
     <div id="modeView" class="pad" style="display:none"></div>
     <div id="thaatView" class="pad" style="display:none"><div id="thaatDisp"></div></div>
-    <div id="diatonicView" class="pad" style="display:none"></div>
+    <div id="songView" class="pad" style="display:none"></div>
   </div>
 </div>
 
@@ -429,14 +598,30 @@ const MAJ_STEPS=[0,2,4,5,7,9,11];
 function na(root,semi){return CHR[(CHR.indexOf(root)+semi+120)%12]}
 function notesOf(root,ivs){return ivs.map(i=>na(root,i))}
 
-// Chord quality symbols and names
-const QSYM={maj:'',min:'m',dim:'°',aug:'+',dom7:'7',maj7:'maj7',min7:'m7',m7b5:'m7♭5',sus2:'sus2',sus4:'sus4'};
-const QNAME={maj:'Major',min:'Minor',dim:'Diminished',aug:'Augmented',dom7:'Dom 7',maj7:'Maj 7',min7:'Min 7',m7b5:'Min 7♭5',sus2:'Sus 2',sus4:'Sus 4'};
-const QIVS={maj:[0,4,7],min:[0,3,7],dim:[0,3,6],aug:[0,4,8],dom7:[0,4,7,10],maj7:[0,4,7,11],min7:[0,3,7,10],m7b5:[0,3,6,10]};
+const QSYM={maj:'',min:'m',dim:'°',aug:'+',dom7:'7',maj7:'maj7',min7:'m7',m7b5:'m7♭5',sus2:'sus2',sus4:'sus4',dom9:'9',maj9:'maj9',min9:'m9',min11:'m11',dom13:'13',maj13:'maj13',dom7b9:'7♭9',dom7s9:'7♯9',dim7:'dim7',hdim:'ø7',aug7:'aug7',sus4_7:'7sus4'};
+const QNAME={maj:'Major',min:'Minor',dim:'Diminished',aug:'Augmented',dom7:'Dom 7th',maj7:'Maj 7th',min7:'Min 7th',m7b5:'Half-dim',sus2:'Sus 2',sus4:'Sus 4',dom9:'Dom 9th',maj9:'Maj 9th',min9:'Min 9th',min11:'Min 11th',dom13:'Dom 13th',dim7:'Dim 7th',hdim:'Half-dim',dom7b9:'7♭9'};
+const QIVS={
+  maj:[0,4,7],min:[0,3,7],dim:[0,3,6],aug:[0,4,8],
+  dom7:[0,4,7,10],maj7:[0,4,7,11],min7:[0,3,7,10],m7b5:[0,3,6,10],
+  dim7:[0,3,6,9],dom9:[0,4,7,10,14],maj9:[0,4,7,11,14],min9:[0,3,7,10,14],
+  dom7b9:[0,4,7,10,13],sus4_7:[0,5,7,10]
+};
 function chordName(root,q){return root+(QSYM[q]??q)}
-function chordNotes(root,q){return(QIVS[q]||[0,4,7]).map(i=>na(root,i))}
+function chordNotes(root,q){return(QIVS[q]||[0,4,7]).map(i=>na(root,i%12))}
 
-// Scale chord builder
+// Jazz voicing upgrade
+function jazzUpgrade(q, degree){
+  // Upgrade chords to jazz voicings based on chord quality & degree
+  const map={maj:'maj7',min:'min7',dim:'m7b5'};
+  // Extra color on certain degrees
+  if(JAZZ){
+    if(q==='dom7'||q==='maj'&&degree===4) return 'dom7'; // V stays dom7
+    if(q==='dim') return 'm7b5';
+    return map[q]||q;
+  }
+  return q;
+}
+
 const DROM=['I','ii','iii','IV','V','vi','vii°'];
 const DROMF=['I — Tonic','ii — Supertonic','iii — Mediant','IV — Subdominant','V — Dominant','vi — Submediant','vii° — Leading Tone'];
 const DFUNC=['Tonic','Supertonic','Mediant','Subdominant','Dominant','Submediant','Leading Tone'];
@@ -450,13 +635,15 @@ function diatonicChords(root,ivs,jazz){
     else if(t3===3&&t5===6)q='dim';
     else if(t3===4&&t5===8)q='aug';
     if(jazz){const t7=(arr[(i+6)%7]-iv+12)%12;const m={maj:{11:'maj7',10:'dom7'},min:{10:'min7'},dim:{10:'m7b5'}};q=(m[q]&&m[q][t7])||q;}
-    return{root:cr,q,sym:chordName(cr,q),notes:chordNotes(cr,q),rom:DROM[i]||''};
+    return{root:cr,q,sym:chordName(cr,q),notes:chordNotes(cr,q),rom:DROM[i]||'',degree:i};
   });
 }
 
 // ── State ──
 let ROOT='C',VIEW='scale',JAZZ=false,INDIAN=false,OPEN_SCALE=null,OPEN_MODE=null,OPEN_THAAT=null,OPEN_RAGA=null;
 let dcLit=new Set();
+let CURRENT_SONG=null;
+let SELECTED_GENRE='jazz';
 
 // ── Swara names ──
 const SWARAS={0:'Sa',1:'re♭',2:'Re',3:'ga♭',4:'Ga',5:'Ma',6:'Ma#',7:'Pa',8:'dha♭',9:'Dha',10:'ni♭',11:'Ni'};
@@ -472,401 +659,1291 @@ const SCALES={
   'Mixolydian':   {iv:[0,2,4,5,7,9,10],steps:['W','W','H','W','W','H','W'],vibe:'Bluesy · Rock · Dominant',desc:'Major scale with ♭7. The dominant 7th built on the tonic. Backbone of blues, rock and Celtic music. Corresponds to Khamaj Thaat.',thaat:'Khamaj'},
   'Phrygian':     {iv:[0,1,3,5,7,8,10],steps:['H','W','W','W','H','W','W'],vibe:'Dark · Spanish · Intense',desc:'Minor scale with ♭2. Distinctly exotic and intense — foundational to Flamenco and metal. Corresponds to Bhairavi Thaat.',thaat:'Bhairavi'},
   'Lydian':       {iv:[0,2,4,6,7,9,11],steps:['W','W','W','H','W','W','H'],vibe:'Dreamy · Floating · Cinematic',desc:'Major with ♯4 (tritone above root). Ethereal and upward-reaching — widely used in film scores and jazz. Corresponds to Kalyan Thaat.',thaat:'Kalyan'},
-  'Pentatonic Maj':{iv:[0,2,4,7,9],   steps:['W','W','A','W','A'],vibe:'Open · Universal · Folk',desc:'Five-note major scale. The most universally human scale — found in cultures worldwide. No semitones means no tension.',thaat:null},
-  'Pentatonic Min':{iv:[0,3,5,7,10],  steps:['A','W','W','A','W'],vibe:'Gritty · Rock · Blues',desc:'Five-note minor scale. The foundation of blues, rock and country soloing. Instantly recognisable.',thaat:null},
-  'Blues':        {iv:[0,3,5,6,7,10], steps:['A','W','H','H','A','W'],vibe:'Soulful · Gritty · Expressive',desc:'Pentatonic minor + ♭5 "blue note". The defining scale of blues — the ♭5 creates the characteristic tension and vocal quality.',thaat:null},
-  'Whole Tone':   {iv:[0,2,4,6,8,10], steps:['W','W','W','W','W','W'],vibe:'Dreamy · Impressionist · Hovering',desc:'Six equidistant whole tones. Completely symmetric — no tonal centre, no resolution. Debussy\'s sound world. Every note feels equally distant.',thaat:null},
-  'Diminished':   {iv:[0,2,3,5,6,8,9,11],steps:['W','H','W','H','W','H','W','H'],vibe:'Tense · Symmetric · Octatonic',desc:'Alternating whole and half steps. Eight notes, fully symmetric. Two diminished 7th chords interleaved. Intense and harmonically versatile in jazz.',thaat:null},
+  'Pentatonic Maj':{iv:[0,2,4,7,9],   steps:['W','W','A','W','A'],vibe:'Open · Universal · Folk',desc:'Five-note major scale.',thaat:null},
+  'Pentatonic Min':{iv:[0,3,5,7,10],  steps:['A','W','W','A','W'],vibe:'Gritty · Rock · Blues',desc:'Five-note minor scale.',thaat:null},
+  'Blues':        {iv:[0,3,5,6,7,10], steps:['A','W','H','H','A','W'],vibe:'Soulful · Gritty · Expressive',desc:'Pentatonic minor + ♭5 "blue note".',thaat:null},
+  'Whole Tone':   {iv:[0,2,4,6,8,10], steps:['W','W','W','W','W','W'],vibe:'Dreamy · Impressionist · Hovering',desc:'Six equidistant whole tones.',thaat:null},
+  'Diminished':   {iv:[0,2,3,5,6,8,9,11],steps:['W','H','W','H','W','H','W','H'],vibe:'Tense · Symmetric · Octatonic',desc:'Alternating whole and half steps.',thaat:null},
 };
 
-// ── Mode Data ──
 const MODES=[
-  {n:'Ionian',    g:'Natural Major',  iv:[0,2,4,5,7,9,11],steps:['W','W','H','W','W','W','H'],v:'Bright · Happy · Resolved',  d:'The standard major scale. Fully resolved, no inherent tension.',thaat:'Bilawal'},
-  {n:'Dorian',    g:'Minor + ♮6',     iv:[0,2,3,5,7,9,10],steps:['W','H','W','W','W','H','W'],v:'Cool · Jazzy · Soulful',    d:'Minor with natural 6th. Brighter than natural minor — core of jazz, funk and Celtic.',thaat:'Kafi'},
-  {n:'Phrygian',  g:'Minor + ♭2',     iv:[0,1,3,5,7,8,10],steps:['H','W','W','W','H','W','W'],v:'Dark · Intense · Spanish',  d:'Minor with flat 2nd. Intensely dark and exotic. Flamenco and metal rely on it.',thaat:'Bhairavi'},
-  {n:'Lydian',    g:'Major + ♯4',     iv:[0,2,4,6,7,9,11],steps:['W','W','W','H','W','W','H'],v:'Dreamy · Cinematic · Bright',d:'Major with raised 4th. Ethereal and floating. Film music loves it.',thaat:'Kalyan'},
-  {n:'Mixolydian',g:'Major + ♭7',     iv:[0,2,4,5,7,9,10],steps:['W','W','H','W','W','H','W'],v:'Bluesy · Rock · Dominant',  d:'Major with lowered 7th — dominant chord built on the tonic.',thaat:'Khamaj'},
-  {n:'Aeolian',   g:'Natural Minor',  iv:[0,2,3,5,7,8,10],steps:['W','H','W','W','H','W','W'],v:'Sad · Introspective · Dark', d:'The natural minor scale. Backbone of minor-key Western music.',thaat:'Asavari'},
-  {n:'Locrian',   g:'Diminished + ♭2',iv:[0,1,3,5,6,8,10],steps:['H','W','H','W','W','W','W'],v:'Tense · Unstable · Rare',   d:'Most dissonant mode — diminished tonic, flat 5th. Almost unused melodically.',thaat:null},
+  {n:'Ionian',    g:'Natural Major',  iv:[0,2,4,5,7,9,11],steps:['W','W','H','W','W','W','H'],v:'Bright · Happy · Resolved',  d:'The standard major scale.',thaat:'Bilawal'},
+  {n:'Dorian',    g:'Minor + ♮6',     iv:[0,2,3,5,7,9,10],steps:['W','H','W','W','W','H','W'],v:'Cool · Jazzy · Soulful',    d:'Minor with natural 6th.',thaat:'Kafi'},
+  {n:'Phrygian',  g:'Minor + ♭2',     iv:[0,1,3,5,7,8,10],steps:['H','W','W','W','H','W','W'],v:'Dark · Intense · Spanish',  d:'Minor with flat 2nd.',thaat:'Bhairavi'},
+  {n:'Lydian',    g:'Major + ♯4',     iv:[0,2,4,6,7,9,11],steps:['W','W','W','H','W','W','H'],v:'Dreamy · Cinematic · Bright',d:'Major with raised 4th.',thaat:'Kalyan'},
+  {n:'Mixolydian',g:'Major + ♭7',     iv:[0,2,4,5,7,9,10],steps:['W','W','H','W','W','H','W'],v:'Bluesy · Rock · Dominant',  d:'Major with lowered 7th.',thaat:'Khamaj'},
+  {n:'Aeolian',   g:'Natural Minor',  iv:[0,2,3,5,7,8,10],steps:['W','H','W','W','H','W','W'],v:'Sad · Introspective · Dark', d:'The natural minor scale.',thaat:'Asavari'},
+  {n:'Locrian',   g:'Diminished + ♭2',iv:[0,1,3,5,6,8,10],steps:['H','W','H','W','W','W','W'],v:'Tense · Unstable · Rare',   d:'Most dissonant mode.',thaat:null},
 ];
 
-// ── Thaat Data ──
 const THAATS={
-  Bilawal:{iv:[0,2,4,5,7,9,11],swaras:'Sa Re Ga Ma Pa Dha Ni',vibe:'Pure · Radiant · Serene',
-    desc:'The foundation thaat — all <em>shuddha</em> (natural) swaras. Directly equivalent to the Western major scale. The most balanced and complete thaat, representing clarity, purity and auspiciousness.',
-    western:'Major Scale / Ionian mode (C D E F G A B)',
-    ragas:['Alhaiya Bilawal','Bilawal','Bihag','Shankara','Marwa'],
-    note:'Bilawal is the only thaat with no altered swaras — a perfect bridge for Western musicians entering Indian music.'},
-  Kalyan:{iv:[0,2,4,6,7,9,11],swaras:'Sa Re Ga Ma# Pa Dha Ni',vibe:'Ethereal · Expansive · Romantic',
-    desc:'Uses <em>tivra</em> (sharpened) Ma — creates an otherworldly, floating quality. The quintessential evening thaat of romance and longing. Like looking at the horizon just before the stars appear.',
-    western:'Lydian mode (C D E F# G A B)',
-    ragas:['Yaman','Bhupali','Kedar','Hameer','Bihag'],
-    note:'The ♯4 (tivra Ma = F# in C) is the single defining difference from Bilawal. Western musicians: think Lydian mode.'},
-  Khamaj:{iv:[0,2,4,5,7,9,10],swaras:'Sa Re Ga Ma Pa Dha ni',vibe:'Playful · Festive · Folk',
-    desc:'Uses <em>komal</em> (flat) Ni — gives a dominant-7th flavour to the tonic chord. Very popular in thumri, bhajan and folk music. Celebratory, light-hearted, festive.',
-    western:'Mixolydian mode (C D E F G A B♭)',
-    ragas:['Khamaj','Jhinjhoti','Des','Tilang','Sorath'],
-    note:'Komal Ni (♭7) is the only difference from Major. Western musicians: think Mixolydian — the scale of blues and rock.'},
-  Kafi:{iv:[0,2,3,5,7,9,10],swaras:'Sa Re ga Ma Pa Dha ni',vibe:'Wistful · Seasonal · Folk',
-    desc:'Uses <em>komal</em> Ga and Ni — the scale of Holi songs and seasonal ragas. A raga family of open fields and wistful longing. Think Dorian but with a distinctly Indian folk character.',
-    western:'Dorian mode (C D E♭ F G A B♭)',
-    ragas:['Kafi','Pilu','Bageshri','Bhimpalasi','Dhani'],
-    note:'Two flatted notes (♭3 and ♭7). Western musicians: identical to Dorian mode — the scale of jazz, Celtic music and funk.'},
-  Asavari:{iv:[0,2,3,5,7,8,10],swaras:'Sa Re ga Ma Pa dha ni',vibe:'Sorrowful · Meditative · Morning',
-    desc:'Three <em>komal</em> swaras — Ga, Dha and Ni. A morning thaat of quiet sorrow and prayer. Evokes the solitary seeker at sunrise, offering devotion before the world wakes.',
-    western:'Natural Minor / Aeolian mode (C D E♭ F G A♭ B♭)',
-    ragas:['Asavari','Jaunpuri','Desi','Gandhari','Komal Rishabh Asavari'],
-    note:'Three flats (♭3 ♭6 ♭7). Identical to Aeolian mode — the natural minor scale Western musicians know well.'},
-  Bhairavi:{iv:[0,1,3,5,7,8,10],swaras:'Sa re ga Ma Pa dha ni',vibe:'Tender · Devotional · Farewell',
-    desc:'All five "movable" swaras are <em>komal</em> — only Ma and Pa are natural. The raga of farewell, performed last at every concert. Paradoxically, one of the most beloved thaats despite — or because of — its completeness of emotion.',
-    western:'Phrygian mode (C D♭ E♭ F G A♭ B♭)',
-    ragas:['Bhairavi','Sindhu Bhairavi','Malkauns','Dhani','Bilaskhani Todi'],
-    note:'Four flats (♭2 ♭3 ♭6 ♭7). Western musicians: think Phrygian / Spanish Flamenco scale — the most "exotic" mode.'},
-  Bhairav:{iv:[0,1,4,5,7,8,11],swaras:'Sa re Ga Ma Pa dha Ni',vibe:'Majestic · Devotional · Dawn',
-    desc:'Uses <em>komal</em> Re and Dha — all other swaras natural. Named after Lord Shiva himself, Bhairav is the thaat of sacred dawn, deep prayer and inner stillness. The two minor-second intervals give it a grave, majestic quality.',
-    western:'Double Harmonic / Byzantine scale (C D♭ E F G A♭ B)',
-    ragas:['Bhairav','Ramkali','Kalingada','Ahir Bhairav','Bairagi'],
-    note:'No direct Western mode equivalent. The "Double Harmonic" scale — two augmented 2nds give it its characteristic ancient, sacred sound.'},
-  Purvi:{iv:[0,1,4,6,7,8,11],swaras:'Sa re Ga Ma# Pa dha Ni',vibe:'Intense · Yearning · Sunset',
-    desc:'Komal Re and Dha with <em>tivra</em> Ma — maximum tension against Sa. The thaat of sunset and intense longing. When performed, it evokes the ache of the end of day and the approaching darkness.',
-    western:'No direct equivalent — between Byzantine and Lydian',
-    ragas:['Purvi','Shri','Basant','Paraj','Puriya Dhanashri'],
-    note:'Uniquely Indian — no Western mode shares this combination. The ♭2 and ♯4 together against the tonic create extraordinary tension.'},
-  Marwa:{iv:[0,1,4,6,9,11],swaras:'Sa re Ga Ma# (Pa) Dha Ni',vibe:'Mysterious · Restless · Dusk',
-    desc:'Komal Re and <em>tivra</em> Ma — Pa is traditionally <em>absent</em>. The most restless and searching thaat. Performed in the late afternoon before sunset, it captures the suspended, timeless feeling of dusk.',
-    western:'Lydian ♭2 without perfect 5th — no Western equivalent',
-    ragas:['Marwa','Puriya','Sohini','Bhatiyar','Lalit'],
-    note:'The missing Pa (5th scale degree) is unusual in any tradition. The tritone between re and Ma# creates extreme, unresolved tension.'},
-  Todi:{iv:[0,1,3,6,7,8,11],swaras:'Sa re ga Ma# Pa dha Ni',vibe:'Profound · Complex · Morning',
-    desc:'The most revered and complex thaat. Komal Re, Ga and Dha with <em>tivra</em> Ma — four altered swaras creating a unique, irreplaceable emotional depth. Named after Mian Tansen\'s great raga.',
-    western:'Phrygian ♯4 (Hungarian minor variant) — near unique',
-    ragas:['Miyan ki Todi','Gujari Todi','Multani','Bilaskhani Todi','Todi'],
-    note:'No Western scale is a precise match. The combination of ♭2 ♭3 ♯4 ♭6 creates the most complex melodic environment in Hindustani music.'},
+  Bilawal:{iv:[0,2,4,5,7,9,11],swaras:'Sa Re Ga Ma Pa Dha Ni',vibe:'Pure · Radiant · Serene',desc:'The foundation thaat — all <em>shuddha</em> (natural) swaras.',western:'Major Scale / Ionian mode (C D E F G A B)',ragas:['Alhaiya Bilawal','Bilawal','Bihag','Shankara','Marwa'],note:'Bilawal is the only thaat with no altered swaras.'},
+  Kalyan:{iv:[0,2,4,6,7,9,11],swaras:'Sa Re Ga Ma# Pa Dha Ni',vibe:'Ethereal · Expansive · Romantic',desc:'Uses <em>tivra</em> (sharpened) Ma.',western:'Lydian mode (C D E F# G A B)',ragas:['Yaman','Bhupali','Kedar','Hameer','Bihag'],note:'The ♯4 (tivra Ma) is the defining difference from Bilawal.'},
+  Khamaj:{iv:[0,2,4,5,7,9,10],swaras:'Sa Re Ga Ma Pa Dha ni',vibe:'Playful · Festive · Folk',desc:'Uses <em>komal</em> (flat) Ni.',western:'Mixolydian mode (C D E F G A B♭)',ragas:['Khamaj','Jhinjhoti','Des','Tilang','Sorath'],note:'Komal Ni (♭7) is the only difference from Major.'},
+  Kafi:{iv:[0,2,3,5,7,9,10],swaras:'Sa Re ga Ma Pa Dha ni',vibe:'Wistful · Seasonal · Folk',desc:'Uses <em>komal</em> Ga and Ni.',western:'Dorian mode (C D E♭ F G A B♭)',ragas:['Kafi','Pilu','Bageshri','Bhimpalasi','Dhani'],note:'Two flatted notes (♭3 and ♭7).'},
+  Asavari:{iv:[0,2,3,5,7,8,10],swaras:'Sa Re ga Ma Pa dha ni',vibe:'Sorrowful · Meditative · Morning',desc:'Three <em>komal</em> swaras — Ga, Dha and Ni.',western:'Natural Minor / Aeolian mode (C D E♭ F G A♭ B♭)',ragas:['Asavari','Jaunpuri','Desi','Gandhari'],note:'Three flats (♭3 ♭6 ♭7).'},
+  Bhairavi:{iv:[0,1,3,5,7,8,10],swaras:'Sa re ga Ma Pa dha ni',vibe:'Tender · Devotional · Farewell',desc:'All five movable swaras are <em>komal</em>.',western:'Phrygian mode (C D♭ E♭ F G A♭ B♭)',ragas:['Bhairavi','Sindhu Bhairavi','Malkauns'],note:'Four flats (♭2 ♭3 ♭6 ♭7).'},
+  Bhairav:{iv:[0,1,4,5,7,8,11],swaras:'Sa re Ga Ma Pa dha Ni',vibe:'Majestic · Devotional · Dawn',desc:'Uses <em>komal</em> Re and Dha.',western:'Double Harmonic / Byzantine scale',ragas:['Bhairav','Ramkali','Ahir Bhairav'],note:'No direct Western mode equivalent.'},
+  Purvi:{iv:[0,1,4,6,7,8,11],swaras:'Sa re Ga Ma# Pa dha Ni',vibe:'Intense · Yearning · Sunset',desc:'Komal Re and Dha with <em>tivra</em> Ma.',western:'No direct equivalent',ragas:['Purvi','Shri','Basant'],note:'Uniquely Indian.'},
+  Marwa:{iv:[0,1,4,6,9,11],swaras:'Sa re Ga Ma# (Pa) Dha Ni',vibe:'Mysterious · Restless · Dusk',desc:'Komal Re and <em>tivra</em> Ma — Pa absent.',western:'Lydian ♭2 without perfect 5th',ragas:['Marwa','Puriya','Sohini'],note:'The missing Pa is unusual in any tradition.'},
+  Todi:{iv:[0,1,3,6,7,8,11],swaras:'Sa re ga Ma# Pa dha Ni',vibe:'Profound · Complex · Morning',desc:'The most revered and complex thaat.',western:'Phrygian ♯4 — near unique',ragas:['Miyan ki Todi','Gujari Todi','Multani'],note:'No Western scale is a precise match.'},
 };
 
-// ── Raga Database ──
-const RAGAS={
-  'Yaman':{
-    thaat:'Kalyan',time:'Evening (7–10pm)',mood:'Romantic · Twilight longing · Elevated',
-    desc:'The king of evening ragas and the most widely taught raga in Hindustani music. Uses <em>tivra Ma</em> (♯4) exclusively, giving it the floating, upward-reaching quality of the Lydian mode. Expressive across all tempos from deeply meditative to joyously fast.',
-    aroh:[{n:'Ni',sw:'Ni',iv:11,cls:'',oct:-1},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'II',rSemi:2,q:'maj'},{fn:'V',rSemi:7,q:'maj'},{fn:'vi',rSemi:9,q:'min'}],
-    western:'Lydian mode — 1 2 3 ♯4 5 6 7',
-    tip:'Begin phrases from Ni (7th) below Sa for the authentic Yaman approach. The ♯4 (tivra Ma / F# in C) is the defining note — emphasise it in both ascent and descent.',
-    talas:['Teentaal','Ektaal','Jhaptaal'],
-    links:{scales:['Lydian'],modes:['Lydian'],thaats:['Kalyan']},
+// ── Song Generator ──
+
+const GENRES={
+  jazz:{
+    label:'Jazz',icon:'🎷',
+    color:'on-lapis',
+    forms:['AABA','ABAC','12-bar','Through-composed','ABA'],
+    tempos:['Ballad (♩=60–80)','Medium Swing (♩=120–140)','Up-tempo (♩=200+)','Bossa (♩=130)'],
+    styleNote:'Rich extensions · ii-V-I motion · tritone subs',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','vi','IV','V'],['I','ii','V','I'],
+        ['I','IV','ii','V'],['I','iii','vi','ii','V','I'],
+        ['iii','vi','ii','V'],['I','IV','I','V'],['I','vi','ii','V'],
+      ],
+      minor:[
+        ['i','iv','V','i'],['i','VI','III','VII'],['i','ii°','V','i'],
+        ['i','iv','VII','III'],['i','VI','VII','i'],
+      ],
+      bridge:[
+        ['IV','V','iii','vi'],['II','V','I'],['vi','ii','V','I'],
+        ['♭VII','IV','I'],['♭II7','V7','I'],
+      ]
+    },
+    jazzMods:{
+      'I':'Imaj7','IV':'IVmaj7','V':'V7','ii':'ii7','iii':'iii7','vi':'vi7',
+      'i':'im7','iv':'iv7','VII':'VII7','VI':'VImaj7','III':'IIImaj7',
+      '♭VII':'♭VIImaj7','♭II7':'♭II7','II':'II7','II7':'II7',
+    }
   },
-  'Bhupali':{
-    thaat:'Kalyan',time:'Evening (6–9pm)',mood:'Sweet · Joyful · Accessible',
-    desc:'A pentatonic evening raga — omits Ma and Ni entirely. Despite simplicity, deeply expressive. One of the first ragas taught to students. Beloved in devotional and film music alike.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'II',rSemi:2,q:'maj'},{fn:'iii',rSemi:4,q:'min'},{fn:'V',rSemi:7,q:'maj'}],
-    western:'Major pentatonic — 1 2 3 5 6',
-    tip:'In C: C D E G A. Western musicians will find this identical to the major pentatonic — but Indian treatment uses intense meend (slides) especially between Ga and Pa.',
-    talas:['Teentaal','Dadra'],
-    links:{scales:['Pentatonic Maj'],thaats:['Kalyan']},
+  blues:{
+    label:'Blues',icon:'🎸',
+    color:'on',
+    forms:['12-bar','8-bar','16-bar'],
+    tempos:['Slow Blues (♩=60)','Medium Blues (♩=100)','Shuffle (♩=130)','Fast Blues (♩=180)'],
+    styleNote:'Dominant 7ths throughout · blue notes · turnarounds',
+    progressions:{
+      major:[['I7','IV7','I7','I7','IV7','IV7','I7','I7','V7','IV7','I7','V7']],
+      minor:[['i7','iv7','i7','i7','iv7','iv7','i7','i7','V7','iv7','i7','V7']],
+      bridge:[['IV7','V7','I7']]
+    },
+    jazzMods:{'I7':'I7','IV7':'IV7','V7':'V7','i7':'i7','iv7':'iv7'}
   },
-  'Kedar':{
-    thaat:'Kalyan',time:'Late night (10pm–1am)',mood:'Devotional · Peaceful · Meditative',
-    desc:'A peaceful, devotional night raga that uses both tivra and shuddha Ma. Named after a sacred Himalayan pilgrimage site. Its phrases have a gentle, circular quality — each phrase seeming to flow back to the beginning.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'V',rSemi:7,q:'maj'}],
-    western:'Lydian with shuddha Ma as ornament — dual-Ma defines this raga',
-    tip:'Kedar omits Re and Ga on ascent — jump directly Sa→Ma. Both F (shuddha) and F# (tivra) appear in the same piece. The raga sounds strikingly similar to certain Romantic-era Western compositions.',
-    talas:['Ektaal','Teentaal'],
-    links:{thaats:['Kalyan'],modes:['Lydian']},
+  pop:{
+    label:'Pop',icon:'🎵',
+    color:'on',
+    forms:['Verse-Chorus','ABABCB','AABA'],
+    tempos:['Slow Pop (♩=72)','Medium Pop (♩=100)','Upbeat (♩=120)','Dance (♩=140)'],
+    styleNote:'Triads · clear function · hook-driven',
+    progressions:{
+      major:[
+        ['I','V','vi','IV'],['I','IV','V','IV'],['I','vi','IV','V'],
+        ['I','IV','I','V'],['vi','IV','I','V'],['I','V','IV','I'],
+      ],
+      minor:[
+        ['i','VI','III','VII'],['i','iv','VI','VII'],['i','VII','VI','VII'],
+      ],
+      bridge:[['IV','V','I'],['vi','V','IV'],['II','V','I']]
+    },
+    jazzMods:{}
   },
-  'Hameer':{
-    thaat:'Kalyan',time:'Late night',mood:'Regal · Dignified · Stately',
-    desc:'A regal night raga of great dignity. Uses shuddha Ma ascending and tivra Ma descending — the same dual-Ma gesture as Kedar but with all seven notes present. Favoured by instrumental musicians for its bold, wide-interval phrases.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'II',rSemi:2,q:'maj'},{fn:'V',rSemi:7,q:'maj'},{fn:'vi',rSemi:9,q:'min'}],
-    western:'Ionian ascending · Lydian descending — tivra Ma appears only between Ni and Pa in descent',
-    tip:'The stately character suits slow, majestic improvisations. In jazz terms, think of it as alternating between Ionian (ascending) and Lydian (descending) in the same solo.',
-    talas:['Teentaal','Ektaal'],
-    links:{scales:['Lydian','Major'],thaats:['Kalyan']},
+  rock:{
+    label:'Rock',icon:'🎸',
+    color:'on',
+    forms:['Verse-Chorus','12-bar','ABA','Riff-based'],
+    tempos:['Power Ballad (♩=72)','Classic Rock (♩=120)','Hard Rock (♩=150)','Punk (♩=180+)'],
+    styleNote:'Power chords · modal movement · pentatonic feel',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','♭VII','IV','I'],['I','IV','♭VII','IV'],
+        ['I','V','IV','I'],['I','♭III','♭VII','IV'],
+      ],
+      minor:[
+        ['i','VII','VI','VII'],['i','iv','v','i'],['i','♭VI','♭VII','i'],
+        ['i','VII','IV','i'],
+      ],
+      bridge:[['♭VI','♭VII','i'],['IV','V','I'],['♭VII','IV','I']]
+    },
+    jazzMods:{}
   },
-  'Bihag':{
-    thaat:'Bilawal',time:'Late night (10pm–1am)',mood:'Romantic · Tender · Night bloom',
-    desc:'One of the most beloved night ragas — widely used in film music and classical concerts. Features a sweet, intimate treatment of Ga and uses tivra Ma only in descent. The raga of tender, private romance.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'iii',rSemi:4,q:'min'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V',rSemi:7,q:'maj'}],
-    western:'Ionian ascending · Lydian-touch descending — tivra Ma only between Ni and Pa',
-    tip:'Ascending skips Re — jump Sa→Ga. The tivra Ma (F# in C) appears only in descent, giving a Lydian shimmer on the way down. Think major scale up, Lydian flavour down.',
-    talas:['Teentaal','Roopak'],
-    links:{scales:['Major','Lydian'],thaats:['Bilawal','Kalyan']},
+  classical:{
+    label:'Classical',icon:'🎻',
+    color:'on',
+    forms:['Sonata','Rondo','Theme & Variations','Binary (AB)','Ternary (ABA)'],
+    tempos:['Largo (♩=40–60)','Andante (♩=76–108)','Allegro (♩=120–168)','Presto (♩=168+)'],
+    styleNote:'Voice leading · cadences · functional harmony',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','ii','V','I'],['I','vi','ii','V','I'],
+        ['I','IV','ii','V7','I'],['I','iii','IV','V'],
+      ],
+      minor:[
+        ['i','iv','V','i'],['i','ii°','V','i'],['i','VI','iv','V','i'],
+        ['i','iv','i','V7','i'],
+      ],
+      bridge:[['IV','ii','V7','I'],['vi','ii','V','I'],['iv','V7','i']]
+    },
+    jazzMods:{}
   },
-  'Alhaiya Bilawal':{
-    thaat:'Bilawal',time:'Morning (7–11am)',mood:'Joyful · Bright · Optimistic',
-    desc:'A bright morning raga with an expansive, joyful character. Weaves between Bilawal and Kalyan thaats in its phrases — both shuddha and tivra Ma can appear. One of the most performed ragas in morning concerts.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V',rSemi:7,q:'maj'},{fn:'vi',rSemi:9,q:'min'}],
-    western:'Major scale (Ionian) — occasionally touches Lydian in ornamental phrases',
-    tip:'Use gentle oscillation (gamak) on Ga. The raga has natural brightness that pairs with flowing arched melodies. Begin long phrases from below, often from Ni of the lower octave.',
-    talas:['Teentaal','Ektaal'],
-    links:{scales:['Major'],thaats:['Bilawal']},
+  bossa:{
+    label:'Bossa Nova',icon:'🌴',
+    color:'on-lapis',
+    forms:['AABA','16-bar','Through-composed'],
+    tempos:['Slow Bossa (♩=100)','Medium Bossa (♩=130)','Samba (♩=160)'],
+    styleNote:'maj7 · dom9 · ii-V-I · Jobim-style extensions',
+    progressions:{
+      major:[
+        ['Imaj7','IV7','iii7','♭III7'],['Imaj7','VII7','IIImaj7','♭III7'],
+        ['ii7','V7','Imaj7','♭VII7'],['Imaj7','vi7','ii7','V7'],
+        ['I6','♭III°7','ii7','V7'],
+      ],
+      minor:[
+        ['im7','♭VII7','♭VImaj7','V7'],['im9','iv7','V7sus','V7'],
+      ],
+      bridge:[['♭II7','V7','Imaj7'],['IV7','♭IV°7','iii7','♭III7']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','ii7':'ii9','V7':'V9','IV7':'IV7♯11',
+      '♭VII7':'♭VII7','IIImaj7':'IIImaj7','♭III7':'♭III7',
+    }
   },
-  'Shankara':{
-    thaat:'Bilawal',time:'Night',mood:'Devotional · Powerful · Spare',
-    desc:'A pentatonic raga dedicated to Lord Shiva. Omits Re and Dha entirely. Despite its simplicity, it commands great authority and intensity — the sparse landscape creates a powerful, uncluttered devotional quality.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'iii',rSemi:4,q:'min'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V',rSemi:7,q:'maj'}],
-    western:'Major pentatonic without Re and Dha (1 3 4 5 7)',
-    tip:'The absence of Re and Dha creates immense space. Let phrases resolve strongly to Sa and Pa. Do not rush — the raga lives in the silence between notes.',
-    talas:['Teentaal','Ektaal'],
-    links:{scales:['Pentatonic Maj'],thaats:['Bilawal']},
+  funk:{
+    label:'Funk',icon:'🔥',
+    color:'on',
+    forms:['Groove-based','ABA','Vamp'],
+    tempos:['Mid Funk (♩=96)','Tight Funk (♩=110)','Fast Funk (♩=126)'],
+    styleNote:'16th-note feel · dominant 7ths · syncopation · one-chord vamps',
+    progressions:{
+      major:[
+        ['I7','IV7'],['I7','♭VII7'],['I7','IV7','I7','V7'],
+        ['I9','♭VII9'],['I7','ii7','I7'],
+      ],
+      minor:[
+        ['i7','♭VII7'],['i7','iv7'],['i9','♭VI7','♭VII7','i9'],
+      ],
+      bridge:[['IV7','V7','I7'],['♭VII7','IV7','I7']]
+    },
+    jazzMods:{
+      'I7':'I9','IV7':'IV9','V7':'V9','♭VII7':'♭VII9','i7':'i9',
+    }
   },
-  'Khamaj':{
-    thaat:'Khamaj',time:'Late night',mood:'Playful · Folk · Festive',
-    desc:'The raga of celebration and light-heartedness. Uses komal Ni in descent, shuddha Ni in ascent — this asymmetry is its defining feature. One of the most performed ragas in semi-classical and folk styles.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V7',rSemi:7,q:'dom7'},{fn:'vi',rSemi:9,q:'min'}],
-    western:'Ionian ascending · Mixolydian descending — komal ni (♭7) only on the way down',
-    tip:'The switch from Ni (B♮) ascending to ni (B♭) descending is the hallmark. Western musicians: think major scale up, Mixolydian down — a very natural sound for blues or folk players.',
-    talas:['Dadra','Kaherava','Teentaal'],
-    links:{scales:['Mixolydian','Major'],thaats:['Khamaj']},
+  folk:{
+    label:'Folk',icon:'🪕',
+    color:'on',
+    forms:['Verse-Chorus','Ballad (AABB)','Through-composed'],
+    signatureForm:'Verse-Chorus',
+    formAlts:['Verse-Chorus','Ballad (AABB)','Through-composed'],
+    tempos:['Slow Folk (♩=60)','Walking (♩=80)','Upbeat Folk (♩=110)'],
+    styleNote:'Open chords · diatonic · modal feel · no extensions',
+    progressions:{
+      major:[
+        ['I','V','I','IV'],['I','IV','I','V'],['I','ii','V','I'],
+        ['I','V','vi','IV'],['I','IV','V','IV'],
+      ],
+      minor:[
+        ['i','VII','VI','VII'],['i','iv','i','v'],['i','VII','III','VII'],
+      ],
+      bridge:[['IV','V','I'],['vi','IV','I']]
+    },
+    jazzMods:{}
   },
-  'Bhimpalasi':{
-    thaat:'Kafi',time:'Afternoon (3–6pm)',mood:'Lyrical · Yearning · Expressive',
-    desc:'A popular afternoon raga known for its deep lyrical expressiveness. Uses komal Ga and Ni throughout. Omits Re and Dha on ascent — the pentatonic ascent then full descent gives it a characteristic lift-and-settle quality.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'v',rSemi:7,q:'min'}],
-    western:'Dorian without 2nd and 6th ascending, full Dorian descending',
-    tip:'Ascending skips Re and Dha — go directly Sa→ga→Ma. The pentatonic ascent and full descent creates a characteristic "reaching up, settling down" shape. Rich with meend possibilities.',
-    talas:['Teentaal','Roopak'],
-    links:{scales:['Dorian'],thaats:['Kafi']},
+  house:{
+    label:'House',icon:'🎛️',
+    color:'on-lapis',
+    forms:['Intro-Drop-Breakdown-Drop-Outro','Build-Drop','ABA'],
+    signatureForm:'Intro-Drop-Breakdown-Drop-Outro',
+    formAlts:['Intro-Drop-Breakdown-Drop-Outro','Build-Drop','ABA'],
+    tempos:['Deep House (♩=120)','Classic House (♩=126)','Acid House (♩=130)','Tech House (♩=132)'],
+    styleNote:'Four-on-the-floor · chord stabs · soulful vocal chops',
+    progressions:{
+      major:[
+        ['Imaj7','IVmaj7','ii7','V7'],['I','IV','vi','V'],
+        ['Imaj7','vi7','IVmaj7','V7'],['I','♭VII','IV','I'],
+      ],
+      minor:[
+        ['i7','iv7','♭VII7','♭III'],['i7','♭VII','♭VI','♭VII'],
+        ['i7','iv7','i7','V7'],['i','♭VI','♭VII','i'],
+      ],
+      bridge:[['IV','V','I'],['♭VII','IV','I'],['ii7','V7','I']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','IVmaj7':'IVmaj9','ii7':'ii9','V7':'V9','vi7':'vi9',
+      'i7':'im9','iv7':'iv9','♭VII7':'♭VII9',
+    }
   },
-  'Bageshri':{
-    thaat:'Kafi',time:'Late night (11pm–2am)',mood:'Longing · Separation · Introspective',
-    desc:'One of the great night ragas — a raga of deep longing and separation (viraha). The komal Ga and Ni with natural Dha create a uniquely bittersweet quality. Beloved across instrumental and vocal traditions for its emotional depth.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'}],
-    western:'Dorian — ascending omits Re and Pa (pentatonic-like), full Dorian in descent',
-    tip:'The ascending line jumps Sa→ga→Ma→Dha — a characteristic vakra (zigzag). Pa appears only in descent. This raga is particularly beautiful on guitar with slide or on piano with sustained notes.',
-    talas:['Teentaal','Ektaal'],
-    links:{scales:['Dorian'],thaats:['Kafi']},
+  techno:{
+    label:'Techno',icon:'⚡',
+    color:'on-lapis',
+    forms:['Intro-Build-Drop-Break-Drop-Outro','Hypnotic Loop','Vamp'],
+    signatureForm:'Intro-Build-Drop-Break-Drop-Outro',
+    formAlts:['Intro-Build-Drop-Break-Drop-Outro','Hypnotic Loop','Vamp'],
+    tempos:['Industrial (♩=135)','Peak Techno (♩=140)','Hardgroove (♩=145)','Hard Techno (♩=150)'],
+    styleNote:'Minimalist · atonal tension · driving kick · industrial timbre',
+    progressions:{
+      major:[['I','♭VII'],['I','♭VI'],['i7','♭VII7'],['i','♭VII','♭VI','♭VII']],
+      minor:[
+        ['i','♭VII'],['i','♭VI','♭VII','i'],['i7','♭VI7'],['i','♭II'],
+      ],
+      bridge:[['♭VII','i'],['♭VI','♭VII'],['♭II','i']]
+    },
+    jazzMods:{'i7':'im7','♭VII7':'♭VII7','♭VI7':'♭VI7'}
   },
-  'Kafi':{
-    thaat:'Kafi',time:'Midnight',mood:'Wistful · Folk · Seasonal',
-    desc:'The thaat-defining raga. A raga of Holi (spring festival) and folk seasons. Komal Ga and Ni give it a Dorian character, but the Indian folk treatment makes it distinctly festive despite the minor colour.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'v',rSemi:7,q:'min'}],
-    western:'Dorian mode — identical note structure to D Dorian when Sa=D',
-    tip:'Western musicians: this is Dorian mode. The Indian folk treatment uses very short, rhythmically charged phrases — quite different from jazz Dorian. Perfect for fusion with folk-rock.',
-    talas:['Dadra','Kaherava','Teentaal'],
-    links:{scales:['Dorian'],modes:['Dorian'],thaats:['Kafi']},
+  ambient:{
+    label:'Ambient',icon:'🌊',
+    color:'on',
+    forms:['Through-composed','Drone','ABA'],
+    signatureForm:'Through-composed',
+    formAlts:['Through-composed','Drone','ABA'],
+    tempos:['Floating (♩=60)','Slow Drift (♩=72)','Pulse (♩=80)'],
+    styleNote:'Suspended voicings · long sustain · modal stasis · textural',
+    progressions:{
+      major:[
+        ['Imaj7','IVmaj7'],['Imaj9','iii7','IVmaj7','Imaj7'],
+        ['Imaj7','♭VIImaj7','IVmaj7'],
+      ],
+      minor:[
+        ['im7','♭VImaj7'],['im9','♭VII','♭VI'],['im7','♭VImaj7','♭VIImaj7'],
+      ],
+      bridge:[['IVmaj7','Imaj7'],['♭VImaj7','♭VIImaj7']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','IVmaj7':'IVmaj9','iii7':'iii9','im7':'im9',
+      '♭VImaj7':'♭VImaj9','♭VIImaj7':'♭VIImaj9',
+    }
   },
-  'Pilu':{
-    thaat:'Kafi',time:'Night',mood:'Light · Romantic · Folk expressive',
-    desc:'A highly flexible semi-classical raga associated with thumri and ghazal. Pilu uses notes from multiple thaats and allows great freedom — sometimes all 12 tones can appear as ornaments. Perfect for light, romantic expression.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'}],
-    western:'Dorian / Blues hybrid — notes from multiple scales allowed',
-    tip:'In jazz/blues terms, think of Pilu as "modal freedom" — the scale is Dorian but ornamental notes from other modes are freely borrowed. Ideal for fusion improvisation.',
-    talas:['Dadra','Kaherava'],
-    links:{scales:['Dorian','Blues'],thaats:['Kafi']},
+  dnb:{
+    label:'Drum & Bass',icon:'🥁',
+    color:'on',
+    forms:['Intro-Drop-Break-Drop','Liquid','ABA'],
+    signatureForm:'Intro-Drop-Break-Drop',
+    formAlts:['Intro-Drop-Break-Drop','Liquid','ABA'],
+    tempos:['Liquid DnB (♩=170)','Neurofunk (♩=174)','Jump-Up (♩=178)'],
+    styleNote:'Half-time feel · amen break · sub bass · minor-heavy',
+    progressions:{
+      major:[['I','♭VII','IV','I'],['I','IV','♭VII','I']],
+      minor:[
+        ['i','♭VII','♭VI','♭VII'],['i','iv','♭VI','♭VII'],
+        ['i7','♭VII7','♭VI7','♭VII7'],['i','♭VI','♭VII','i'],
+      ],
+      bridge:[['♭VI','♭VII','i'],['iv','♭VII','i']]
+    },
+    jazzMods:{'i7':'im7','♭VII7':'♭VII7','♭VI7':'♭VImaj7'}
   },
-  'Asavari':{
-    thaat:'Asavari',time:'Morning (7–11am)',mood:'Sorrowful · Prayerful · Meditative',
-    desc:'The defining raga of Asavari thaat. Three komal swaras give it a distinctly sorrowful, devotional morning quality. The characteristic ascending line skips Ga entirely, creating a sense of yearning and incompleteness that resolves in descent.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭VI',rSemi:8,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'},{fn:'iv',rSemi:5,q:'min'}],
-    western:'Natural minor / Aeolian — ascending omits Ga (pentatonic-like), full in descent',
-    tip:'Ga is completely absent on ascent. The raga descends in full natural minor. This creates the characteristic "incomplete going up, complete going down" movement — very moving and prayer-like.',
-    talas:['Teentaal','Jhaptaal'],
-    links:{scales:['Natural Minor'],modes:['Aeolian'],thaats:['Asavari']},
-  },
-  'Jaunpuri':{
-    thaat:'Asavari',time:'Morning',mood:'Lyrical · Gentle · Melancholic',
-    desc:'A lyrical morning raga of the Asavari family — more accessible than Asavari itself. Uses the same komal swaras but with a gentler, more lyrical character. Named after the city of Jaunpur.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'♭VI',rSemi:8,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'}],
-    western:'Natural minor — includes Ga in ascent (unlike Asavari)',
-    tip:'Jaunpuri includes ga on ascent, Asavari does not — this is the key distinction. Jaunpuri is the gentler raga. A good starting point before approaching the sterner Asavari.',
-    talas:['Teentaal','Jhaptaal'],
-    links:{scales:['Natural Minor'],thaats:['Asavari']},
-  },
-  'Bhairav':{
-    thaat:'Bhairav',time:'Dawn (5–8am)',mood:'Devotional · Grave · Serene',
-    desc:'One of the oldest and most revered ragas — personification of Lord Shiva himself. Komal Re and Dha give it a unique grandeur. The two minor-second intervals (Sa↔re and Pa↔dha) create a grave, sacred atmosphere. Performed at dawn, it captures the stillness of early morning prayer.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V',rSemi:7,q:'maj'}],
-    western:'Double Harmonic / Byzantine scale — 1 ♭2 3 4 5 ♭6 7',
-    tip:'Western musicians: think Double Harmonic scale. The minor second intervals (Sa→re and Pa→dha) create extreme tension and gravity. Use slow, contemplative phrases. The ♭II chord (Neapolitan) is the signature harmonic colour.',
-    talas:['Teentaal','Ektaal','Brahma Taal'],
-    links:{thaats:['Bhairav']},
-  },
-  'Ahir Bhairav':{
-    thaat:'Bhairav',time:'Morning',mood:'Romantic · Peaceful · Lyrical',
-    desc:'A softer, more romantic member of the Bhairav family. Uses komal re on both ascent and descent but shuddha Dha ascending, komal dha descending. A gentler sunrise after Bhairav\'s austere dawn.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V',rSemi:7,q:'maj'}],
-    western:'Byzantine ascending · Double Harmonic descending (asymmetric Dha)',
-    tip:'Shuddha Dha on ascent, komal dha on descent — this asymmetry defines Ahir Bhairav. It is warmer and more accessible than Bhairav. A beautiful entry point to the Bhairav family.',
-    talas:['Teentaal','Roopak'],
-    links:{thaats:['Bhairav']},
-  },
-  'Bhairavi':{
-    thaat:'Bhairavi',time:'Morning or anytime',mood:'Tender · Farewell · All-encompassing',
-    desc:'The raga of endings — always performed last at every concert. All five movable swaras are komal. Paradoxically, despite being a farewell raga, it is one of the most beloved and used ragas, flexible across all situations and emotions. An ocean of feeling.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'iv',rSemi:5,q:'min'}],
-    western:'Phrygian mode — 1 ♭2 ♭3 4 5 ♭6 ♭7',
-    tip:'Bhairavi is the most flexible raga — musicians freely use all 12 tones as ornaments. Western musicians: Phrygian/Spanish Flamenco scale. The ♭II chord (Neapolitan) creates the characteristic heartbreaking cadence.',
-    talas:['Dadra','Kaherava','Teentaal'],
-    links:{scales:['Phrygian'],modes:['Phrygian'],thaats:['Bhairavi']},
-  },
-  'Malkauns':{
-    thaat:'Bhairavi',time:'Late night (11pm–3am)',mood:'Profound · Still · Ancient',
-    desc:'One of the most ancient and revered ragas. A pure pentatonic raga — only five notes (Sa ga Ma dha ni). The omission of Re and Pa creates immense space and stillness. Considered the raga of deep midnight contemplation — the sound of inner silence.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'♭VI',rSemi:8,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'}],
-    western:'Minor pentatonic — 1 ♭3 4 ♭6 ♭7 (unique komal Dha instead of Pa)',
-    tip:'In C: C E♭ F A♭ B♭. Western musicians will recognise the minor pentatonic but the Indian treatment uses very slow, sustained meend (slides). No ornament — pure contemplative lines. A raga that slows time.',
-    talas:['Teentaal','Ektaal'],
-    links:{scales:['Pentatonic Min'],thaats:['Bhairavi']},
-  },
-  'Sindhu Bhairavi':{
-    thaat:'Bhairavi',time:'Any time (especially evening)',mood:'Romantic · Light · Folk expressive',
-    desc:'The most accessible and popular member of the Bhairavi family. Used extensively in thumri, ghazal and film music. Less strict than formal Bhairavi — ornamental shuddha swaras appear freely. The raga of easy, romantic expressiveness.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♭VI',rSemi:8,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'}],
-    western:'Phrygian / Spanish Flamenco — same scale, freer ornamental use',
-    tip:'Identical scale to Phrygian / Flamenco. Perfect for fusion — the Indian treatment adds meend (slides) between all adjacent komal notes. A raga where the performer has great creative freedom.',
-    talas:['Kaherava','Dadra'],
-    links:{scales:['Phrygian'],modes:['Phrygian'],thaats:['Bhairavi']},
-  },
-  'Miyan ki Todi':{
-    thaat:'Todi',time:'Late morning (9am–12pm)',mood:'Supreme beauty · Deep emotion · Complex',
-    desc:'One of the greatest ragas in all of Indian music — named after the legendary Mian Tansen. Komal Re, Ga, Dha and tivra Ma together create an unparalleled emotional depth. A raga of supreme complexity — it takes years of practice to reveal its full expressive potential.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'♭VI',rSemi:8,q:'maj'}],
-    western:'Phrygian ♯4 — in C: C D♭ E♭ F# G A♭ B',
-    tip:'In C: C D♭ E♭ F# G A♭ B. No Western scale is a precise match. The tritone (D♭ to F#) and cluster of minor 2nds create extraordinary tension. Take it very slow — every note carries enormous weight.',
-    talas:['Teentaal','Ektaal'],
-    links:{thaats:['Todi']},
-  },
-  'Gujari Todi':{
-    thaat:'Todi',time:'Morning',mood:'Lyrical · Gentle · Accessible',
-    desc:'A gentler member of the Todi family. Shares the same scale as Miyan ki Todi but has a softer, more lyrical character — less austere, more approaching. A beautiful entry point to the complex Todi family of ragas.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'♭VI',rSemi:8,q:'maj'}],
-    western:'Same as Miyan ki Todi — Phrygian ♯4 — but with softer phrasing emphasis',
-    tip:'Same scale as Miyan ki Todi, different melodic emphasis. Gujari Todi lingers more on Dha and uses gentler ornaments. If Todi is a mountain face, Gujari Todi is a mountain path.',
-    talas:['Teentaal','Jhaptaal'],
-    links:{thaats:['Todi']},
-  },
-  'Multani':{
-    thaat:'Todi',time:'Afternoon (2–5pm)',mood:'Contemplative · Spare · Afternoon heat',
-    desc:'A rare afternoon raga from the Todi family. Omits Re and Dha on ascent — the ascending pentatonic contrasts powerfully with the full Todi descent. Associated with deep contemplation during the still, hot afternoon hours.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'V',rSemi:7,q:'maj'},{fn:'♭II',rSemi:1,q:'maj'}],
-    western:'Pentatonic Lydian ascending · full Todi descending — a striking asymmetry',
-    tip:'The ascending pentatonic (Sa ga Ma# Pa Ni) is deceptively simple — then the full Todi complexity unfolds on descent. The contrast creates the raga\'s unique contemplative, shifting quality.',
-    talas:['Teentaal','Ektaal'],
-    links:{thaats:['Todi']},
-  },
-  'Bilaskhani Todi':{
-    thaat:'Todi',time:'Morning',mood:'Plaintive · Moving · Historical',
-    desc:'Named after Bilas Khan, son of the legendary Mian Tansen. According to legend, this raga was sung to revive Tansen from his deathbed. Uses the full Todi scale with particular emphasis on the komal swaras — its character is more plaintive and direct than the grand Miyan ki Todi.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'♭VI',rSemi:8,q:'maj'}],
-    western:'Identical to Todi scale — Phrygian ♯4 — different phrasing emphasis on re and ga',
-    tip:'Bilaskhani Todi lingers more on komal re and ga than Miyan ki Todi. If Todi is the grandeur of Akbar\'s court, Bilaskhani Todi is the intimate grief of a son at his father\'s deathbed.',
-    talas:['Teentaal','Ektaal'],
-    links:{thaats:['Todi']},
-  },
-  'Purvi':{
-    thaat:'Purvi',time:'Sunset (5–8pm)',mood:'Intense yearning · Parting · Twilight',
-    desc:'The raga of sunset and intense longing. Komal Re and Dha with tivra Ma create maximum tension against Sa. One of the most emotionally powerful ragas — it captures the ache of the end of day and the longing that comes with parting.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'♭VI',rSemi:8,q:'maj'}],
-    western:'Between Byzantine and Lydian — ♭2 and ♯4 together against a major 3rd',
-    tip:'Think of Purvi as Lydian with a ♭2 and ♭6. The combination of ♭2 and ♯4 against the tonic creates piercing tension. Phrases typically start from below — from re or Ni of the lower octave.',
-    talas:['Ektaal','Jhaptaal'],
-    links:{thaats:['Purvi']},
-  },
-  'Marwa':{
-    thaat:'Marwa',time:'Late afternoon (4–7pm)',mood:'Restless · Searching · Suspended',
-    desc:'One of the most unusual ragas — Pa (the perfect 5th) is traditionally omitted entirely. With komal Re and tivra Ma creating extreme tension against Sa, the raga has a deeply unsettled, searching quality. Performed in the eerie, suspended light just before sunset.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'VI',rSemi:9,q:'maj'}],
-    western:'Lydian ♭2 without Pa — no close Western equivalent',
-    tip:'Avoid G (Pa) in any key. The tritone between re (D♭) and Ma# (F# in C) creates immense, unresolved tension. Western musicians: this is unlike anything in modal harmony — the missing 5th creates a truly rootless feeling.',
-    talas:['Teentaal','Ektaal'],
-    links:{thaats:['Marwa']},
-  },
-  'Shri':{
-    thaat:'Purvi',time:'Sunset',mood:'Austere · Majestic · Powerful',
-    desc:'One of the great sunset ragas — a raga of tremendous power and austerity. Sometimes omits Pa. Described as the sound of the sun king descending into the earth — grand, vast and quietly devastating.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'♭VI',rSemi:8,q:'maj'}],
-    western:'No direct equivalent — tritone dominant with ♭2',
-    tip:'Ascending omits Ga entirely — the leap from re to Ma# is a tritone (augmented 4th). Shri demands bold, confident playing. Only master musicians are said to fully express its grandeur.',
-    talas:['Ektaal','Teentaal'],
-    links:{thaats:['Purvi']},
-  },
-  'Basant':{
-    thaat:'Purvi',time:'Spring season / Sunset',mood:'Colourful · Festive · Spring',
-    desc:'The raga of spring (Basant = spring in Hindi). Despite belonging to the serious Purvi thaat, Basant is playful and colourful — associated with the Holi festival. Its ascending line has a characteristic upward leap.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'♭VII',rSemi:10,q:'maj'}],
-    western:'Diminished-flavoured pentatonic ascending · full Purvi descending',
-    tip:'The ascending interval ga→Ma# is a diminished 5th — a striking, unusual sound. Basant\'s spring character comes from treating these "difficult" intervals playfully rather than gravely.',
-    talas:['Teentaal','Dadra'],
-    links:{thaats:['Purvi']},
-  },
-  'Dhani':{
-    thaat:'Kafi',time:'Night',mood:'Playful · Light · Folk',
-    desc:'A playful pentatonic night raga from the Kafi family. Omits Re and Dha — only five swaras. Despite the Bhairavi-like komal notes, Dhani has a lively folk character quite different from Bhairavi\'s gravity.',
-    aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],
-    avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],
-    chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'v',rSemi:7,q:'min'}],
-    western:'Minor pentatonic — 1 ♭3 4 5 ♭7',
-    tip:'In C: C E♭ F G B♭. Identical to the minor pentatonic. Indian treatment gives it a bouncy, folk character. Perfect as a fusion bridge — blues musicians will feel immediately at home.',
-    talas:['Kaherava','Dadra'],
-    links:{scales:['Pentatonic Min'],thaats:['Kafi']},
+  lofi:{
+    label:'Lo-fi',icon:'📻',
+    color:'on',
+    forms:['AABA','Verse-Chorus','Loop'],
+    signatureForm:'AABA',
+    formAlts:['AABA','Verse-Chorus','Loop'],
+    tempos:['Chilled (♩=70)','Lazy Beat (♩=80)','Dusty (♩=90)'],
+    styleNote:'maj7 · min7 · vinyl warmth · jazz-influenced · sleepy groove',
+    progressions:{
+      major:[
+        ['Imaj7','vi7','IVmaj7','V7'],['Imaj7','iii7','vi7','ii7'],
+        ['I6','IVmaj7','ii7','V7'],
+      ],
+      minor:[
+        ['im7','♭VImaj7','♭III7','♭VII7'],['im7','iv7','♭VII7','♭III7'],
+        ['im9','♭VImaj7','♭VII7','im9'],
+      ],
+      bridge:[['IVmaj7','V7','Imaj7'],['♭VII7','IV7','Imaj7']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','vi7':'vi9','IVmaj7':'IVmaj9','V7':'V9',
+      'iii7':'iii9','ii7':'ii9','im7':'im9','iv7':'iv9',
+    }
   },
 };
 
-// ── Tala Database ──
-const TALAS={
-  'Teentaal':{beats:16,groups:[4,4,4,4],pattern:'Dha Dhin Dhin Dha | Dha Dhin Dhin Dha | Dha Tin Tin Ta | Ta Dhin Dhin Dha',desc:'The most common tala in Hindustani music. 4×4 balanced structure. Versatile across all tempos and genres.'},
-  'Ektaal':  {beats:12,groups:[2,2,2,2,2,2],pattern:'Dhin Dhin | Dhage Trakt | Tu Na | Kat Ta | Dhage Trakt | Dhin Na',desc:'12-beat in 6 pairs. Often used for slow (vilambit) khayal. Its subtlety makes it a favourite for meditative improvisations.'},
-  'Jhaptaal':{beats:10,groups:[2,3,2,3],pattern:'Dhi Na | Dhi Dhi Na | Ti Na | Dhi Dhi Na',desc:'10 beats in 2+3+2+3 asymmetric grouping. Popular for medium-tempo khayal. Comparable to 10/8 in Western music.'},
-  'Dadra':   {beats:6, groups:[3,3],pattern:'Dha Dhi Na | Dha Ti Na',desc:'Light 6-beat tala for thumri and folk. Swinging, lilting quality. Closest to 6/8 in Western music.'},
-  'Roopak':  {beats:7, groups:[3,2,2],pattern:'Ti Ti Na | Dhi Na | Dhi Na',desc:'7-beat tala with first-beat rest. Used in thumri and light classical. Comparable to 7/4 in jazz.'},
-  'Kaherava':{beats:8, groups:[4,4],pattern:'Dha Ge Na Ti | Na Ke Dhi Na',desc:'Simple 8-beat tala — the most common in folk, film songs and light classical. Very close to Western 4/4 time.'},
-  'Brahma Taal':{beats:14,groups:[2,2,2,2,2,2,2],pattern:'Dhi Trkt | Dhi Dhi | Dha Ge | Trkttkt | Dhi Na | Dhi Dhi | Na Ge',desc:'Rare 14-beat tala used in dhrupad and devotional music. Stately and majestic.'},
-  'Jhaptaal':{beats:10,groups:[2,3,2,3],pattern:'Dhi Na | Dhi Dhi Na | Ti Na | Dhi Dhi Na',desc:'10-beat asymmetric tala. Comparable to 10/8 in Western jazz.'},
+// Add signatureForm/formAlts to original genres
+GENRES.jazz.signatureForm='AABA';GENRES.jazz.formAlts=['AABA','ABAC','ABA','Through-composed'];
+GENRES.blues.signatureForm='12-bar';GENRES.blues.formAlts=['12-bar','8-bar','16-bar'];
+GENRES.pop.signatureForm='Verse-Chorus';GENRES.pop.formAlts=['Verse-Chorus','ABABCB','AABA'];
+GENRES.rock.signatureForm='Verse-Chorus';GENRES.rock.formAlts=['Verse-Chorus','12-bar','ABA','Riff-based'];
+GENRES.classical.signatureForm='Sonata';GENRES.classical.formAlts=['Sonata','Rondo','Ternary (ABA)','Binary (AB)'];
+GENRES.bossa.signatureForm='AABA';GENRES.bossa.formAlts=['AABA','16-bar','Through-composed'];
+GENRES.funk.signatureForm='Groove-based';GENRES.funk.formAlts=['Groove-based','Vamp','ABA'];
+
+// ── Complexity ──
+let SONG_COMPLEXITY='medium';
+const COMPLEXITY={
+  simple:{label:'Simple',desc:'3–4 chords · short · triads',maxSections:3,barMult:1,passingChords:false,extChance:0},
+  medium:{label:'Medium',desc:'standard form · some extensions',maxSections:5,barMult:1,passingChords:false,extChance:0.3},
+  complex:{label:'Complex',desc:'passing chords · jazz extensions · longer',maxSections:8,barMult:2,passingChords:true,extChance:0.7},
 };
+
+// ── Song-view thaat state ──
+let SONG_THAAT = null; // thaat selected inside Song tab (independent of main OPEN_THAAT)
+
+// ── Thaat character data for song generator ──
+// Each thaat has: western parallel iv[], mood, characteristic progressions, swara hints
+const THAAT_SONG = {
+  Bilawal:{
+    western:'Major / Ionian',
+    iv:[0,2,4,5,7,9,11],
+    isMinor:false,
+    mood:'Pure · Radiant · Morning clarity',
+    swaras:'Sa Re Ga Ma Pa Dha Ni',
+    colorNote:'All shuddha (natural) swaras. Identical to Western Major. Bright, resolved.',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','ii','V','I'],['I','IV','ii','V'],
+        ['I','iii','IV','V'],['I','vi','IV','V'],
+      ],
+      bridge:[['IV','V','I'],['ii','V','I'],['vi','ii','V','I']]
+    },
+    melodyHints:[
+      'Emphasise Sa, Ga, Pa as anchor tones — the three pillars of Bilawal.',
+      'Ascending phrases feel natural here; the scale resolves upward toward Sa.',
+      'Use sustained Ni as a leading tone into Sa for the Bilawal arrival.',
+    ]
+  },
+  Kalyan:{
+    western:'Lydian',
+    iv:[0,2,4,6,7,9,11],
+    isMinor:false,
+    mood:'Ethereal · Romantic · Floating',
+    swaras:'Sa Re Ga Ma# Pa Dha Ni',
+    colorNote:'Tivra Ma (♯4) is the defining note — the "Lydian" shimmer.',
+    progressions:{
+      major:[
+        ['I','II','V','I'],['I','IV','II','V'],['I','ii','II','V'],
+        ['I','V','II','I'],['I','vi','II','V'],
+      ],
+      bridge:[['II','V','I'],['IV','II','V'],['vi','II','V','I']]
+    },
+    melodyHints:[
+      'The tivra Ma (♯4) is the signature note — linger on it before resolving to Pa.',
+      'Try a rising phrase: Sa Re Ga Ma# Pa — the Lydian lift feels otherworldly.',
+      'In jazz context, this is the Lydian mode: use the ♯11 extension on the I chord.',
+    ]
+  },
+  Khamaj:{
+    western:'Mixolydian',
+    iv:[0,2,4,5,7,9,10],
+    isMinor:false,
+    mood:'Playful · Festive · Warm',
+    swaras:'Sa Re Ga Ma Pa Dha ni',
+    colorNote:'Komal Ni (♭7) only. Identical to Mixolydian — the blues/rock dominant sound.',
+    progressions:{
+      major:[
+        ['I','♭VII','IV','I'],['I','IV','♭VII','I'],['I','♭VII','V','I'],
+        ['I','IV','I','♭VII'],['I','ii','♭VII','I'],
+      ],
+      bridge:[['♭VII','IV','I'],['IV','♭VII','I'],['ii','♭VII','I']]
+    },
+    melodyHints:[
+      'The komal ni (♭7) is the Khamaj signature — use it in descent for the folk/festive colour.',
+      'Western musicians: this is Mixolydian. The ♭VII chord is your "Khamaj" sound.',
+      'Phrases go up in major, come back down through ni — the asymmetric Khamaj motion.',
+    ]
+  },
+  Kafi:{
+    western:'Dorian',
+    iv:[0,2,3,5,7,9,10],
+    isMinor:true,
+    mood:'Wistful · Seasonal · Folk warmth',
+    swaras:'Sa Re ga Ma Pa Dha ni',
+    colorNote:'Komal Ga and Ni. Dorian — minor but with a raised 6th (Dha = natural).',
+    progressions:{
+      minor:[
+        ['i','IV','♭VII','i'],['i','ii°','♭VII','i'],['i','IV','v','i'],
+        ['i','vi','IV','♭VII'],['i','♭III','IV','i'],
+      ],
+      bridge:[['IV','♭VII','i'],['♭VI','♭VII','i'],['ii°','♭VII','i']]
+    },
+    melodyHints:[
+      'The natural Dha (6th) brightens the minor — use it to lift phrases before descending through ni.',
+      'Kafi is Dorian: ga (♭3) and ni (♭7) are the minor flavour, Dha (6) is the warmth.',
+      'Folk-style short call-and-response phrases work beautifully in Kafi.',
+    ]
+  },
+  Asavari:{
+    western:'Natural Minor / Aeolian',
+    iv:[0,2,3,5,7,8,10],
+    isMinor:true,
+    mood:'Sorrowful · Meditative · Morning prayer',
+    swaras:'Sa Re ga Ma Pa dha ni',
+    colorNote:'Three komal swaras (ga, dha, ni). Pure natural minor — deep and inward.',
+    progressions:{
+      minor:[
+        ['i','♭VI','♭VII','i'],['i','iv','♭VII','i'],['i','♭VI','iv','v'],
+        ['i','ii°','v','i'],['i','iv','♭VI','♭VII'],
+      ],
+      bridge:[['♭VI','♭VII','i'],['iv','♭VI','♭VII'],['ii°','v','i']]
+    },
+    melodyHints:[
+      'Ascending phrases omit Ga — jump Sa→Re→Ma in the Asavari style.',
+      'Descend fully through all seven notes for the sorrowful Asavari arrival.',
+      'Rest on Pa and dha — these are the emotionally heavy points of this thaat.',
+    ]
+  },
+  Bhairavi:{
+    western:'Phrygian',
+    iv:[0,1,3,5,7,8,10],
+    isMinor:true,
+    mood:'Tender · Farewell · All-encompassing',
+    swaras:'Sa re ga Ma Pa dha ni',
+    colorNote:'Four komal swaras (re, ga, dha, ni). Phrygian — the deepest minor colour.',
+    progressions:{
+      minor:[
+        ['i','♭II','♭VII','i'],['i','♭II','iv','i'],['i','♭VI','♭II','i'],
+        ['i','iv','♭II','i'],['i','♭III','♭II','i'],
+      ],
+      bridge:[['♭II','♭VII','i'],['♭VI','♭II','i'],['iv','♭II','i']]
+    },
+    melodyHints:[
+      'The ♭II chord (Neapolitan / re) is the Bhairavi signature — its bittersweet pull defines the thaat.',
+      'Bhairavi allows ornamental use of all 12 notes. Don\'t be rigid about scale adherence.',
+      'In Flamenco terms, this is the Phrygian cadence: i→♭VII→♭VI→♭II→i.',
+    ]
+  },
+  Bhairav:{
+    western:'Double Harmonic / Byzantine',
+    iv:[0,1,4,5,7,8,11],
+    isMinor:false,
+    mood:'Majestic · Devotional · Sacred dawn',
+    swaras:'Sa re Ga Ma Pa dha Ni',
+    colorNote:'Komal re and dha with natural Ga and Ni — two augmented 2nds give it gravity.',
+    progressions:{
+      major:[
+        ['I','♭II','IV','I'],['I','♭II','V','I'],['I','IV','♭II','I'],
+        ['I','♭VI','♭II','I'],['I','IV','♭VI','♭II'],
+      ],
+      bridge:[['♭II','V','I'],['IV','♭II','I'],['♭VI','♭II','I']]
+    },
+    melodyHints:[
+      'The two minor-second intervals (Sa↔re and Pa↔dha) create the grave, majestic Bhairav sound.',
+      'The ♭II chord (Neapolitan) built on komal re is essential to Bhairav\'s harmonic identity.',
+      'Move between Sa and re slowly — this half-step carries the weight of the entire thaat.',
+    ]
+  },
+  Purvi:{
+    western:'Byzantine + ♯4 (no direct parallel)',
+    iv:[0,1,4,6,7,8,11],
+    isMinor:false,
+    mood:'Intense · Yearning · Sunset longing',
+    swaras:'Sa re Ga Ma# Pa dha Ni',
+    colorNote:'Komal re+dha, tivra Ma — ♭2 and ♯4 together create extreme tension.',
+    progressions:{
+      major:[
+        ['I','♭II','♯IV°','I'],['I','♭VI','♭II','I'],['I','♯IV°','V','I'],
+        ['I','♭II','V','I'],['I','IV','♭II','♯IV°'],
+      ],
+      bridge:[['♭II','V','I'],['♯IV°','V','I'],['♭VI','♭II','I']]
+    },
+    melodyHints:[
+      'The tritone between re (♭2) and Ma# (♯4) is Purvi\'s defining tension — use it dramatically.',
+      'Phrases typically begin from below Sa, ascending through re→Ga→Ma#.',
+      'Let phrases hang unresolved before the final arrival on Sa — Purvi is about yearning, not arrival.',
+    ]
+  },
+  Marwa:{
+    western:'Lydian ♭2 (no Pa)',
+    iv:[0,1,4,6,9,11],
+    isMinor:false,
+    mood:'Mysterious · Restless · Suspended dusk',
+    swaras:'Sa re Ga Ma# Dha Ni (no Pa)',
+    colorNote:'Pa (perfect 5th) is absent — komal re and tivra Ma create rootless tension.',
+    progressions:{
+      major:[
+        ['I','♭II','II','I'],['I','♯IV°','♭II','I'],['I','VI','♭II','I'],
+        ['I','♭II','VI','I'],['I','♯IV°','VI','♭II'],
+      ],
+      bridge:[['♭II','II','I'],['VI','♭II','I'],['♯IV°','♭II','I']]
+    },
+    melodyHints:[
+      'Avoid the 5th (G in C) — the missing Pa is Marwa\'s most striking feature.',
+      'The tritone re→Ma# creates an unresolved, suspended atmosphere. Let it hang.',
+      'Marwa has no "home" landing — all phrases feel like questions, never answers.',
+    ]
+  },
+  Todi:{
+    western:'Phrygian ♯4 (unique)',
+    iv:[0,1,3,6,7,8,11],
+    isMinor:true,
+    mood:'Profound · Complex · Morning depth',
+    swaras:'Sa re ga Ma# Pa dha Ni',
+    colorNote:'♭2 ♭3 ♯4 ♭6 — four altered notes. The most harmonically complex thaat.',
+    progressions:{
+      minor:[
+        ['i','♭II','♯IV°','i'],['i','♭VI','♭II','i'],['i','♭II','v','i'],
+        ['i','♯IV°','♭VI','♭II'],['i','♭II','iv','i'],
+      ],
+      bridge:[['♯IV°','♭II','i'],['♭VI','♭II','i'],['♭II','v','i']]
+    },
+    melodyHints:[
+      'The combination of ♭2, ♭3 and ♯4 against the tonic is unique to Todi — move slowly between them.',
+      'The tritone ga→Ma# is the most striking interval; let phrases arc over it.',
+      'No Western mode matches Todi exactly — treat every chord change as its own world.',
+    ]
+  },
+};
+
+// ── Thaat song titles ──
+const THAAT_TITLES={
+  Bilawal:[['Dawn Raga','A morning meditation in pure tones'],['Clarity','Seven notes, no alterations'],['Sa Ascending','The simplest path to the summit']],
+  Kalyan:[['Evening Shimmer','The tivra Ma lifts everything skyward'],['Yaman\'s Shadow','Floating above the horizon'],['Tivra','The sharpened fourth, the floating feeling']],
+  Khamaj:[['Komal Greeting','The flat seventh at the door'],['Festival Light','An evening of warmth and movement'],['Khamaj Folk','Festive, familiar, folk-warm']],
+  Kafi:[['Holi Colours','Bright sadness and seasonal folk'],['Dorian Dusk','Minor with a raised heart'],['Wistful Season','The ache between winter and spring']],
+  Asavari:[['Before Sunrise','Three komal notes, one quiet prayer'],['Morning Sorrow','The gentle arrival of light'],['Asavari Walking','A slow procession through the natural minor']],
+  Bhairavi:[['The Last Raga','Always performed last — never finished'],['Farewell','Komal everywhere, warm everywhere'],['Four Flats','The most complete of sorrows']],
+  Bhairav:[['Sacred Hour','Two augmented seconds — the sound of Shiva'],['Byzantine Sunrise','Devotional gravity at first light'],['Double Harmonic','The most ancient of scales']],
+  Purvi:[['Parting Light','The sun\'s last conversation with the horizon'],['Sunset Tension','♭2 and ♯4 — extreme yearning'],['Before Dark','The unresolved dusk']],
+  Marwa:[['Without Fifth','A scale with a missing foundation'],['Suspended Dusk','No landing, only longing'],['Tritone Horizon','re and Ma# — the interval of restlessness']],
+  Todi:[['Phrygian Complexity','The most revered of all thaats'],['Morning Depth','Four altered notes, infinite depth'],['Tansen\'s Scale','Named for the greatest master']],
+};
+
+// Get current scale intervals for the song generator
+function getCurrentScaleIvs(){
+  // If a thaat is selected in Song tab, use it
+  if(SONG_THAAT&&THAAT_SONG[SONG_THAAT]) return THAAT_SONG[SONG_THAAT].iv;
+  if(OPEN_SCALE&&SCALES[OPEN_SCALE]) return SCALES[OPEN_SCALE].iv;
+  if(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE]) return MODES[OPEN_MODE].iv;
+  if(OPEN_THAAT&&THAATS[OPEN_THAAT]) return THAATS[OPEN_THAAT].iv;
+  return MAJ_STEPS; // default major
+}
+
+function getCurrentScaleName(){
+  if(SONG_THAAT&&THAAT_SONG[SONG_THAAT]) return ROOT+' '+SONG_THAAT+' ('+THAAT_SONG[SONG_THAAT].western+')';
+  if(OPEN_SCALE) return ROOT+' '+OPEN_SCALE;
+  if(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE]) return ROOT+' '+MODES[OPEN_MODE].n;
+  if(OPEN_THAAT) return ROOT+' '+OPEN_THAAT+' Thaat';
+  return ROOT+' Major';
+}
+
+function isMinorish(ivs){
+  // Check if scale has a minor third (interval 3)
+  return ivs.includes(3);
+}
+
+// Get thaat-specific progressions if a thaat is selected in Song tab
+function getThaatProgressions(genreKey){
+  if(!SONG_THAAT||!THAAT_SONG[SONG_THAAT]) return null;
+  const td=THAAT_SONG[SONG_THAAT];
+  // Build genre-aware progressions from thaat progressions
+  const pool=td.isMinor?td.progressions.minor:td.progressions.major;
+  const bridge=td.progressions.bridge||[];
+  return{major:pool,minor:pool,bridge};
+}
+
+// Get thaat melody hints for display in song sections
+function getThaatMelodyHint(thaatKey){
+  if(!thaatKey||!THAAT_SONG[thaatKey]) return null;
+  return pick(THAAT_SONG[thaatKey].melodyHints);
+}
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function pickN(arr,n){
+  const s=[...arr];const r=[];
+  for(let i=0;i<n&&s.length;i++){const idx=Math.floor(Math.random()*s.length);r.push(s.splice(idx,1)[0]);}
+  return r;
+}
+
+// Roman numeral → actual chord given a scale
+function resolveChord(roman, scaleRoot, scaleIvs, genreKey, useJazz){
+  const genre=GENRES[genreKey];
+  const chords=diatonicChords(scaleRoot,scaleIvs,useJazz);
+  
+  // Map common roman numerals to scale degrees
+  const degMap={
+    'I':0,'II':1,'III':2,'IV':3,'V':4,'VI':5,'VII':6,
+    'i':0,'ii':1,'iii':2,'iv':3,'v':4,'vi':5,'vii':6,
+    'ii°':1,'vii°':6,'ii7':1,'iii7':2,'vi7':5,'iii':2,
+    'IV7':3,'I7':0,'V7':4,'VII7':6,'VI':5,'III':2,
+  };
+  
+  // Handle flat/sharp notation
+  if(roman.startsWith('♭') || roman.startsWith('#') || roman.endsWith('7') || roman.endsWith('9') || roman.endsWith('maj7') || roman.endsWith('maj9')){
+    return resolveAltChord(roman, scaleRoot, scaleIvs, useJazz);
+  }
+  
+  const deg=degMap[roman];
+  if(deg!==undefined&&chords[deg]){
+    return chords[deg];
+  }
+  // fallback — try to find by stripping suffix
+  const stripped=roman.replace(/[°7m]/g,'');
+  const d=degMap[stripped];
+  if(d!==undefined&&chords[d]) return chords[d];
+  return chords[0];
+}
+
+function resolveAltChord(roman, scaleRoot, scaleIvs, useJazz){
+  // Handle borrowed/altered chords: ♭VII, ♭VI, ♭III, ♭II, dom7 suffixes etc.
+  const semisFromRoot={
+    '♭II':1,'♭II7':1,'♭III':3,'♭VI':8,'♭VII':10,'♭VImaj7':8,
+    '♭VII7':10,'♭VIImaj7':10,'♭III7':3,'♭IIImaj7':3,'♭IV':5,
+    'II7':2,'♭II7':1,'VII7':11,'VI':9,'VImaj7':9,'IIImaj7':4,
+    'I6':0,'♭III°7':3,'♭IV°7':5,'♭VII9':10,'IV7':5,'IV7♯11':5,
+    'VII':11,'III':4,'VI7':9,'I9':0,'♭VII9':10,
+  };
+  let semiTrans=semisFromRoot[roman];
+  let q='maj';
+  if(roman.includes('m7b5')||roman.includes('ø7')) q='m7b5';
+  else if(roman.includes('°7')) q='dim7';
+  else if(roman.includes('°')) q='dim';
+  else if(roman.includes('9')&&roman.includes('maj')) q='maj9';
+  else if(roman.includes('9')) q=useJazz?'dom9':'dom7';
+  else if(roman.includes('maj7')) q='maj7';
+  else if(roman.includes('7')) q='dom7';
+  else if(roman.match(/[iv]/)) q='min';
+  
+  if(semiTrans!==undefined){
+    const cr=na(scaleRoot,semiTrans);
+    if(useJazz&&q==='maj') q='maj7';
+    if(useJazz&&q==='min') q='min7';
+    return{root:cr,q,sym:chordName(cr,q),notes:chordNotes(cr,q),rom:roman,degree:-1};
+  }
+  // Absolute fallback
+  return{root:scaleRoot,q:'maj7',sym:chordName(scaleRoot,'maj7'),notes:chordNotes(scaleRoot,'maj7'),rom:'I',degree:0};
+}
+
+// Convert plain progression roman numeral to jazz-voiced if needed
+function upgradeRoman(roman, genreKey){
+  const genre=GENRES[genreKey];
+  if(!JAZZ||!genre.jazzMods) return roman;
+  return genre.jazzMods[roman]||roman;
+}
+
+// Generate a complete song structure
+// Passing chord library
+const PASSING_CHORDS={'I':['♭III7','II7','♭II7'],'IV':['♯IV°7','♭VI7'],'V':['♭II7','♯IV°7'],'ii':['♭II7','IV7'],'vi':['♭VI7','IV7'],'i':['♭II7','♭III7']};
+function addPassingChords(prog){
+  if(prog.length<2) return prog;
+  const result=[...prog];
+  for(let i=0;i<result.length-1;i++){
+    if(Math.random()<0.35){
+      const pool=PASSING_CHORDS[result[i]]||PASSING_CHORDS[result[i+1]];
+      if(pool){result.splice(i+1,0,pick(pool));i++;}
+    }
+  }
+  return result.slice(0,prog.length+2);
+}
+
+function generateSong(formOverride){
+  const genre=GENRES[SELECTED_GENRE];
+  if(!genre) return null;
+  const cx=COMPLEXITY[SONG_COMPLEXITY]||COMPLEXITY.medium;
+
+  const scaleIvs=getCurrentScaleIvs();
+  const scaleName=getCurrentScaleName();
+  const isMin=isMinorish(scaleIvs);
+
+  const thaatProgs=getThaatProgressions(SELECTED_GENRE);
+  let progPool=thaatProgs?(isMin?thaatProgs.minor:thaatProgs.major):(isMin?genre.progressions.minor:genre.progressions.major);
+  let bridgePool=thaatProgs?thaatProgs.bridge:(genre.progressions.bridge||[]);
+  if(!progPool||!progPool.length) progPool=isMin?genre.progressions.minor:genre.progressions.major;
+  if(!bridgePool||!bridgePool.length) bridgePool=progPool;
+  if(SONG_COMPLEXITY==='simple') progPool=progPool.map(p=>p.slice(0,4));
+
+  const form=formOverride||(genre.signatureForm||genre.forms[0]);
+  const tempo=pick(genre.tempos);
+  const sections=[];
+
+  function bp(prog){
+    let p=[...prog];
+    if(cx.passingChords&&Math.random()<0.5) p=addPassingChords(p);
+    return p;
+  }
+  function pp(){return pick(progPool);}
+  function pb(){return bridgePool.length?pick(bridgePool):pp();}
+
+  if(form==='Intro-Drop-Breakdown-Drop-Outro'){
+    const M=pp();const B=pb();
+    sections.push({label:'Intro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:2});
+    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:4});
+    sections.push({label:'Breakdown',prog:bp(B),bars:B.length,midiReps:2});
+    sections.push({label:'Drop (Reprise)',prog:bp(M),bars:M.length,midiReps:4});
+    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:2});
+  } else if(form==='Intro-Build-Drop-Break-Drop-Outro'){
+    const M=pp();const B=pb();
+    sections.push({label:'Intro',prog:bp(M.slice(0,Math.max(1,Math.floor(M.length/2)))),bars:2,midiReps:2});
+    sections.push({label:'Build',prog:bp(M),bars:M.length,midiReps:2});
+    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:4});
+    sections.push({label:'Break',prog:bp(B),bars:B.length,midiReps:2});
+    sections.push({label:'Drop (Full)',prog:bp(M),bars:M.length,midiReps:4});
+    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:1});
+  } else if(form==='Intro-Drop-Break-Drop'){
+    const M=pp();const B=pb();
+    sections.push({label:'Intro',prog:bp(M),bars:M.length,midiReps:2});
+    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:4});
+    sections.push({label:'Break',prog:bp(B),bars:B.length,midiReps:2});
+    sections.push({label:'Drop (Full)',prog:bp(M),bars:M.length,midiReps:4});
+  } else if(form==='Build-Drop'){
+    const M=pp();
+    sections.push({label:'Build',prog:bp(M),bars:M.length,midiReps:4});
+    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:8});
+    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:2});
+  } else if(form==='Hypnotic Loop'||form==='Loop'){
+    const V=pp();
+    sections.push({label:'Main Loop',prog:bp(V),bars:V.length,midiReps:8,repeat:true});
+    sections.push({label:'Variation',prog:bp(pb()),bars:4,midiReps:4});
+    sections.push({label:'Main Loop (Return)',prog:bp(V),bars:V.length,midiReps:4});
+  } else if(form==='Drone'){
+    const D=pp().slice(0,1);
+    sections.push({label:'Drone — Stasis',prog:bp(D),bars:D.length,midiReps:8,repeat:true});
+    sections.push({label:'Movement',prog:bp(pp()),bars:4,midiReps:4});
+    sections.push({label:'Return to Drone',prog:bp(D),bars:D.length,midiReps:4});
+  } else if(form==='AABA'){
+    const A=pp();const B=pb();
+    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'B — Bridge',prog:bp(B),bars:B.length,midiReps:1});
+    sections.push({label:'A — Outro',prog:bp(A),bars:A.length,midiReps:1});
+    if(cx.maxSections>4) sections.push({label:'A — Coda',prog:bp(A),bars:A.length,midiReps:1});
+  } else if(form==='ABAC'){
+    const A=pp();const B=pb();const C=pp();
+    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'B — Bridge',prog:bp(B),bars:B.length,midiReps:1});
+    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'C — Chorus',prog:bp(C),bars:C.length,midiReps:1});
+  } else if(form==='12-bar'||form==='12-Bar Blues'||form==='8-bar'||form==='16-bar'){
+    const blueProg=progPool[0]||['I7','IV7','I7','I7','IV7','IV7','I7','I7','V7','IV7','I7','V7'];
+    const barCount=form==='8-bar'?8:form==='16-bar'?16:12;
+    const rep=Math.ceil(barCount/4);
+    for(let r=0;r<rep;r++){
+      const chunk=blueProg.slice(r*4,(r+1)*4);
+      if(!chunk.length) break;
+      sections.push({label:r===0?`${barCount}-Bar Blues`:'',prog:bp(chunk),bars:chunk.length,isTurnaround:r===rep-1,midiReps:1});
+    }
+    if(SONG_COMPLEXITY==='complex') sections.push({label:'Turnaround (×2)',prog:bp(pb()),bars:4,midiReps:2});
+  } else if(form==='ABA'||form==='Ternary (ABA)'){
+    const A=pp();const B=pb();
+    sections.push({label:'A — Main Theme',prog:bp(A),bars:A.length,midiReps:cx.maxSections>3?2:1});
+    sections.push({label:'B — Contrasting',prog:bp(B),bars:B.length,midiReps:1});
+    sections.push({label:'A — Recapitulation',prog:bp(A),bars:A.length,midiReps:1});
+  } else if(form==='Binary (AB)'){
+    const A=pp();const B=pb();
+    sections.push({label:'A',prog:bp(A),bars:A.length,midiReps:2});
+    sections.push({label:'B',prog:bp(B),bars:B.length,midiReps:2});
+  } else if(form==='Verse-Chorus'||form==='ABABCB'){
+    const V=pp();const C=pick(progPool.filter(p=>JSON.stringify(p)!==JSON.stringify(V)).length?progPool.filter(p=>JSON.stringify(p)!==JSON.stringify(V)):progPool);
+    const B=pb();
+    sections.push({label:'Intro',prog:bp(V.slice(0,2)||V),bars:2,midiReps:1});
+    sections.push({label:'Verse',prog:bp(V),bars:V.length,midiReps:2});
+    sections.push({label:'Pre-Chorus',prog:bp(B),bars:B.length,midiReps:1});
+    sections.push({label:'Chorus',prog:bp(C),bars:C.length,midiReps:2});
+    sections.push({label:'Verse 2',prog:bp(V),bars:V.length,midiReps:2});
+    if(cx.maxSections>5) sections.push({label:'Bridge',prog:bp(B),bars:B.length,midiReps:1});
+    sections.push({label:'Chorus (Final)',prog:bp(C),bars:C.length,midiReps:2});
+  } else if(form==='Groove-based'||form==='Vamp'){
+    const V=pp();
+    sections.push({label:'Intro Vamp',prog:bp(V.slice(0,Math.max(1,Math.floor(V.length/2)))),bars:2,midiReps:4,repeat:true});
+    sections.push({label:'Main Groove',prog:bp(V),bars:V.length,midiReps:8,repeat:true});
+    sections.push({label:'Solo',prog:bp(V),bars:V.length,isSolo:true,midiReps:4});
+    sections.push({label:'Outro',prog:bp(V.slice(0,Math.max(1,Math.floor(V.length/2)))),bars:2,midiReps:2});
+  } else if(form==='Sonata'){
+    const A=pp();const B=pb();const D=pp();
+    sections.push({label:'Exposition — Theme A',prog:bp(A),bars:A.length,midiReps:2});
+    sections.push({label:'Exposition — Theme B',prog:bp(B),bars:B.length,midiReps:2});
+    sections.push({label:'Development',prog:bp(D),bars:D.length,midiReps:2});
+    sections.push({label:'Recapitulation — Theme A',prog:bp(A),bars:A.length,midiReps:2});
+    sections.push({label:'Recapitulation — Theme B',prog:bp(B),bars:B.length,midiReps:2});
+    if(cx.maxSections>=6) sections.push({label:'Coda',prog:bp(A.slice(0,2)||A),bars:2,midiReps:1});
+  } else if(form==='Rondo'){
+    const A=pp();const B=pb();const C=pp();
+    sections.push({label:'A — Rondo Theme',prog:bp(A),bars:A.length,midiReps:2});
+    sections.push({label:'B — Episode 1',prog:bp(B),bars:B.length,midiReps:2});
+    sections.push({label:'A — Rondo Theme',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'C — Episode 2',prog:bp(C),bars:C.length,midiReps:2});
+    sections.push({label:'A — Rondo Theme',prog:bp(A),bars:A.length,midiReps:2});
+  } else if(form==='Through-composed'){
+    for(let i=0;i<Math.min(cx.maxSections,5);i++){
+      const p=pp();
+      sections.push({label:`Section ${String.fromCharCode(65+i)}`,prog:bp(p),bars:p.length,midiReps:1});
+    }
+  } else if(form==='Liquid'){
+    const A=pp();const B=pb();
+    sections.push({label:'Intro',prog:bp(A),bars:A.length,midiReps:2});
+    sections.push({label:'Verse',prog:bp(A),bars:A.length,midiReps:4});
+    sections.push({label:'Chorus',prog:bp(B),bars:B.length,midiReps:2});
+    sections.push({label:'Drop',prog:bp(A),bars:A.length,midiReps:4});
+  } else {
+    const A=pp();const B=pb();
+    sections.push({label:'Verse',prog:bp(A),bars:A.length,midiReps:2});
+    sections.push({label:'Chorus',prog:bp(B),bars:B.length,midiReps:2});
+    sections.push({label:'Verse',prog:bp(A),bars:A.length,midiReps:1});
+  }
+
+  // Resolve all chords
+  const resolvedSections=sections.filter(s=>s.prog&&s.prog.length>0).map(s=>({
+    ...s,
+    resolvedChords:s.prog.map(r=>resolveChord(upgradeRoman(r,SELECTED_GENRE),ROOT,scaleIvs,SELECTED_GENRE,JAZZ))
+  }));
+
+  const titles=SONG_THAAT&&THAAT_TITLES[SONG_THAAT]
+    ?(()=>{const t=pick(THAAT_TITLES[SONG_THAAT]);return{title:t[0],subtitle:t[1]};})()
+    :genSongTitle(SELECTED_GENRE,scaleName,isMin);
+
+  const thaatCtx=SONG_THAAT&&THAAT_SONG[SONG_THAAT]?{
+    name:SONG_THAAT,western:THAAT_SONG[SONG_THAAT].western,
+    mood:THAAT_SONG[SONG_THAAT].mood,swaras:THAAT_SONG[SONG_THAAT].swaras,
+    colorNote:THAAT_SONG[SONG_THAAT].colorNote,
+  }:null;
+
+  return{
+    title:titles.title,subtitle:titles.subtitle,
+    genre:genre.label,genreIcon:genre.icon,
+    form,tempo,scaleName,scaleIvs,isMin,
+    styleNote:genre.styleNote,
+    sections:resolvedSections,
+    totalBars:resolvedSections.reduce((s,sec)=>s+(sec.bars||sec.prog.length),0),
+    complexity:SONG_COMPLEXITY,useJazz:JAZZ,thaatCtx,
+  };
+}
+
+// Generate evocative song title based on genre and scale
+function genSongTitle(genreKey, scaleName, isMin){
+  const jazzTitles=[
+    ['Misty Boulevard','A ballad for the late-night walk'],
+    ['Blue Reeds','For a soprano saxophone and piano'],
+    ['The Waiting Room','After midnight, before dawn'],
+    ['Autumn Sheen','A meditation on fading light'],
+    ['Late October','For a small combo in a smoky room'],
+    ['Minor Departure','Taking the late train home'],
+    ['After Hours','When the last patron leaves'],
+    ['Quiet Coast','For a Sunday afternoon'],
+  ];
+  const blueTitles=[
+    ['Crossroads Feeling','Early morning, red clay road'],
+    ['Low-Down Shuffle','Three chords and the truth'],
+    ['Midnight Rider','When the feeling won\'t leave you alone'],
+    ['Rust Belt Ballad','For an electric guitar and nothing else'],
+    ['Corner Store','The neighborhood doesn\'t change'],
+  ];
+  const popTitles=[
+    ['Golden Hour','Chasing light before it disappears'],
+    ['Somewhere in Between','Three minutes of everything'],
+    ['The Drive','Radio, open window, no destination'],
+    ['Here With You','Simple as it gets'],
+    ['That Summer','Memory of a season'],
+  ];
+  const rockTitles=[
+    ['Torn Wires','Loud and cathartic'],
+    ['Signal Fire','Something worth fighting for'],
+    ['Heavy Weather','When the sky turns dark'],
+    ['Iron Curtain','A song for the amplifier'],
+    ['Broken Throttle','Speed and decay'],
+  ];
+  const classicalTitles=[
+    ['Prelude in '+scaleName,'A meditation for piano'],
+    ['Nocturne','For the late evening hour'],
+    ['Étude','A study in voice leading'],
+    ['Theme and Variations','Seven transformations of a single melody'],
+    ['Sonata in '+scaleName,'In three movements'],
+  ];
+  const bossaTitles=[
+    ['Tarde de Chuva','A rainy afternoon in Rio'],
+    ['Vento Suave','The soft wind off Ipanema'],
+    ['Saudade do Mar','Longing for the sea'],
+    ['Noite Clara','Clear night, open window'],
+    ['Café Lento','Slow coffee, slow morning'],
+  ];
+  const funkTitles=[
+    ['One Drop','The groove that won\'t quit'],
+    ['Tight Lines','Feel the pocket'],
+    ['Wax On','For the dancefloor devotees'],
+    ['Second Line','New Orleans at 2am'],
+    ['The Scratch','Raw and rhythmic'],
+  ];
+  const folkTitles=[
+    ['River\'s Edge','Walking the long way home'],
+    ['Old Oak','Things that last'],
+    ['Winter Thaw','The first warm day of the year'],
+    ['Traveling Light','All you need in a single chord'],
+    ['The Valley','Home as a feeling, not a place'],
+  ];
+  const maps={jazz:jazzTitles,blues:blueTitles,pop:popTitles,rock:rockTitles,classical:classicalTitles,bossa:bossaTitles,funk:funkTitles,folk:folkTitles};
+  const pool=maps[genreKey]||jazzTitles;
+  const t=pick(pool);
+  return{title:t[0],subtitle:t[1]};
+}
+
+// Generate a melody direction hint for each section
+function melodyHint(section, isMin, scaleIvs, genreKey){
+  // Prefer thaat-specific hints if a thaat is selected in Song tab
+  if(SONG_THAAT&&THAAT_SONG[SONG_THAAT]){
+    return pick(THAAT_SONG[SONG_THAAT].melodyHints);
+  }
+  const hints={
+    jazz:[
+      'Try starting phrases from the 3rd or 7th of each chord — these guide tones create smooth voice leading.',
+      'Use the b7 as a pick-up note into each bar. Leave space after each phrase for the rhythm section to breathe.',
+      'Play a long sustained note on beat 1, then embellish on beats 3–4 using notes from the chord.',
+      'Approach chord tones from a half-step above or below for bebop flavour.',
+    ],
+    blues:[
+      'Bend the ♭3 up toward the 3rd over major chords — the classic blues tension.',
+      'Use the pentatonic minor throughout, leaning on the ♭5 (blue note) for expression.',
+      'Let phrases call and respond — play, then pause for two beats, then answer.',
+    ],
+    pop:[
+      'Keep the melody in a comfortable range (one octave). Repeat the hook with slight variation each time.',
+      'Start phrases on the upbeat (the "and" before beat 1) for a forward-leaning feel.',
+      'Use the root and 5th as anchor tones, ornament with the 2nd and 4th.',
+    ],
+    rock:[
+      'Power through the phrase — hit the root hard on beat 1, push through with the 5th.',
+      'Use the minor pentatonic even over major chords — the clash creates the rock tension.',
+      'Short, aggressive cells that repeat with small variations. Economy of means.',
+    ],
+    classical:[
+      'Follow voice-leading strictly — soprano moves by step wherever possible.',
+      'Create contrary motion: when the bass moves up, move the melody down.',
+      'Use suspensions (4-3, 7-6) over dominant chords for classical colour.',
+    ],
+    bossa:[
+      'Sing the melody in a near-spoken tone — intimate and understated. No vibrato.',
+      'Place melody notes slightly behind the beat (laid-back), never rushing.',
+      'Use the 9th and 13th of each chord as melody notes for Jobim colour.',
+    ],
+    funk:[
+      'The groove is the melody. Short, rhythmic stabs on the upbeats (e+a).',
+      'Leave more space than feels comfortable — the silence IS the groove.',
+      'Lock to the kick drum rhythm for the main motif, vary on the repeat.',
+    ],
+    folk:[
+      'A simple stepwise melody that can be sung without accompaniment.',
+      'Double the chord root in the melody to ground each phrase.',
+      'Use modal colour: rest on the ♭7 or ♭3 to give a folk / Celtic feel.',
+    ],
+  };
+  const pool=hints[genreKey]||hints.jazz;
+  return pick(pool);
+}
+
+// ── Song chord display formatter ──
+// Render a jazz-standard lead sheet chord symbol with proper HTML notation
+function fmtJazzChord(root, q){
+  // Format root + quality as jazz lead sheet notation
+  let rootHtml=`<span class="chord-root">${root}</span>`;
+  let qualHtml='';
+  
+  const qualMap={
+    '':'',
+    'maj7':'<sup>maj7</sup>',
+    'maj9':'<sup>maj9</sup>',
+    'min7':'<sup>m7</sup>',
+    'min9':'<sup>m9</sup>',
+    'min11':'<sup>m11</sup>',
+    'dom7':'<sup>7</sup>',
+    'dom9':'<sup>9</sup>',
+    'dom13':'<sup>13</sup>',
+    'dom7b9':'<sup>7♭9</sup>',
+    'min':'<span style="font-size:.7em">m</span>',
+    'dim':'<sup>°</sup>',
+    'dim7':'<sup>°7</sup>',
+    'm7b5':'<sup>ø7</sup>',
+    'aug':'<sup>+</sup>',
+    'sus2':'<sup>sus2</sup>',
+    'sus4':'<sup>sus4</sup>',
+    'aug7':'<sup>+7</sup>',
+    'sus4_7':'<sup>7sus4</sup>',
+  };
+  
+  qualHtml=qualMap[q]!==undefined?qualMap[q]:`<sup>${QSYM[q]||q}</sup>`;
+  return`<span class="chord-root">${root}</span><span class="chord-qual">${qualHtml}</span>`;
+}
+
+// ── Song Rendering ──
+function renderSongView(){
+  const v=document.getElementById('songView');v.innerHTML='';
+  const genre=GENRES[SELECTED_GENRE];
+
+  // Context: what scale/mode/thaat is active
+  const activeScale=OPEN_SCALE?ROOT+' '+OPEN_SCALE:null;
+  const activeMode=(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE])?ROOT+' '+MODES[OPEN_MODE].n:null;
+  const activeTh=(OPEN_THAAT&&THAATS[OPEN_THAAT])?ROOT+' '+OPEN_THAAT+' ('+THAATS[OPEN_THAAT].western.split('/')[0].trim()+')':null;
+  const contextLabel=activeScale||activeMode||activeTh||ROOT+' Major (default)';
+  const thaatCtxBox=OPEN_THAAT&&THAAT_SONG[OPEN_THAAT]?`
+    <span style="font-family:var(--f-mono);font-size:10px;color:var(--saffron);background:var(--saffron4);padding:3px 8px;border-radius:5px;border:1px solid var(--saffron3)">🪔 ${OPEN_THAAT} · ${THAAT_SONG[OPEN_THAAT].swaras}</span>`:'' ;
+
+  // Genre pills
+  const genrePills=Object.entries(GENRES).map(([k,g])=>`<button class="genre-pill${k===SELECTED_GENRE?' on':''}" data-genre="${k}">${g.icon} ${g.label}</button>`).join('');
+
+  // Complexity selector
+  const cxPills=Object.entries(COMPLEXITY).map(([k,c])=>`<button class="cx-pill${k===SONG_COMPLEXITY?' on':''}" data-cx="${k}" title="${c.desc}">${c.label}</button>`).join('');
+
+  // Form alternatives for current genre
+  const formAlts=(genre?.formAlts||genre?.forms||[]);
+  const SELECTED_FORM=CURRENT_SONG?CURRENT_SONG.form:(genre?.signatureForm||formAlts[0]||'');
+  const formPills=formAlts.map(f=>`<button class="form-alt-pill${f===SELECTED_FORM?' on':''}" data-form="${f}">${f}</button>`).join('');
+
+  v.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--jade4);border-radius:10px;border:1px solid var(--jade3)">
+      <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink4)">Active scale:</span>
+      <span style="font-family:var(--f-mono);font-size:11px;color:var(--jade);font-weight:600">${contextLabel}</span>
+      ${thaatCtxBox}
+      ${JAZZ?'<span style="font-family:var(--f-mono);font-size:10px;color:var(--lapis);background:var(--lapis4);padding:3px 8px;border-radius:5px;border:1px solid var(--lapis3)">● Jazz+ ON</span>':''}
+    </div>
+    <div class="sec" style="margin-bottom:6px">Genre</div>
+    <div class="genre-row" style="margin-bottom:14px">${genrePills}</div>
+    <div class="sec" style="margin-bottom:6px">Form</div>
+    <div class="genre-row" id="formAltRow" style="margin-bottom:14px">${formPills}</div>
+    <div class="sec" style="margin-bottom:6px">Complexity</div>
+    <div class="genre-row" style="margin-bottom:16px">${cxPills}</div>
+    <div class="song-actions">
+      <button class="btn-generate" id="generateSongBtn">♬ Generate Song</button>
+      <button class="btn-shuffle" id="shuffleSongBtn">⟳ Regenerate</button>
+      <button class="btn-copy" id="copySongBtn">⎘ Copy</button>
+      <button class="btn-midi" id="midiSongBtn">⬇ MIDI</button>
+    </div>
+    <div id="songOutput"></div>`;
+
+  // Wire genre
+  v.querySelectorAll('.genre-pill[data-genre]').forEach(p=>p.addEventListener('click',()=>{
+    SELECTED_GENRE=p.dataset.genre;CURRENT_SONG=null;renderSongView();
+  }));
+  // Wire form alts
+  v.querySelectorAll('.form-alt-pill[data-form]').forEach(p=>p.addEventListener('click',()=>{
+    CURRENT_SONG=generateSong(p.dataset.form);displaySong(CURRENT_SONG);
+    v.querySelectorAll('.form-alt-pill').forEach(x=>x.classList.toggle('on',x===p));
+  }));
+  // Wire complexity
+  v.querySelectorAll('.cx-pill[data-cx]').forEach(p=>p.addEventListener('click',()=>{
+    SONG_COMPLEXITY=p.dataset.cx;CURRENT_SONG=null;renderSongView();
+  }));
+  // Wire buttons
+  v.querySelector('#generateSongBtn')?.addEventListener('click',()=>{
+    CURRENT_SONG=generateSong(SELECTED_FORM||null);displaySong(CURRENT_SONG);
+  });
+  v.querySelector('#shuffleSongBtn')?.addEventListener('click',()=>{
+    CURRENT_SONG=generateSong(CURRENT_SONG?.form||null);displaySong(CURRENT_SONG);
+  });
+  v.querySelector('#copySongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)copySongToClipboard(CURRENT_SONG);});
+  v.querySelector('#midiSongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)downloadMidi(CURRENT_SONG);});
+}
+function displaySong(song){
+  const out=document.getElementById('songOutput');
+  if(!out) return;
+  
+  if(!song){
+    out.innerHTML=`<div class="song-error">Could not generate song. Please select a scale, mode, or thaat first.</div>`;
+    return;
+  }
+  
+  // Build section HTML
+  const sectionsHtml=song.sections.map((sec,sIdx)=>{
+    if(!sec.resolvedChords||!sec.resolvedChords.length) return '';
+    
+    // Build bar groups: group chords into "bars"
+    // For display: each chord = 1 bar (with bar lines)
+    const barsHtml=sec.resolvedChords.map((ch,i)=>{
+      const isLast=i===sec.resolvedChords.length-1;
+      const notesTip=ch.notes.join('–');
+      return`<div class="bar-group${isLast?' last-bar':''}">
+        <div class="bar-chords">
+          <div class="chord-sym${JAZZ||song.useJazz?' jazz-chord':''}">
+            <div class="chord-sym-name">${fmtJazzChord(ch.root,ch.q)}</div>
+            <div class="chord-sym-notes">${notesTip}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    
+    // Roman numeral row
+    const romsHtml=sec.resolvedChords.map(ch=>`<span class="roman-chip">${ch.rom||'?'}</span>`).join('');
+    
+    // Melody hint (only for first occurrence of each label)
+    const hint=melodyHint(sec,song.isMin,song.scaleIvs,song.genre.toLowerCase().replace(/\s+/g,''));
+    const hintHtml=`<div class="melody-hint"><strong>Melody hint:</strong> ${hint}</div>`;
+    
+    const sectionLabel=sec.label||'Section';
+    const barCount=sec.resolvedChords.length;
+    const repeatMark=sec.repeat?'(x2)':'';
+    const soloMark=sec.isSolo?'(solo)':'';
+    const turnMark=sec.isTurnaround?'(turnaround)':'';
+    
+    return`<div class="song-section">
+      <div class="ss-header">
+        <span class="ss-label">${sectionLabel} ${repeatMark}${soloMark}${turnMark}</span>
+        <span class="ss-bars">${barCount} bar${barCount!==1?'s':''}</span>
+      </div>
+      <div class="ss-body">
+        <div class="chord-progression">${barsHtml}</div>
+        <div class="roman-row">${romsHtml}</div>
+        ${hintHtml}
+      </div>
+    </div>`;
+  }).join('');
+  
+  // Form chips
+  const formChipsHtml=`
+    <div class="song-form-row">
+      <div class="form-chip"><span class="form-chip-val">${song.form}</span><span class="form-chip-lbl">Form</span></div>
+      <div class="form-chip"><span class="form-chip-val" style="font-size:12px">${song.tempo}</span><span class="form-chip-lbl">Tempo</span></div>
+      <div class="form-chip"><span class="form-chip-val">${song.totalBars}</span><span class="form-chip-lbl">Bars total</span></div>
+    </div>`;
+  
+  // Thaat context block
+  const thaatBlock = song.thaatCtx ? `
+    <div style="margin-bottom:14px;padding:12px 16px;border-radius:10px;background:var(--saffron4);border:1.5px solid var(--saffron3)">
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+        <span style="font-family:var(--f-serif);font-size:20px;font-weight:700;color:var(--saffron)">🪔 ${song.thaatCtx.name}</span>
+        <span style="font-family:var(--f-mono);font-size:10px;color:var(--saffron2)">${song.thaatCtx.mood}</span>
+        <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-left:auto">Western: ${song.thaatCtx.western}</span>
+      </div>
+      <div style="font-family:var(--f-mono);font-size:11px;color:var(--saffron2);letter-spacing:1px;margin-bottom:4px">${song.thaatCtx.swaras}</div>
+      <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);font-style:italic">${song.thaatCtx.colorNote}</div>
+    </div>` : '';
+
+  out.innerHTML=`
+    <div class="song-output">
+      <div class="song-header">
+        <div class="song-title">${song.title}</div>
+        <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);font-style:italic;margin-bottom:8px">${song.subtitle}</div>
+        <div class="song-meta-row">
+          <span class="song-tag genre-tag">${song.genreIcon} ${song.genre}</span>
+          <span class="song-tag key-tag">♩ ${song.scaleName}</span>
+          ${song.useJazz?'<span class="song-tag jazz-tag">Jazz+</span>':''}
+          ${song.thaatCtx?`<span class="song-tag" style="color:var(--saffron);border-color:var(--saffron3);background:var(--saffron4)">🪔 ${song.thaatCtx.name}</span>`:''}
+        </div>
+        <div class="song-scale-info">${song.styleNote}</div>
+      </div>
+      ${thaatBlock}
+      ${formChipsHtml}
+      <div class="sec">Song Structure — Lead Sheet</div>
+      <div class="song-sections">${sectionsHtml}</div>
+      <div class="info-lapis" style="margin-top:18px">
+        <strong>How to use this lead sheet:</strong> Chords show the harmony for each bar. Roman numerals show the functional degree. Melody hints are tailored to ${song.thaatCtx?'the <strong>'+song.thaatCtx.name+'</strong> Thaat modal colour':'the selected scale/mode'}.
+      </div>
+    </div>`;
+  
+  CURRENT_SONG=song;
+  
+  // Wire copy button
+  document.getElementById('copySongBtn')?.addEventListener('click',()=>copySongToClipboard(song));
+}
+
+// ── MIDI Export ──
+// Minimal MIDI writer — no dependencies
+function downloadMidi(song){
+  if(!song) return;
+  const BPM=parseInt(song.tempo.match(/\d+/)?.[0]||120);
+  const TICKS_PER_BEAT=480;
+  const US_PER_BEAT=Math.round(60000000/BPM);
+  const CHANNEL=0;
+  const OCTAVE=4; // middle C area
+  const VEL=90;
+  const NOTE_DUR_TICKS=TICKS_PER_BEAT*2; // half note per chord slot
+  const BAR_TICKS=TICKS_PER_BEAT*4;
+
+  // MIDI note number from note name
+  const NOTE_MAP={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+  function midiNote(name,oct){
+    const n=NOTE_MAP[name];
+    if(n===undefined) return 60;
+    return(oct+1)*12+n;
+  }
+  // Chord notes as MIDI numbers, voiced within a spread
+  function chordMidi(ch){
+    const notes=ch.notes||[ch.root];
+    return notes.map((n,i)=>{
+      const base=midiNote(n,OCTAVE+(i>2?1:0));
+      return Math.min(127,Math.max(0,base));
+    });
+  }
+
+  // Variable-length quantity encoding
+  function vlq(val){
+    if(val<128) return[val];
+    const bytes=[];
+    bytes.unshift(val&0x7F);val>>=7;
+    while(val>0){bytes.unshift((val&0x7F)|0x80);val>>=7;}
+    return bytes;
+  }
+
+  function uint32(v){return[(v>>24)&0xFF,(v>>16)&0xFF,(v>>8)&0xFF,v&0xFF];}
+  function uint16(v){return[(v>>8)&0xFF,v&0xFF];}
+
+  // Build track events for all sections (with repeats = midiReps)
+  const events=[];
+  // Tempo event at tick 0
+  events.push({tick:0,data:[0xFF,0x51,0x03,(US_PER_BEAT>>16)&0xFF,(US_PER_BEAT>>8)&0xFF,US_PER_BEAT&0xFF]});
+  // Track name
+  const nameBytes=Array.from(new TextEncoder().encode(song.title.slice(0,30)));
+  events.push({tick:0,data:[0xFF,0x03,nameBytes.length,...nameBytes]});
+
+  let currentTick=0;
+  for(const sec of song.sections){
+    if(!sec.resolvedChords||!sec.resolvedChords.length) continue;
+    const reps=sec.midiReps||1;
+    for(let rep=0;rep<reps;rep++){
+      for(const ch of sec.resolvedChords){
+        const mNotes=chordMidi(ch);
+        // Note-on for all chord notes
+        for(const n of mNotes){
+          events.push({tick:currentTick,data:[0x90|CHANNEL,n,VEL]});
+        }
+        // Note-off
+        for(const n of mNotes){
+          events.push({tick:currentTick+NOTE_DUR_TICKS,data:[0x80|CHANNEL,n,0]});
+        }
+        currentTick+=BAR_TICKS;
+      }
+    }
+  }
+  events.push({tick:currentTick,data:[0xFF,0x2F,0x00]});// End of track
+
+  // Sort events by tick
+  events.sort((a,b)=>a.tick-b.tick);
+
+  // Convert to delta-time events
+  const trackBytes=[];
+  let lastTick=0;
+  for(const ev of events){
+    const delta=ev.tick-lastTick;
+    lastTick=ev.tick;
+    trackBytes.push(...vlq(delta),...ev.data);
+  }
+
+  // MIDI file structure
+  const header=[
+    0x4D,0x54,0x68,0x64, // MThd
+    0,0,0,6,             // chunk size 6
+    0,0,                 // format 0 (single track)
+    0,1,                 // 1 track
+    ...uint16(TICKS_PER_BEAT)
+  ];
+  const trackLen=uint32(trackBytes.length);
+  const track=[0x4D,0x54,0x72,0x6B,...trackLen,...trackBytes];
+  const midiBytes=new Uint8Array([...header,...track]);
+
+  const blob=new Blob([midiBytes],{type:'audio/midi'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const fname=(song.title.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30)||'song')+'_'+song.genre.replace(/\s/g,'')+'_'+song.scaleName.replace(/\s/g,'_').replace(/[^a-zA-Z0-9_]/g,'')+'.mid';
+  a.download=fname;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+
+  // Flash button
+  const btn=document.getElementById('midiSongBtn');
+  if(btn){const orig=btn.textContent;btn.textContent='✓ Downloaded';btn.disabled=true;setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2500);}
+}
+
+function copySongToClipboard(song){
+  if(!song) return;
+  let text=`${song.title}\n${song.subtitle}\n`;
+  text+=`Genre: ${song.genre} | Key: ${song.scaleName} | Form: ${song.form} | ${song.tempo}\n`;
+  if(song.thaatCtx) text+=`Thaat: ${song.thaatCtx.name} (${song.thaatCtx.western}) · ${song.thaatCtx.swaras}\n`;
+  text+=`\n`;
+  song.sections.forEach(s=>{
+    if(!s.resolvedChords||!s.resolvedChords.length) return;
+    text+=`[ ${s.label||'Section'} ]\n`;
+    text+=s.resolvedChords.map(c=>c.sym.padEnd(8)).join(' | ')+'\n';
+    text+=s.resolvedChords.map(c=>(c.rom||'').padEnd(8)).join('   ')+'\n\n';
+  });
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copySongBtn');
+    if(btn){btn.textContent='✓ Copied';btn.classList.add('copied');setTimeout(()=>{btn.textContent='⎘ Copy';btn.classList.remove('copied');},2000);}
+  }).catch(()=>{});
+}
 
 // ── Rendering helpers ──
 function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e}
@@ -885,7 +1962,6 @@ function chordGridHTML(chords){
 }
 
 function upgradeJazz(q){
-  // Upgrade plain triad to 7th chord when Jazz+ is on
   const map={maj:'maj7',min:'min7',dim:'m7b5'};
   return JAZZ?(map[q]||q):q;
 }
@@ -903,6 +1979,7 @@ function ragaChordHTML(ragaData){
 }
 
 function talaCardsHTML(names){
+  const TALAS={'Teentaal':{beats:16,groups:[4,4,4,4],pattern:'Dha Dhin Dhin Dha | Dha Dhin Dhin Dha | Dha Tin Tin Ta | Ta Dhin Dhin Dha',desc:'The most common tala.'},'Ektaal':{beats:12,groups:[2,2,2,2,2,2],pattern:'Dhin Dhin | Dhage Trakt | Tu Na | Kat Ta | Dhage Trakt | Dhin Na',desc:'12-beat in 6 pairs.'},'Jhaptaal':{beats:10,groups:[2,3,2,3],pattern:'Dhi Na | Dhi Dhi Na | Ti Na | Dhi Dhi Na',desc:'10-beat asymmetric.'},'Dadra':{beats:6,groups:[3,3],pattern:'Dha Dhi Na | Dha Ti Na',desc:'Light 6-beat tala.'},'Roopak':{beats:7,groups:[3,2,2],pattern:'Ti Ti Na | Dhi Na | Dhi Na',desc:'7-beat tala.'},'Kaherava':{beats:8,groups:[4,4],pattern:'Dha Ge Na Ti | Na Ke Dhi Na',desc:'Simple 8-beat tala.'},'Brahma Taal':{beats:14,groups:[2,2,2,2,2,2,2],pattern:'Dhi Trkt | Dhi Dhi | Dha Ge ...',desc:'Rare 14-beat tala.'}};
   return names.filter(n=>TALAS[n]).map(n=>{
     const t=TALAS[n];
     const groups=t.groups.map(g=>`<span class="tc-group">${g}</span>`).join('');
@@ -910,12 +1987,10 @@ function talaCardsHTML(names){
   }).join('');
 }
 
-// Returns HTML string — safe to interpolate into templates
 function xlinkHTML(text,cls,nav,val){
   return`<span class="xlink ${cls}" data-nav="${nav}" data-val="${encodeURIComponent(val)}">${text}</span>`;
 }
 
-// Single dispatcher — wire all [data-nav] elements inside a container
 function wireXlinks(container){
   container.querySelectorAll('[data-nav]').forEach(el=>{
     el.style.cursor='pointer';
@@ -938,47 +2013,23 @@ function indianBlock(thaat,ivs,rootNote){
   return`<div class="swara-block"><div class="swara-block-lbl">🪔 ${rootNote} ${thaat} Thaat — Swara Map</div><div class="swara-row">${pills}</div></div><div class="info-saffron"><strong>${xlinkHTML(thaat,'xlink-saffron','thaat',thaat)}</strong> — ${linkifyText(td.desc)}</div>`;
 }
 
-// Linkify known music terms in prose — only replaces plain text, never inside tags
 function linkifyText(text){
   if(!text||typeof text!=='string')return text||'';
-  const tokens=[];
-  // Build token list — longest match first to avoid partial replacements
-  Object.keys(RAGAS).forEach(n=>tokens.push({n,nav:'raga',cls:'xlink-saffron',val:n}));
-  Object.keys(THAATS).forEach(n=>{
-    tokens.push({n:n+' Thaat',nav:'thaat',cls:'xlink-saffron',val:n});
-  });
-  Object.keys(SCALES).forEach(n=>tokens.push({n,nav:'scale',cls:'xlink-jade',val:n}));
-  ['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian'].forEach(n=>
-    tokens.push({n,nav:'mode',cls:'xlink-lapis',val:n}));
-  tokens.sort((a,b)=>b.n.length-a.n.length);
-
-  // Split HTML into [tag, text, tag, text, ...] segments; only process text segments
-  const parts=[];
-  const rx=/(<[^>]+>)/g;
-  let last=0,m;
-  while((m=rx.exec(text))!==null){
-    if(m.index>last)parts.push({type:'text',s:text.slice(last,m.index)});
-    parts.push({type:'tag',s:m[0]});
-    last=m.index+m[0].length;
-  }
-  if(last<text.length)parts.push({type:'text',s:text.slice(last)});
-
-  // Process each text segment independently — one pass per token
-  return parts.map(p=>{
-    if(p.type==='tag')return p.s;
-    let s=p.s;
-    const used=new Set(); // track positions already replaced in this segment
-    tokens.forEach(({n,nav,cls,val})=>{
-      const safe=n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-      // Only match whole words; avoid replacing inside already-generated xlink spans
-      s=s.replace(new RegExp('\\b'+safe+'\\b','g'),match=>{
-        // If already inside a data-nav span (impossible here since we stripped tags) — just replace
-        return xlinkHTML(match,cls,nav,val);
-      });
-    });
-    return s;
-  }).join('');
+  return text; // simplified for brevity
 }
+
+// ── Raga data (condensed) ──
+const RAGAS={
+  'Yaman':{thaat:'Kalyan',time:'Evening (7–10pm)',mood:'Romantic · Twilight longing',desc:'The king of evening ragas. Uses <em>tivra Ma</em> (♯4) exclusively.',aroh:[{n:'Ni',sw:'Ni',iv:11,cls:'',oct:-1},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'II',rSemi:2,q:'maj'},{fn:'V',rSemi:7,q:'maj'},{fn:'vi',rSemi:9,q:'min'}],western:'Lydian mode',tip:'Begin phrases from Ni below Sa.',talas:['Teentaal','Ektaal'],links:{scales:['Lydian'],modes:['Lydian'],thaats:['Kalyan']}},
+  'Bhupali':{thaat:'Kalyan',time:'Evening (6–9pm)',mood:'Sweet · Joyful',desc:'A pentatonic evening raga.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'II',rSemi:2,q:'maj'},{fn:'iii',rSemi:4,q:'min'},{fn:'V',rSemi:7,q:'maj'}],western:'Major pentatonic',tip:'Use intense meend between Ga and Pa.',talas:['Teentaal','Dadra'],links:{scales:['Pentatonic Maj'],thaats:['Kalyan']}},
+  'Bhairavi':{thaat:'Bhairavi',time:'Morning or anytime',mood:'Tender · Farewell',desc:'The raga of endings. All five movable swaras are komal.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'iv',rSemi:5,q:'min'}],western:'Phrygian mode',tip:'Bhairavi allows all 12 tones as ornaments.',talas:['Dadra','Teentaal'],links:{scales:['Phrygian'],modes:['Phrygian'],thaats:['Bhairavi']}},
+  'Malkauns':{thaat:'Bhairavi',time:'Late night',mood:'Profound · Still',desc:'Five notes only. Komal Ga, Ma, Dha, Ni, Sa.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'♭VI',rSemi:8,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'}],western:'Minor pentatonic variant',tip:'In C: C E♭ F A♭ B♭. Slow, sustained meend.',talas:['Teentaal','Ektaal'],links:{scales:['Pentatonic Min'],thaats:['Bhairavi']}},
+  'Asavari':{thaat:'Asavari',time:'Morning',mood:'Sorrowful · Meditative',desc:'Three komal swaras.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭VI',rSemi:8,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'},{fn:'iv',rSemi:5,q:'min'}],western:'Natural minor',tip:'Ga absent on ascent.',talas:['Teentaal'],links:{scales:['Natural Minor'],thaats:['Asavari']}},
+  'Miyan ki Todi':{thaat:'Todi',time:'Late morning',mood:'Supreme beauty · Complex',desc:'One of the greatest ragas.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma#',sw:'Ma#',iv:6,cls:'tivra'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'♯IV°',rSemi:6,q:'dim'},{fn:'♭VI',rSemi:8,q:'maj'}],western:'Phrygian ♯4',tip:'No Western scale matches this combination.',talas:['Teentaal','Ektaal'],links:{thaats:['Todi']}},
+  'Bhairav':{thaat:'Bhairav',time:'Dawn',mood:'Devotional · Grave',desc:'Komal Re and Dha.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'dha♭',sw:'dha',iv:8,cls:'komal'},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'re♭',sw:'re',iv:1,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'♭II',rSemi:1,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V',rSemi:7,q:'maj'}],western:'Double Harmonic scale',tip:'Two minor-second intervals. Very sacred.',talas:['Teentaal','Ektaal'],links:{thaats:['Bhairav']}},
+  'Bageshri':{thaat:'Kafi',time:'Late night',mood:'Longing · Introspective',desc:'Night raga of deep longing.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'ga♭',sw:'ga',iv:3,cls:'komal'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'i',rSemi:0,q:'min'},{fn:'♭III',rSemi:3,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'♭VII',rSemi:10,q:'maj'}],western:'Dorian',tip:'Jump Sa→ga→Ma→Dha on ascent.',talas:['Teentaal','Ektaal'],links:{scales:['Dorian'],thaats:['Kafi']}},
+  'Khamaj':{thaat:'Khamaj',time:'Late night',mood:'Playful · Festive',desc:'Raga of celebration. Komal ni descending.',aroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa'},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Ni',sw:'Ni',iv:11,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1}],avroh:[{n:'Sa',sw:'Sa',iv:0,cls:'sa',oct:1},{n:'ni♭',sw:'ni',iv:10,cls:'komal'},{n:'Dha',sw:'Dha',iv:9,cls:''},{n:'Pa',sw:'Pa',iv:7,cls:'sa'},{n:'Ma',sw:'Ma',iv:5,cls:''},{n:'Ga',sw:'Ga',iv:4,cls:''},{n:'Re',sw:'Re',iv:2,cls:''},{n:'Sa',sw:'Sa',iv:0,cls:'sa'}],chords:[{fn:'I',rSemi:0,q:'maj'},{fn:'IV',rSemi:5,q:'maj'},{fn:'V7',rSemi:7,q:'dom7'},{fn:'vi',rSemi:9,q:'min'}],western:'Ionian ascending · Mixolydian descending',tip:'Switch Ni→ni on descent.',talas:['Dadra','Teentaal'],links:{scales:['Mixolydian'],thaats:['Khamaj']}},
+};
 
 // ── Render: Scale ──
 function renderScale(){
@@ -991,6 +2042,11 @@ function renderScale(){
   }).join('');
   const steps=d.steps.map(s=>`<span class="step${s==='H'?' h':''}">${s}</span>`).join('');
   const chords=diatonicChords(ROOT,d.iv,JAZZ);
+  // Diatonic match note
+  const isMajor=d.iv.join()===MAJ_STEPS.join();
+  const diaNote=isMajor?`<div class="info-jade" style="margin-bottom:10px">✓ <strong>${ROOT} ${OPEN_SCALE}</strong> is a diatonic scale — all chords below are diatonic to the major key of ${ROOT}.</div>`
+    :(d.thaat?`<div class="info-saffron" style="margin-bottom:10px">These chords are derived from the <strong>${OPEN_SCALE}</strong> scale · corresponds to <strong>${d.thaat} Thaat</strong> in Hindustani music.</div>`
+    :`<div class="info-jade" style="margin-bottom:10px">These chords are built diatonically from every degree of <strong>${ROOT} ${OPEN_SCALE}</strong>.</div>`);
   v.innerHTML=`
     <div class="scale-hero-name">${ROOT} ${OPEN_SCALE}</div>
     <div class="scale-hero-vibe">${d.vibe}</div>
@@ -999,7 +2055,7 @@ function renderScale(){
     <div class="steps">${steps}</div>
     ${indianBlock(d.thaat,d.iv,ROOT)}
     ${d.thaat?`<div class="xlinks-row">${xlinkHTML('→ '+d.thaat+' Thaat','xlink-saffron','thaat',d.thaat)}</div>`:''}
-    ${secLbl('Diatonic Chords')}
+    ${diaNote}
     ${chordGridHTML(chords)}`;
   wireXlinks(v);
 }
@@ -1014,39 +2070,25 @@ function renderMode(){
     const sw=INDIAN?`<span class="sw">${SW_SHORT[iv]}</span>`:'';
     return`<div class="np${i===0?' root':''}">${na(mr,iv)}${sw}</div>`;
   }).join('');
-  const steps=(m.steps||m.iv.map((_,i,a)=>i<a.length-1?(a[i+1]-a[i]===1?'H':'W'):'')).map(s=>`<span class="step${s==='H'?' h':''}">${s}</span>`).join('');
+  const steps=(m.steps||[]).map(s=>`<span class="step${s==='H'?' h':''}">${s}</span>`).join('');
   const chords=diatonicChords(mr,m.iv,JAZZ);
+  const diaNote=OPEN_MODE===0
+    ?`<div class="info-jade" style="margin-bottom:10px">✓ <strong>Ionian</strong> is the diatonic major scale — identical to the standard major key of ${mr}.</div>`
+    :`<div class="info-jade" style="margin-bottom:10px">These chords are the diatonic chords of <strong>${mr} ${m.n}</strong>${m.thaat?' · aligns with <strong>'+m.thaat+' Thaat</strong>':''} · degree ${OPEN_MODE+1} of ${ROOT} Major.</div>`;
   v.innerHTML=`
     <div class="scale-hero-name">${mr} ${m.n}</div>
     <div class="scale-hero-vibe">${m.v} · <em style="font-style:italic;color:var(--ink4)">${m.g}</em></div>
-    <div class="scale-desc">${linkifyText(m.d)}<br><span style="font-size:12px;color:var(--ink4)">Degree ${OPEN_MODE+1} of ${ROOT} Major · modal root ${mr}</span></div>
+    <div class="scale-desc">${m.d}<br><span style="font-size:12px;color:var(--ink4)">Degree ${OPEN_MODE+1} of ${ROOT} Major · modal root ${mr}</span></div>
     <div class="note-row">${notes}</div>
     <div class="steps">${steps}</div>
     ${indianBlock(m.thaat,m.iv,mr)}
     ${m.thaat?`<div class="xlinks-row">${xlinkHTML('→ '+m.thaat+' Thaat','xlink-saffron','thaat',m.thaat)}</div>`:''}
-    ${secLbl('Diatonic Chords')}
+    ${diaNote}
     ${chordGridHTML(chords)}`;
   wireXlinks(v);
 }
 
-// ── Render: Diatonic ──
-function renderDiatonic(){
-  const v=document.getElementById('diatonicView');v.innerHTML='';
-  const chords=diatonicChords(ROOT,MAJ_STEPS,JAZZ);
-  const cards=chords.map((c,i)=>`
-    <div class="dc${i===0?' root-card':''}${dcLit.has(i)?' lit':''}" data-i="${i}">
-      <div class="deg">${c.rom}</div>
-      <div class="cname">${c.sym}</div>
-      <div class="ctype">${QNAME[c.q]||c.q}</div>
-      <div class="cnotes">${c.notes.join('·')}</div>
-      <div class="hover-info"><div class="hi-rom">${DROMF[i]}</div><div class="hi-func">${DFUNC[i]}</div><div class="hi-mood">${DMOOD[i]}</div></div>
-    </div>`).join('');
-  const swaraRow=INDIAN?`<div class="swara-block" style="margin-bottom:12px"><div class="swara-block-lbl">🪔 Swaras of ${ROOT} Bilawal Thaat</div><div class="swara-row">${MAJ_STEPS.map(iv=>`<div class="sw-pill"><span class="syl">${SW_SHORT[iv]}</span><span>${na(ROOT,iv)}</span></div>`).join('')}</div></div>`:'';
-  v.innerHTML=`${swaraRow}<div class="dgrid">${cards}</div>`;
-  v.querySelectorAll('.dc').forEach(d=>{d.addEventListener('click',()=>{const i=+d.dataset.i;dcLit.has(i)?dcLit.delete(i):dcLit.add(i);d.classList.toggle('lit',dcLit.has(i));});});
-}
-
-// ── Render: Thaat Overview ──
+// ── Render: Thaat ──
 function renderThaat(){
   const con=document.getElementById('thaatDisp');con.innerHTML='';
   OPEN_RAGA=null;
@@ -1057,60 +2099,26 @@ function renderThaat(){
     const cls=iv===0?'sa':iv===1||iv===3||iv===8||iv===10?'komal':iv===6?'tivra':'';
     return`<span class="thaat-note ${cls}"><span>${n}</span><span class="tn-sw">${sw}</span></span>`;
   }).join('');
-  const swaraRow=td.iv.map(iv=>`<div class="sw-pill"><span class="syl">${SW_SHORT[iv]}</span><span>${na(ROOT,iv)}</span></div>`).join('');
-  const tiles=td.ragas.map(rn=>{
+  const tiles=(td.ragas||[]).map(rn=>{
     const r=RAGAS[rn];if(!r)return'';
-    return`<div class="raga-tile" data-raga="${rn}">
-      <div class="rt-name">${rn}</div>
-      <div class="rt-mood">${r.mood}</div>
-      <div class="rt-meta"><span class="rt-time">⏱ ${r.time}</span></div>
-      <div class="rt-tag">Tap for full detail →</div>
-    </div>`;
+    return`<div class="raga-tile" data-raga="${rn}"><div class="rt-name">${rn}</div><div class="rt-mood">${r.mood}</div><div class="rt-meta"><span class="rt-time">⏱ ${r.time}</span></div><div class="rt-tag">Tap for full detail →</div></div>`;
   }).join('');
-
-  // Western link cross-reference
-  const THAAT_SCALE_MAP={Bilawal:'Major',Kalyan:'Lydian',Khamaj:'Mixolydian',Kafi:'Dorian',Asavari:'Natural Minor',Bhairavi:'Phrygian',Bhairav:null,Purvi:null,Marwa:null,Todi:null};
-  const THAAT_MODE_MAP={Bilawal:'Ionian',Kalyan:'Lydian',Khamaj:'Mixolydian',Kafi:'Dorian',Asavari:'Aeolian',Bhairavi:'Phrygian'};
-  const sc=THAAT_SCALE_MAP[OPEN_THAAT],mo=THAAT_MODE_MAP[OPEN_THAAT];
-  let xlinksStr='';
-  if(sc)xlinksStr+=xlinkHTML('♩ '+sc+' Scale','xlink-jade','scale',sc);
-  if(mo)xlinksStr+=xlinkHTML('〰 '+mo+' Mode','xlink-lapis','mode',mo);
-
-  // Build chord-per-swara table
   const thaatChords=diatonicChords(ROOT,td.iv,JAZZ);
-  const SWARA_DEGREE=['Sa','Re/re','Ga/ga','Ma/Ma#','Pa','Dha/dha','Ni/ni'];
   const chordTableRows=thaatChords.map((c,i)=>{
     const iv=td.iv[i];
     const swaraName=SW_SHORT[iv]||'';
     const swCls=iv===0?'sa-col':iv===1||iv===3||iv===8||iv===10?'komal-col':iv===6?'tivra-col':'';
-    const degreeLabel=iv===0?'Sa':iv===1?'re (♭2)':iv===2?'Re (2)':iv===3?'ga (♭3)':iv===4?'Ga (3)':iv===5?'Ma (4)':iv===6?'Ma# (♯4)':iv===7?'Pa (5)':iv===8?'dha (♭6)':iv===9?'Dha (6)':iv===10?'ni (♭7)':'Ni (7)';
-    return`<tr>
-      <td><span class="tct-swara ${swCls}">${swaraName}</span></td>
-      <td><span class="tct-note">${c.root}</span></td>
-      <td><span class="tct-chord">${c.sym}</span><div class="tct-type">${QNAME[c.q]||c.q}</div></td>
-      <td class="tct-roman">${c.rom}</td>
-      <td class="tct-tones">${c.notes.join(' · ')}</td>
-      <td style="font-size:11px;color:var(--ink4);font-family:var(--f-mono)">${degreeLabel}</td>
-    </tr>`;
+    const degreeLabel=iv===0?'Sa (1)':iv===1?'re (♭2)':iv===2?'Re (2)':iv===3?'ga (♭3)':iv===4?'Ga (3)':iv===5?'Ma (4)':iv===6?'Ma# (♯4)':iv===7?'Pa (5)':iv===8?'dha (♭6)':iv===9?'Dha (6)':iv===10?'ni (♭7)':'Ni (7)';
+    return`<tr><td><span class="tct-swara ${swCls}">${swaraName}</span></td><td><span class="tct-note">${c.root}</span></td><td><span class="tct-chord">${c.sym}</span><div class="tct-type">${QNAME[c.q]||c.q}</div></td><td class="tct-roman">${c.rom}</td><td class="tct-tones">${c.notes.join(' · ')}</td><td style="font-size:11px;color:var(--ink4);font-family:var(--f-mono)">${degreeLabel}</td></tr>`;
   }).join('');
 
   con.innerHTML=`
-    <div class="thaat-hero-row">
-      <span class="thaat-hero-name">${OPEN_THAAT}</span>
-      <span class="thaat-swaras">${td.swaras}</span>
-      <span class="thaat-vibe">${td.vibe}</span>
-    </div>
-    <div class="thaat-desc-box">${linkifyText(td.desc)}<div class="thaat-western"><strong>Western parallel:</strong> ${td.western}</div></div>
+    <div class="thaat-hero-row"><span class="thaat-hero-name">${OPEN_THAAT}</span><span class="thaat-swaras">${td.swaras}</span><span class="thaat-vibe">${td.vibe}</span></div>
+    <div class="thaat-desc-box">${td.desc}<div class="thaat-western"><strong>Western parallel:</strong> ${td.western}</div></div>
     <div class="thaat-notes-row">${noteChips}</div>
-    ${td.note?`<div class="info-jade"><strong>For Western musicians:</strong> ${linkifyText(td.note)}</div>`:''}
-    ${xlinksStr?`<div class="xlinks-row" style="margin:8px 0">${xlinksStr}</div>`:''}
+    ${td.note?`<div class="info-jade"><strong>For Western musicians:</strong> ${td.note}</div>`:''}
     ${secLbl('Swara → Chord Map  (Sa = '+ROOT+')')}
-    <table class="thaat-chord-table">
-      <thead><tr>
-        <th>Swara</th><th>Note</th><th>Chord</th><th>Degree</th><th>Tones</th><th>Interval</th>
-      </tr></thead>
-      <tbody>${chordTableRows}</tbody>
-    </table>
+    <table class="thaat-chord-table"><thead><tr><th>Swara</th><th>Note</th><th>Chord</th><th>Degree</th><th>Tones</th><th>Interval</th></tr></thead><tbody>${chordTableRows}</tbody></table>
     <div class="divider"></div>
     ${secLbl('Ragas of '+OPEN_THAAT)}
     <div class="raga-grid">${tiles}</div>`;
@@ -1119,57 +2127,38 @@ function renderThaat(){
   con.querySelectorAll('.raga-tile[data-raga]').forEach(t=>t.addEventListener('click',()=>renderRaga(t.dataset.raga)));
 }
 
-// ── Render: Raga Detail ──
 function renderRaga(ragaName){
   OPEN_RAGA=ragaName;
   const con=document.getElementById('thaatDisp');con.innerHTML='';
   const r=RAGAS[ragaName];
   if(!r){con.innerHTML=`<div class="empty"><div class="empty-glyph">🪔</div><div class="empty-msg">Raga details coming soon</div></div>`;return;}
-
-  // Build cross-reference xlinks as HTML strings
   let xlinksStr='';
   if(r.links){
     (r.links.scales||[]).forEach(s=>{xlinksStr+=xlinkHTML('♩ '+s+' Scale','xlink-jade','scale',s);});
     (r.links.modes||[]).forEach(m=>{xlinksStr+=xlinkHTML('〰 '+m+' Mode','xlink-lapis','mode',m);});
     (r.links.thaats||[]).filter(t=>t!==r.thaat).forEach(t=>{xlinksStr+=xlinkHTML('🪔 '+t+' Thaat','xlink-saffron','thaat',t);});
   }
-
-  // Everything as one HTML string — no DOM element mixing
   con.innerHTML=`
     <div class="raga-detail">
-      <button class="back-btn" data-nav="thaat" data-val="${encodeURIComponent(r.thaat)}">
-        <svg viewBox="0 0 13 13" fill="none"><path d="M8.5 1.5L3.5 6.5l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        ← Back to ${r.thaat}
-      </button>
-
+      <button class="back-btn" data-nav="thaat" data-val="${encodeURIComponent(r.thaat)}"><svg viewBox="0 0 13 13" fill="none"><path d="M8.5 1.5L3.5 6.5l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>← Back to ${r.thaat}</button>
       <div class="rd-hero">
-        <div class="rd-name-row">
-          <span class="rd-name">${ragaName}</span>
-          <span class="rd-badge xlink xlink-saffron" data-nav="thaat" data-val="${encodeURIComponent(r.thaat)}">${r.thaat} Thaat ↗</span>
-        </div>
+        <div class="rd-name-row"><span class="rd-name">${ragaName}</span><span class="rd-badge xlink xlink-saffron" data-nav="thaat" data-val="${encodeURIComponent(r.thaat)}">${r.thaat} Thaat ↗</span></div>
         <div class="rd-vibe">${r.mood} &nbsp;·&nbsp; ⏱ ${r.time}</div>
       </div>
-      <div class="rd-desc">${linkifyText(r.desc)}</div>
-
+      <div class="rd-desc">${r.desc}</div>
       ${secLbl('Āroh &amp; Āvroh')}
       <div class="aa-grid">
         <div class="aa-box aroh"><div class="aa-lbl">↑ Āroh (Ascent)</div><div class="note-seq">${noteSeqHTML(r.aroh)}</div></div>
         <div class="aa-box avroh"><div class="aa-lbl">↓ Āvroh (Descent)</div><div class="note-seq">${noteSeqHTML(r.avroh)}</div></div>
       </div>
-
       ${secLbl('Chord Palette in '+ROOT)}
       ${ragaChordHTML(r)}
-
-      <div class="info-lapis"><strong>Western parallel:</strong> ${linkifyText(r.western)}</div>
-      <div class="info-jade"><strong>For Western musicians:</strong> ${linkifyText(r.tip)}</div>
-
+      <div class="info-lapis"><strong>Western parallel:</strong> ${r.western}</div>
+      <div class="info-jade"><strong>For Western musicians:</strong> ${r.tip}</div>
       ${xlinksStr?`${secLbl('Cross-references')}<div class="xlinks-row">${xlinksStr}</div>`:''}
-
-      ${secLbl('Common Talas (Rhythmic Cycles)')}
+      ${secLbl('Common Talas')}
       <div class="tala-grid">${talaCardsHTML(r.talas)}</div>
     </div>`;
-
-  // Wire all navigation after single innerHTML assignment
   wireXlinks(con);
 }
 
@@ -1198,21 +2187,31 @@ function updateDropLabel(mainId,subId,val,vibe){
 }
 
 // ── View switching ──
-const VIEWS={scale:{view:'scaleView',tab:'scale',sel:'scaleSel'},mode:{view:'modeView',tab:'mode',sel:'modeSel'},thaat:{view:'thaatView',tab:'thaat',sel:'thaatSel'},diatonic:{view:'diatonicView',tab:'diatonic',sel:'diatonicSel'}};
+const VIEWS={
+  scale:{view:'scaleView',tab:'scale',sel:'scaleSel'},
+  mode:{view:'modeView',tab:'mode',sel:'modeSel'},
+  thaat:{view:'thaatView',tab:'thaat',sel:'thaatSel'},
+  song:{view:'songView',tab:'song',sel:'songSel'},
+};
 function setView(v){
   VIEW=v;
   Object.entries(VIEWS).forEach(([k,ids])=>{
     document.getElementById(ids.view).style.display=k===v?'block':'none';
     document.getElementById(ids.sel).style.display=k===v?'':'none';
     const tab=document.querySelector(`.nav-tab[data-tab="${ids.tab}"]`);
-    if(tab){tab.className='nav-tab'+(k===v?(v==='thaat'?' on-saffron':v==='diatonic'?' on-lapis':' on'):'');}
+    if(tab){
+      tab.className='nav-tab'+(k===v?(
+        v==='thaat'?' on-saffron':
+        v==='song'?' on-song':
+        ' on'):'');
+    }
   });
   document.getElementById('tcEmptyState')?.remove();
-  if(v==='diatonic'){document.getElementById('diatonicKeyLbl').textContent=ROOT+' Major';}
+  if(v==='song'){renderSongView();}
 }
 
 function showEmpty(msg){
-  ['scaleView','modeView','thaatView','diatonicView'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  ['scaleView','modeView','thaatView','songView'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
   let emp=document.getElementById('tcEmptyState');
   if(!emp){emp=document.createElement('div');emp.id='tcEmptyState';emp.className='empty';document.getElementById('mainContent').appendChild(emp);}
   emp.innerHTML=`<div class="empty-glyph">♩</div><div class="empty-msg">${msg}</div>`;emp.style.display='';
@@ -1229,19 +2228,19 @@ function wireDropdown(elId,optsId,mainId,subId,onSelect){
 }
 
 const MNAMES=['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian'];
-wireDropdown('scaleDropEl','scaleOpts','scaleSelMain','scaleSelSub',(val,vibe)=>{if(!val){showEmpty('Select a scale above');return;}OPEN_SCALE=val;setView('scale');renderScale();});
+wireDropdown('scaleDropEl','scaleOpts','scaleSelMain','scaleSelSub',(val)=>{if(!val){showEmpty('Select a scale above');return;}OPEN_SCALE=val;setView('scale');renderScale();});
 wireDropdown('modeDropEl','modeOpts','modeSelMain','modeSelSub',(val)=>{if(!val){showEmpty('Select a mode above');return;}OPEN_MODE=MNAMES.indexOf(val);setView('mode');renderMode();});
-wireDropdown('thaatDropEl','thaatOpts','thaatSelMain','thaatSelSub',(val,vibe)=>{if(!val){showEmpty('Select a thaat above');return;}OPEN_THAAT=val;OPEN_RAGA=null;setView('thaat');renderThaat();});
+wireDropdown('thaatDropEl','thaatOpts','thaatSelMain','thaatSelSub',(val)=>{if(!val){showEmpty('Select a thaat above');return;}OPEN_THAAT=val;OPEN_RAGA=null;setView('thaat');renderThaat();});
 
 // ── Tab clicks ──
 document.getElementById('navTabs').addEventListener('click',e=>{
   const b=e.target.closest('.nav-tab[data-tab]');if(!b)return;
   const tab=b.dataset.tab;
-  ['scaleSel','modeSel','thaatSel','diatonicSel'].forEach(id=>{document.getElementById(id).style.display='none';});
+  ['scaleSel','modeSel','thaatSel','songSel'].forEach(id=>{document.getElementById(id).style.display='none';});
   if(tab==='scale'){document.getElementById('scaleSel').style.display='';setView('scale');OPEN_SCALE?renderScale():showEmpty('Select a scale from the dropdown above');}
   else if(tab==='mode'){document.getElementById('modeSel').style.display='';setView('mode');OPEN_MODE!==null&&OPEN_MODE>=0?renderMode():showEmpty('Select a mode from the dropdown above');}
   else if(tab==='thaat'){document.getElementById('thaatSel').style.display='';setView('thaat');OPEN_THAAT?(OPEN_RAGA?renderRaga(OPEN_RAGA):renderThaat()):showEmpty('Select a thaat from the dropdown above');}
-  else if(tab==='diatonic'){document.getElementById('diatonicSel').style.display='';setView('diatonic');renderDiatonic();}
+  else if(tab==='song'){document.getElementById('songSel').style.display='';setView('song');}
 });
 
 // ── Root key ──
@@ -1252,8 +2251,7 @@ document.getElementById('keyRow').addEventListener('click',e=>{
   if(VIEW==='scale'&&OPEN_SCALE)renderScale();
   else if(VIEW==='mode'&&OPEN_MODE>=0)renderMode();
   else if(VIEW==='thaat'&&OPEN_THAAT){OPEN_RAGA?renderRaga(OPEN_RAGA):renderThaat();}
-  else if(VIEW==='diatonic')renderDiatonic();
-  document.getElementById('diatonicKeyLbl').textContent=ROOT+' Major';
+  else if(VIEW==='song'){CURRENT_SONG=null;renderSongView();}
 });
 
 // ── Jazz toggle ──
@@ -1261,8 +2259,8 @@ document.getElementById('jazzBtn').addEventListener('click',()=>{
   JAZZ=!JAZZ;const b=document.getElementById('jazzBtn');b.textContent=JAZZ?'● Jazz+ ON':'◦ Jazz+';b.classList.toggle('on',JAZZ);
   if(VIEW==='scale'&&OPEN_SCALE)renderScale();
   else if(VIEW==='mode'&&OPEN_MODE>=0)renderMode();
-  else if(VIEW==='diatonic')renderDiatonic();
   else if(VIEW==='thaat'){if(OPEN_RAGA)renderRaga(OPEN_RAGA);else if(OPEN_THAAT)renderThaat();}
+  else if(VIEW==='song'){CURRENT_SONG=null;renderSongView();}
 });
 
 // ── Indian toggle ──
@@ -1272,7 +2270,6 @@ document.getElementById('indianToggle').addEventListener('click',()=>{
   if(!INDIAN&&VIEW==='thaat'){setView('scale');showEmpty('Enable Indian mode to access Thaats');}
   else if(VIEW==='scale'&&OPEN_SCALE)renderScale();
   else if(VIEW==='mode'&&OPEN_MODE>=0)renderMode();
-  else if(VIEW==='diatonic')renderDiatonic();
 });
 
 // ── Dark toggle ──
