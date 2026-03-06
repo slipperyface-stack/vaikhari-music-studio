@@ -64,6 +64,7 @@ body{background:var(--bg);font-family:var(--f-sans);color:var(--ink);min-height:
 }
 .cx-pill:hover{border-color:var(--turmeric);color:var(--turmeric);}
 .cx-pill.on{background:var(--turmeric);color:#fff;border-color:var(--turmeric);}
+body.dark .v-tagline{color:#a89070;}
 body.dark .cx-pill.on{background:var(--turmeric);color:var(--bg);}
 
 /* Form alternatives pills */
@@ -821,15 +822,20 @@ const GENRES={
   blues:{
     label:'Blues',icon:'🎸',
     color:'on',
-    forms:['12-bar','8-bar','16-bar'],
-    tempos:['Slow Blues (♩=60)','Medium Blues (♩=100)','Shuffle (♩=130)','Fast Blues (♩=180)'],
-    styleNote:'Dominant 7ths throughout · blue notes · turnarounds',
+    // Four distinct complexity levels as distinct form variants
+    forms:['12-bar (Delta)','12-bar (Chicago)','12-bar (Blues-Rock)','12-bar (Jazz Blues)','8-bar','16-bar'],
+    signatureForm:'12-bar (Chicago)',
+    formAlts:['12-bar (Chicago)','12-bar (Delta)','12-bar (Blues-Rock)','12-bar (Jazz Blues)','8-bar','16-bar'],
+    tempos:['Slow Blues (♩=54)','Medium Blues (♩=80)','Shuffle (♩=120)','Fast Blues (♩=176)'],
+    styleNote:'All chords dominant 7ths · blue notes · turnarounds · chord-tone targeting',
     progressions:{
+      // Actual blues uses buildBluesSong() — these are structural fallbacks only
       major:[['I7','IV7','I7','I7','IV7','IV7','I7','I7','V7','IV7','I7','V7']],
       minor:[['i7','iv7','i7','i7','iv7','iv7','i7','i7','V7','iv7','i7','V7']],
-      bridge:[['IV7','V7','I7']]
+      bridge:[['IV7','IV7','I7','I7'],['II7','V7','I7','I7']]
     },
-    jazzMods:{'I7':'I7','IV7':'IV7','V7':'V7','i7':'i7','iv7':'iv7'}
+    // jazzMods applied by resolveChord for extension upgrades
+    jazzMods:{'I7':'I9','IV7':'IV9','V7':'V9','i7':'i9','iv7':'iv9'}
   },
   pop:{
     label:'Pop',icon:'🎵',
@@ -1059,7 +1065,6 @@ const GENRES={
 
 // Add signatureForm/formAlts to original genres
 GENRES.jazz.signatureForm='AABA';GENRES.jazz.formAlts=['AABA','ABAC','ABA','Through-composed'];
-GENRES.blues.signatureForm='12-bar';GENRES.blues.formAlts=['12-bar','8-bar','16-bar'];
 GENRES.pop.signatureForm='Verse-Chorus';GENRES.pop.formAlts=['Verse-Chorus','ABABCB','AABA'];
 GENRES.rock.signatureForm='Verse-Chorus';GENRES.rock.formAlts=['Verse-Chorus','12-bar','ABA','Riff-based'];
 GENRES.classical.signatureForm='Sonata';GENRES.classical.formAlts=['Sonata','Rondo','Ternary (ABA)','Binary (AB)'];
@@ -1335,7 +1340,29 @@ function getThaatMelodyHint(thaatKey){
   return pick(THAAT_SONG[thaatKey].melodyHints);
 }
 
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+// Pick randomly, avoiding recently used items
+const _pickHistory=new Map(); // key→Set of recently used indices
+function pick(arr, histKey){
+  if(!arr||!arr.length) return arr?.[0];
+  if(arr.length===1) return arr[0];
+  const key=histKey||JSON.stringify(arr).slice(0,40);
+  if(!_pickHistory.has(key)) _pickHistory.set(key,new Set());
+  const used=_pickHistory.get(key);
+  // Reset if we've used all options
+  if(used.size>=arr.length) used.clear();
+  // Find indices not recently used
+  const avail=arr.map((_,i)=>i).filter(i=>!used.has(i));
+  const idx=avail[Math.floor(Math.random()*avail.length)];
+  used.add(idx);
+  return arr[idx];
+}
+// Shuffle-pick: always pick something different from the last n picks
+function pickFresh(arr, exclude){
+  if(!arr||!arr.length) return arr?.[0];
+  const excStr=exclude?JSON.stringify(exclude):null;
+  const candidates=arr.filter(x=>JSON.stringify(x)!==excStr);
+  return pick(candidates.length?candidates:arr);
+}
 function pickN(arr,n){
   const s=[...arr];const r=[];
   for(let i=0;i<n&&s.length;i++){const idx=Math.floor(Math.random()*s.length);r.push(s.splice(idx,1)[0]);}
@@ -1409,6 +1436,236 @@ function upgradeRoman(roman, genreKey){
 }
 
 // Generate a complete song structure
+
+// ══════════════════════════════════════════════════
+// ── Blues structure builder (spec-accurate) ──
+// ══════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════
+// ── BLUES THEORY ENGINE ──
+// Based on all four complexity levels:
+// Level 1: Delta — bare 12-bar, no turnaround
+// Level 2: Chicago — quick-change bar 2, V7 turnaround bar 12
+// Level 3: Blues-Rock — #IVdim, VI7, II7, Hendrix V7#9
+// Level 4: Jazz Blues — tritone subs, I–VI–II–V turnaround
+// ══════════════════════════════════════════════════
+
+// The 12-bar skeleton, labelled by emotional arc
+const BLUES_ARC = [
+  {bars:[1,4], label:'Bars 1–4',   role:'settle',    desc:'Settle into the problem'},
+  {bars:[5,6], label:'Bars 5–6',   role:'intensify', desc:'Intensify (IV7 lifts energy)'},
+  {bars:[7,8], label:'Bars 7–8',   role:'reflect',   desc:'Pull back and reflect'},
+  {bars:[9,10],label:'Bars 9–10',  role:'tension',   desc:'Peak tension (V7 → IV7)'},
+  {bars:[11,12],label:'Bars 11–12',role:'resolve',   desc:'Resolution and reset'},
+];
+
+// Build the canonical 12-bar sequence for each level
+function bluesChords12(level, isMin){
+  const I7 =isMin?'i7':'I7';
+  const IV7=isMin?'iv7':'IV7';
+  const V7 ='V7';
+  // Level 1: Delta — pure, no turnaround, no quick-change
+  if(level===1) return [
+    I7,   I7,   I7,   I7,    // bars 1-4: settle
+    IV7,  IV7,  I7,   I7,    // bars 5-8: intensify then reflect
+    V7,   V7,   I7,   I7,    // bars 9-12: tension, resolve (no turnaround)
+  ];
+  // Level 2: Chicago — quick-change bar 2, V7 turnaround bar 12
+  // Bars 7-8 can vary: sometimes I7 I7, sometimes I7 V7/IV for colour
+  const chi_v=Math.random();
+  if(level===2) return [
+    I7,   IV7,  I7,   I7,
+    IV7,  IV7,  I7,   chi_v<0.33?V7:chi_v<0.66?I7:IV7,
+    V7,   IV7,  I7,   V7,
+  ];
+  // Level 3: Blues-Rock
+  const br_v=Math.random(), br_v2=Math.random();
+  if(level===3) return [
+    I7,    IV7,          I7,    br_v<0.5?I7:'bVII7',
+    IV7,   '#IVdim',     I7,   'VI7',
+    'II7', br_v2<0.5?V7:'bII7', I7, 'V7#9',
+  ];
+  // Level 4: Jazz Blues — full harmony with tritone subs and I–VI–II–V turnaround
+  if(level===4) return [
+    I7,    IV7,      I7,    'bVII7',   // bars 1-4: bVII7 chromatic approach to IV
+    IV7,   '#IVdim',  I7,    'VI7',    // bars 5-8
+    'II7', 'bII7',   I7,    'VI7',    // bars 9-12: bII7 tritone sub, I–VI pivot
+    // Note: bar 12 will split into II7 V7 in the turnaround section
+  ];
+  return bluesChords12(2, isMin); // fallback: Chicago
+}
+
+// The jazz blues turnaround replaces bars 11-12: I7 VI7 | II7 V7
+function jazzTurnaround(isMin){
+  return [isMin?'i7':'I7', 'VI7', 'II7', 'V7'];
+}
+
+// 8-bar form (used in early country blues, British Invasion)
+function bluesChords8(level, isMin){
+  const I7=isMin?'i7':'I7', IV7=isMin?'iv7':'IV7', V7='V7';
+  if(level<=2) return [I7, I7, IV7, IV7, V7, IV7, I7, I7];
+  return [I7, IV7, IV7, '#IVdim', V7, IV7, I7, 'V7#9'];
+}
+
+// 16-bar form (slow blues, extended)
+function bluesChords16(level, isMin){
+  const I7=isMin?'i7':'I7', IV7=isMin?'iv7':'IV7', V7='V7';
+  if(level<=2) return [
+    I7,I7,I7,I7, IV7,IV7,I7,I7,
+    V7,IV7,I7,I7, V7,IV7,I7,V7
+  ];
+  return [
+    I7,IV7,I7,I7, IV7,'#IVdim',I7,'VI7',
+    'II7',V7,I7,I7, V7,IV7,I7,'V7#9'
+  ];
+}
+
+// Map form name and complexity to a level 1-4
+function bluesLevel(formKey, cx){
+  if(formKey.includes('Delta'))      return 1;
+  if(formKey.includes('Chicago'))    return 2;
+  if(formKey.includes('Blues-Rock')) return 3;
+  if(formKey.includes('Jazz Blues')) return 4;
+  // Complexity-based default
+  if(cx==='simple')  return 1;
+  if(cx==='medium')  return 2;
+  if(cx==='complex') return 3;
+  return 2;
+}
+
+// Song structure builders — each returns a sections array
+function buildBluesSong(formKey, cx, isMin, bpFn){
+  const level=bluesLevel(formKey, cx);
+  const is8  =formKey.includes('8-bar');
+  const is16 =formKey.includes('16-bar');
+  const sections=[];
+
+  // Choose the right 12-bar (or 8/16) grid
+  let grid;
+  if(is8)  grid=bluesChords8(level,isMin);
+  else if(is16) grid=bluesChords16(level,isMin);
+  else     grid=bluesChords12(level,isMin);
+
+  const barCount=grid.length; // 8, 12, or 16
+
+  // Split grid into 4-bar chunks for display, each chunk is a section row
+  function gridToSections(progArray, sectionLabel, midiReps, arcIndex){
+    const chunks=[];
+    for(let i=0;i<progArray.length;i+=4){
+      const chunk=progArray.slice(i,i+4);
+      const arcInfo=BLUES_ARC[Math.min(arcIndex+Math.floor(i/4), BLUES_ARC.length-1)];
+      chunks.push({
+        label: sectionLabel + (progArray.length>4 ? ' — '+arcInfo.label : ''),
+        roleDesc: arcInfo?.desc||'',
+        prog: bpFn(chunk),
+        bars: chunk.length,
+        midiReps,
+        bluesArc: arcInfo?.role||'',
+      });
+    }
+    return chunks;
+  }
+
+  // ── Level 1: Delta — repeated 12-bar, raw and unadorned ──
+  if(level===1){
+    sections.push(...gridToSections(grid,'Verse',1,0));
+    sections.push(...gridToSections(grid,'Verse 2',1,0));
+    sections.push({label:'Outro — Fade on I7',prog:bpFn([grid[0]]),bars:1,midiReps:4,bluesArc:'resolve'});
+  }
+  // ── Level 2: Chicago — intro, verses, solo, outro with turnaround ──
+  else if(level===2){
+    // Intro: one full 12-bar instrumental
+    sections.push(...gridToSections(grid,'Intro (Instrumental)',1,0));
+    // Verse 1
+    sections.push(...gridToSections(grid,'Verse 1',1,0));
+    // Verse 2
+    sections.push(...gridToSections(grid,'Verse 2',1,0));
+    // Solo: one or two 12-bar passes
+    sections.push(...gridToSections(grid,'Guitar Solo',cx==='complex'?2:1,0));
+    // Verse 3
+    sections.push(...gridToSections(grid,'Verse 3',1,0));
+    // Outro: slow and land on I7
+    const outroGrid=[...grid.slice(0,8), grid[8], grid[9], grid[10], grid[10]];
+    sections.push(...gridToSections(outroGrid,'Outro',1,0));
+  }
+  // ── Level 3: Blues-Rock — bridge section, extended solo ──
+  else if(level===3){
+    sections.push(...gridToSections(grid,'Intro (Instrumental)',1,0));
+    sections.push(...gridToSections(grid,'Verse 1',1,0));
+    sections.push(...gridToSections(grid,'Verse 2',1,0));
+    // Bridge: 8 bars on IV7 (or II7 → V7 if complex)
+    const bridge=cx==='complex'
+      ? ['II7','II7','V7','V7','IV7','IV7',isMin?'i7':'I7',isMin?'i7':'I7']
+      : [isMin?'iv7':'IV7',isMin?'iv7':'IV7',isMin?'iv7':'IV7',isMin?'iv7':'IV7',
+         'II7','V7',isMin?'i7':'I7',isMin?'i7':'I7'];
+    sections.push(...gridToSections(bridge,'Bridge (8 bars)',1,0));
+    // Solo: one full 12-bar pass with Blues-Rock changes
+    sections.push(...gridToSections(grid,'Guitar Solo',1,0));
+    // Verse 3
+    sections.push(...gridToSections(grid,'Verse 3',1,0));
+    // Outro: fade with Hendrix chord
+    const outro=[...grid.slice(8,10), isMin?'i7':'I7', 'V7#9'];
+    sections.push(...gridToSections(outro,'Outro',2,4));
+  }
+  // ── Level 4: Jazz Blues — head/solos/head out, full turnarounds ──
+  else if(level===4){
+    // Replace bars 11-12 of grid with I–VI–II–V turnaround
+    const jazzGrid=[...grid.slice(0,10), ...jazzTurnaround(isMin)];
+    sections.push(...gridToSections(jazzGrid,'Head (12 bars)',1,0));
+    // Solo chorus 1
+    sections.push(...gridToSections(jazzGrid,'Solo — Chorus 1',1,0));
+    // Solo chorus 2
+    sections.push(...gridToSections(jazzGrid,'Solo — Chorus 2',1,0));
+    // Head out
+    sections.push(...gridToSections(jazzGrid,'Head Out',1,0));
+    // Coda: I7 VI7 II7 V7 I7
+    sections.push({
+      label:'Coda — Turnaround',
+      prog:bpFn([isMin?'i7':'I7','VI7','II7','V7']),
+      bars:4, midiReps:2, bluesArc:'resolve'
+    });
+  }
+
+  return sections;
+}
+
+// Melody hints — correct per arc segment and level
+function bluesMelodyHint(level, arcRole){
+  const hints={
+    1:{ // Delta
+      settle:   ['Hold root. Bend the b3 up \u2014 that\u2019s the Delta soul.','Repeat the root-position riff: 1→b3→4→root.','Stay on I7. Simplicity is the statement.'],
+      intensify:['IV7 lifts everything — slide the root up a 4th.','Play the 4th (=root of IV7) on the downbeat.'],
+      reflect:  ['Back on I7 — settle back down after the IV7.'],
+      tension:  ['V7 rests → stay on the 5th note, it wants to resolve.'],
+      resolve:  ['Land back on I7 and breathe. No turnaround needed.'],
+    },
+    2:{ // Chicago
+      settle:   ['Quick-change bar 2 to IV7 — jump the 4th on beat 1.','Target the 3rd of I7 on the downbeat.','Use the blues scale (1 b3 4 b5 5 b7) as the spine.'],
+      intensify:['IV7 arrives — bend the b3 into the 3rd for resolution.','Chord-tone landing: play the 3rd of IV7 on beat 1.'],
+      reflect:  ['Back to I7 — use the 5th as a rest tone.'],
+      tension:  ['V7→IV7 — the classic "stop time" moment. Hold the V7 and snap back.','V7 turnaround lick: 5–b7–5–3–1.'],
+      resolve:  ['V7 in bar 12 pulls hard back into verse 1.','The turnaround V7 is the setup for the next vocal line.'],
+    },
+    3:{ // Blues-Rock
+      settle:   ['Target guide tones: 3rd & 7th on the downbeat of every chord.','I7 to IV7 quick-change — outline the arpeggio: 1–3–5–b7.'],
+      intensify:['#IVdim passing chord — a chromatic half-step climb into I7.','VI7 (bar 8) = secondary dominant to II7. Play its ♯3rd to signal the change.'],
+      reflect:  ['After #IVdim, land cleanly on the 3rd of I7.'],
+      tension:  ['II7–V7 = jazz two-five. Outline both sets of chord tones separately.','V7#9 (Hendrix chord): deliberately clash the b3 against the major 3rd.'],
+      resolve:  ['V7#9 holds tension right up to the next bar 1.'],
+    },
+    4:{ // Jazz Blues
+      settle:   ['bVII7 (bar 4) is a chromatic approach to IV7 — play its root as a passing tone.','Target 3rds and 7ths exclusively — guide tones define every harmony.'],
+      intensify:['#IVdim connects IV7 to I7 by half-step in the bass.','VI7 (bar 8) = ii–V of II7. Treat it as a modulation pivot.'],
+      reflect:  ['After VI7, target the 3rd of I7 — resolution after the secondary dominant.'],
+      tension:  ['bII7 = tritone substitution for V7. Its 3rd is the b7 of V7.','I–VI–II–V turnaround: outline each chord in 2 beats. Speed of thought.'],
+      resolve:  ['The I–VI–II–V lands us back at bar 1. Full circle.','Coda: one slow I7 VI7 II7 V7 — hold each chord, let it breathe.'],
+    },
+  };
+  const level_hints=hints[level]||hints[2];
+  const pool=level_hints[arcRole]||level_hints.settle;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+// ──────────────────────────────────────────────────
 // Passing chord library
 const PASSING_CHORDS={'I':['♭III7','II7','♭II7'],'IV':['♯IV°7','♭VI7'],'V':['♭II7','♯IV°7'],'ii':['♭II7','IV7'],'vi':['♭VI7','IV7'],'i':['♭II7','♭III7']};
 function addPassingChords(prog){
@@ -1448,8 +1705,19 @@ function generateSong(formOverride){
     if(cx.passingChords&&Math.random()<0.5) p=addPassingChords(p);
     return p;
   }
-  function pp(){return pick(progPool);}
-  function pb(){return bridgePool.length?pick(bridgePool):pp();}
+  // Use history-aware picks so Regenerate always gives fresh progressions
+  const _ppKey=SELECTED_GENRE+'_main_'+SONG_COMPLEXITY;
+  const _pbKey=SELECTED_GENRE+'_bridge_'+SONG_COMPLEXITY;
+  let _lastPP=null, _lastPB=null;
+  function pp(){
+    const r=pickFresh(progPool, _lastPP);
+    _lastPP=r; return r;
+  }
+  function pb(){
+    const pool=bridgePool.length?bridgePool:progPool;
+    const r=pickFresh(pool, _lastPB);
+    _lastPB=r; return r;
+  }
 
   if(form==='Intro-Drop-Breakdown-Drop-Outro'){
     const M=pp();const B=pb();
@@ -1500,16 +1768,10 @@ function generateSong(formOverride){
     sections.push({label:'B — Bridge',prog:bp(B),bars:B.length,midiReps:1});
     sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
     sections.push({label:'C — Chorus',prog:bp(C),bars:C.length,midiReps:1});
-  } else if(form==='12-bar'||form==='12-Bar Blues'||form==='8-bar'||form==='16-bar'){
-    const blueProg=progPool[0]||['I7','IV7','I7','I7','IV7','IV7','I7','I7','V7','IV7','I7','V7'];
-    const barCount=form==='8-bar'?8:form==='16-bar'?16:12;
-    const rep=Math.ceil(barCount/4);
-    for(let r=0;r<rep;r++){
-      const chunk=blueProg.slice(r*4,(r+1)*4);
-      if(!chunk.length) break;
-      sections.push({label:r===0?`${barCount}-Bar Blues`:'',prog:bp(chunk),bars:chunk.length,isTurnaround:r===rep-1,midiReps:1});
-    }
-    if(SONG_COMPLEXITY==='complex') sections.push({label:'Turnaround (×2)',prog:bp(pb()),bars:4,midiReps:2});
+  } else if(SELECTED_GENRE==='blues'||(form&&(form.includes('12-bar')||form.includes('8-bar')||form.includes('16-bar')))){
+    // ── BLUES: use theory-correct buildBluesSong ──
+    const blueSections=buildBluesSong(form, SONG_COMPLEXITY, isMin, bp);
+    sections.push(...blueSections);
   } else if(form==='ABA'||form==='Ternary (ABA)'){
     const A=pp();const B=pb();
     sections.push({label:'A — Main Theme',prog:bp(A),bars:A.length,midiReps:cx.maxSections>3?2:1});
@@ -1520,7 +1782,7 @@ function generateSong(formOverride){
     sections.push({label:'A',prog:bp(A),bars:A.length,midiReps:2});
     sections.push({label:'B',prog:bp(B),bars:B.length,midiReps:2});
   } else if(form==='Verse-Chorus'||form==='ABABCB'){
-    const V=pp();const C=pick(progPool.filter(p=>JSON.stringify(p)!==JSON.stringify(V)).length?progPool.filter(p=>JSON.stringify(p)!==JSON.stringify(V)):progPool);
+    const V=pp();const C=pickFresh(progPool,V);
     const B=pb();
     sections.push({label:'Intro',prog:bp(V.slice(0,2)||V),bars:2,midiReps:1});
     sections.push({label:'Verse',prog:bp(V),bars:V.length,midiReps:2});
@@ -1675,11 +1937,7 @@ function melodyHint(section, isMin, scaleIvs, genreKey){
       'Play a long sustained note on beat 1, then embellish on beats 3–4 using notes from the chord.',
       'Approach chord tones from a half-step above or below for bebop flavour.',
     ],
-    blues:[
-      'Bend the ♭3 up toward the 3rd over major chords — the classic blues tension.',
-      'Use the pentatonic minor throughout, leaning on the ♭5 (blue note) for expression.',
-      'Let phrases call and respond — play, then pause for two beats, then answer.',
-    ],
+    blues:null, // handled by bluesMelodyHint below
     pop:[
       'Keep the melody in a comfortable range (one octave). Repeat the hook with slight variation each time.',
       'Start phrases on the upbeat (the "and" before beat 1) for a forward-leaning feel.',
@@ -1711,6 +1969,12 @@ function melodyHint(section, isMin, scaleIvs, genreKey){
       'Use modal colour: rest on the ♭7 or ♭3 to give a folk / Celtic feel.',
     ],
   };
+  // Blues: use theory-correct bluesMelodyHint keyed to arc + level
+  if(genreKey==='blues'&&section){
+    const level=bluesLevel(CURRENT_SONG?.form||'12-bar (Chicago)', SONG_COMPLEXITY);
+    const arc=section.bluesArc||'settle';
+    return bluesMelodyHint(level, arc);
+  }
   const pool=hints[genreKey]||hints.jazz;
   return pick(pool);
 }
@@ -1857,9 +2121,15 @@ function displaySong(song){
     const soloMark=sec.isSolo?'(solo)':'';
     const turnMark=sec.isTurnaround?'(turnaround)':'';
     
+    const arcBadge=sec.bluesArc&&sec.roleDesc
+      ?`<span style="font-family:var(--f-mono);font-size:8px;padding:2px 7px;border-radius:4px;background:rgba(154,80,0,.1);border:1px solid rgba(154,80,0,.25);color:#9a5000;letter-spacing:.3px;white-space:nowrap">${sec.roleDesc}</span>`
+      :'';
     return`<div class="song-section">
       <div class="ss-header">
-        <span class="ss-label">${sectionLabel} ${repeatMark}${soloMark}${turnMark}</span>
+        <span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span class="ss-label">${sectionLabel} ${repeatMark}${soloMark}${turnMark}</span>
+          ${arcBadge}
+        </span>
         <span style="display:flex;align-items:center;gap:8px">
           <span class="ss-bars">${barCount} bar${barCount!==1?'s':''}</span>
           <button class="ss-dl-btn" data-sec-idx="${sIdx}" title="Download ${sectionLabel} MIDI">⬇ <span style="font-size:9px">MIDI</span></button>
@@ -1893,6 +2163,26 @@ function displaySong(song){
       <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);font-style:italic">${song.thaatCtx.colorNote}</div>
     </div>` : '';
 
+  // Blues theory context banner
+  const bluesLvl = song.genre==='Blues' ? bluesLevel(song.form||'12-bar (Chicago)', song.complexity) : 0;
+  const bluesLevelNames={1:'Level 1 — Delta / Country Blues',2:'Level 2 — Chicago / Electric Blues',3:'Level 3 — Blues-Rock',4:'Level 4 — Jazz Blues'};
+  const bluesArcNote='Bars 1–4: Settle · Bars 5–6: Intensify (IV7) · Bars 7–8: Reflect · Bars 9–10: Peak tension · Bars 11–12: Resolve';
+  const bluesChordNote={
+    1:'All chords are dominant 7ths (I7 IV7 V7). No turnaround — pure repetition carries the form.',
+    2:'Quick-change to IV7 in bar 2. V7 turnaround in bar 12 pulls back into the next chorus.',
+    3:'#IVdim passing chord (bars 5–6) · VI7 secondary dominant (bar 8) · II7–V7 two-five (bars 9–10) · V7#9 Hendrix chord turnaround.',
+    4:'bVII7 chromatic approach · bII7 tritone sub for V7 · I–VI–II–V jazz turnaround. Every chord dominant 7th or extended.',
+  };
+  const bluesBlock = bluesLvl ? `
+    <div style="margin-bottom:14px;padding:12px 16px;border-radius:10px;background:rgba(154,80,0,.07);border:1.5px solid rgba(154,80,0,.2)">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <span style="font-family:var(--f-serif);font-size:15px;font-weight:700;color:#9a5000">🎸 ${bluesLevelNames[bluesLvl]}</span>
+        <span style="font-family:var(--f-mono);font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(154,80,0,.12);color:#9a5000;border:1px solid rgba(154,80,0,.2)">${song.form}</span>
+      </div>
+      <div style="font-family:var(--f-mono);font-size:10px;color:#7a4000;margin-bottom:5px;line-height:1.6">${bluesChordNote[bluesLvl]}</div>
+      <div style="font-family:var(--f-mono);font-size:9px;color:var(--ink4);letter-spacing:.3px">${bluesArcNote}</div>
+    </div>` : '';
+
   out.innerHTML=`
     <div class="song-output">
       <div class="song-header">
@@ -1907,6 +2197,7 @@ function displaySong(song){
         <div class="song-scale-info">${song.styleNote}</div>
       </div>
       ${thaatBlock}
+      ${bluesBlock}
       ${formChipsHtml}
       <div class="sec">Song Structure — Lead Sheet</div>
       <div class="song-sections">${sectionsHtml}</div>
