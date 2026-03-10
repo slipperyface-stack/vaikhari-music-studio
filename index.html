@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.4</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.5</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -3942,6 +3942,13 @@ function updateAuthUI(){
 
 // ── Saved Songs ──
 async function saveSong(song){
+  if(!_user){
+    const sb=supabase();
+    if(sb){
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
+    }
+  }
   if(!_user){ showLoginPrompt('Save songs'); return; }
   const sb = supabase(); if(!sb) return;
   const payload = {
@@ -3991,6 +3998,13 @@ async function loadFavScales(){
 }
 
 async function toggleFavScale(scaleKey){
+  if(!_user){
+    const sb=supabase();
+    if(sb){
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
+    }
+  }
   if(!_user){ showLoginPrompt('Favourite scales'); return; }
   const sb = supabase(); if(!sb) return;
   if(_favScales.has(scaleKey)){
@@ -4116,6 +4130,14 @@ function closeModal(){
 
 // ── Saved Songs Modal ──
 async function showSavedSongs(){
+  // Re-check session in case state wasn't restored yet after re-login
+  if(!_user){
+    const sb=supabase(); 
+    if(sb){
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
+    }
+  }
   if(!_user){ showLoginPrompt('Saved Songs'); return; }
   showModal(`<div class="modal-header"><span class="modal-title">♬ Saved Songs</span><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><div id="savedSongsList" style="min-height:60px"><div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:20px">Loading…</div></div></div>`);
   const songs = await loadSavedSongs();
@@ -4149,6 +4171,13 @@ async function showSavedSongs(){
 
 // ── Favourite Scales Modal ──
 async function showFavScales(){
+  if(!_user){
+    const sb=supabase();
+    if(sb){
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
+    }
+  }
   if(!_user){ showLoginPrompt('Favourite Scales'); return; }
   showModal(`<div class="modal-header"><span class="modal-title">★ Favourite Scales</span><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><div id="favScalesList"><div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:20px">Loading…</div></div></div>`);
   const sb=supabase(); if(!sb) return;
