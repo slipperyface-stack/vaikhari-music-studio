@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vaikhari — Unified Music Theory Portal</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+window._supabaseCreateClient = createClient;
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -727,7 +729,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.2</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.3</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -3878,9 +3880,9 @@ let _user = null;
 let _favScales = new Set(); // Set of "root|scaleName" strings
 
 function supabase(){
-  if(!_supa && window.supabase?.createClient){
+  if(!_supa && window._supabaseCreateClient){
     try{
-      _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+      _supa = window._supabaseCreateClient(SUPA_URL, SUPA_KEY);
     } catch(e){
       console.warn('Supabase init failed:', e);
     }
