@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.9</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v3.0</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -3124,6 +3124,11 @@ function renderSongView(){
   const formAlts=(effGenre?.formAlts||effGenre?.forms||[]);
   const SELECTED_FORM=CURRENT_SONG?CURRENT_SONG.form:(effGenre?.signatureForm||formAlts[0]||'');
   const formPills=formAlts.map(f=>`<button class="form-alt-pill${f===SELECTED_FORM?' on':''}" data-form="${f}">${f}</button>`).join('');
+
+  const _am=OPEN_MODE!==null&&OPEN_MODE>=0?MODES[OPEN_MODE]:null;
+  const modeCtxBox=(_am&&!_am.n.includes('Ionian'))
+    ?('<span style="font-family:var(--f-mono);font-size:10px;color:var(--lapis);background:var(--lapis4);padding:3px 8px;border-radius:5px;border:1px solid var(--lapis3)">&#9672; '+_am.n+' &middot; '+(_am.v||'')+'</span>')
+    :'';
 
   v.innerHTML=`
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--jade4);border-radius:10px;border:1px solid var(--jade3)">
