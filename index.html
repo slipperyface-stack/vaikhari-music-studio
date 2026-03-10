@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.6</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.7</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -1866,6 +1866,230 @@ function addPassingChords(prog){
 
 
 // ══════════════════════════════════════════════════
+// ── HARMONIC ENGINE v2 ──
+// Functional harmony, secondary dominants,
+// voice-leading awareness, tension arcs
+// ══════════════════════════════════════════════════
+
+// ── Secondary dominant map ──
+// For each diatonic target chord, what is its secondary dominant (V7/X)?
+const SEC_DOM = {
+  // Major key secondary dominants
+  'ii':'VI7',   'II':'VI7',   // V7/ii  = VI7
+  'iii':'VII7', 'III':'VII7', // V7/iii = VII7
+  'IV':'I7',    'iv':'I7',    // V7/IV  = I7
+  'V':'II7',    'v':'II7',    // V7/V   = II7
+  'vi':'III7',  'VI':'III7',  // V7/vi  = III7
+  // Minor key secondary dominants
+  'iv_m':'I7',               // V7/iv in minor = I7
+  'III':'VII7',               // V7/III = VII7
+  'VI_m':'III7',              // V7/VI in minor
+};
+
+// ── Tritone substitution map ──
+// Replace V7 with ♭II7 (tritone sub)
+const TRITONE_SUBS = {
+  'V7':'♭II7', 'II7':'♭VI7', 'VI7':'♭III7',
+  'III7':'♭VII7', 'VII7':'♭IV7',
+};
+
+// ── Functional resolution chains ──
+// Given a chord, what does it naturally want to go to?
+const RESOLUTION = {
+  'V7':'I',  'V7':'I',  'II7':'V7', 'VI7':'II7',
+  'III7':'VI7', 'VII7':'III7',
+  '♭II7':'I', // tritone sub resolves same as V7
+  '#IVdim':'V7', // dim resolves up by half step
+  'V7#9':'I7', // Hendrix chord resolves to I
+};
+
+// ── Genre harmonic rhythm (bars per chord) ──
+const HARMONIC_RHYTHM = {
+  jazz:     { fast: 1, med: 2, slow: 4 },    // Jazz moves fast — often 1-2 bars
+  blues:    { fast: 1, med: 2, slow: 4 },
+  pop:      { fast: 2, med: 4, slow: 8 },    // Pop stays on chords longer
+  rock:     { fast: 2, med: 4, slow: 8 },
+  classical:{ fast: 1, med: 2, slow: 4 },    // Classical cadences often fast
+  bossa:    { fast: 1, med: 2, slow: 4 },    // Bossa = jazz rhythm
+  funk:     { fast: 2, med: 4, slow: 8 },    // Funk vamps on chords
+  folk:     { fast: 2, med: 4, slow: 8 },
+  house:    { fast: 4, med: 8, slow: 16 },   // Electronic: long chord durations
+  techno:   { fast: 4, med: 8, slow: 16 },
+  ambient:  { fast: 8, med: 16, slow: 32 },  // Ambient: very slow changes
+  dnb:      { fast: 2, med: 4, slow: 8 },
+  lofi:     { fast: 2, med: 4, slow: 8 },
+};
+
+// ── Tension levels per section role ──
+const SECTION_TENSION = {
+  'Intro':        0.2,
+  'Verse':        0.3,
+  'Verse 1':      0.3,
+  'Verse 2':      0.5,  // Second verse builds slightly
+  'Pre-Chorus':   0.6,
+  'Chorus':       0.7,
+  'Bridge':       0.8,  // Bridge = peak tension
+  'Solo':         0.75,
+  'Drop':         0.8,
+  'Build':        0.7,
+  'Breakdown':    0.4,
+  'Outro':        0.2,
+  'Coda':         0.15,
+  'Head':         0.5,
+  'Head Out':     0.6,
+  'Development':  0.85, // Classical development = max tension
+  'Exposition':   0.4,
+  'Recapitulation':0.3,
+};
+
+function getSectionTension(label){
+  for(const [key, val] of Object.entries(SECTION_TENSION)){
+    if(label.includes(key)) return val;
+  }
+  return 0.5;
+}
+
+// ── Inject secondary dominant before a target chord ──
+// Returns modified progression array
+function injectSecDom(prog, genreKey, tension){
+  if(tension < 0.4) return prog; // Low tension sections = no secondary doms
+  const result = [...prog];
+  const minJazzy = ['jazz','bossa','lofi','blues'].includes(genreKey);
+  for(let i = result.length-1; i > 0; i--){
+    const target = result[i];
+    const secDom = SEC_DOM[target] || SEC_DOM[target.replace(/7|maj7|9/g,'')];
+    if(secDom && Math.random() < (minJazzy ? 0.5 : 0.25) * tension){
+      // Don't double up
+      if(result[i-1] !== secDom) result.splice(i, 0, secDom);
+    }
+  }
+  return result;
+}
+
+// ── Apply tritone substitution (jazz/bossa/lofi only) ──
+function applyTritoneSubs(prog, genreKey, useJazz, tension){
+  if(!useJazz && !['jazz','bossa','lofi','blues+jazz','funk+jazz'].includes(genreKey)) return prog;
+  if(tension < 0.5) return prog;
+  return prog.map(r => {
+    if(Math.random() < 0.2 * tension && TRITONE_SUBS[r]) return TRITONE_SUBS[r];
+    return r;
+  });
+}
+
+// ── Modal interchange: borrow from parallel minor/major ──
+const MODAL_INTERCHANGE_MAJOR = {
+  // Borrowed from parallel minor (most common borrows)
+  'IV':   { chord:'♭VII', prob: 0.15 },  // Aeolian borrow
+  'V':    { chord:'♭VI',  prob: 0.12 },
+  'I':    { chord:'♭III', prob: 0.10 },  // Mixolydian feel
+};
+const MODAL_INTERCHANGE_MINOR = {
+  'v':    { chord:'V7',   prob: 0.25 },  // Raise 7th for leading tone
+  'VII':  { chord:'♭VII', prob: 0.15 },
+};
+
+function applyModalInterchange(prog, isMin, tension){
+  if(tension < 0.3) return prog;
+  const map = isMin ? MODAL_INTERCHANGE_MINOR : MODAL_INTERCHANGE_MAJOR;
+  return prog.map(r => {
+    const swap = map[r];
+    if(swap && Math.random() < swap.prob * tension * 1.5) return swap.chord;
+    return r;
+  });
+}
+
+// ── Harmonic function tagger ──
+// Tags each chord with its harmonic function for display
+function getChordFunction(roman, isMin){
+  const r = roman.replace(/[♭#]/g,'b').replace(/7|9|maj7|maj9|dim|°/g,'');
+  const funcMap = isMin ? {
+    'i':'tonic','III':'mediant','v':'dominant','V':'dominant',
+    'iv':'subdominant','VI':'submediant','VII':'subtonic',
+    'ii':'supertonic','bVII':'subtonic',
+  } : {
+    'I':'tonic','iii':'mediant','vi':'submediant',
+    'IV':'subdominant','ii':'supertonic',
+    'V':'dominant','vii':'leading',
+    'bVII':'subtonic','bVI':'chromatic','bIII':'chromatic',
+  };
+  return funcMap[r] || funcMap[roman] || '';
+}
+
+// ── Build a harmonically intelligent progression ──
+// Applies secondary dominants, modal interchange, and tension shaping
+function buildSmartProgression(rawProg, genreKey, isMin, tension, useJazz){
+  let prog = [...rawProg];
+
+  // 1. Modal interchange (swap some chords for borrowed colour)
+  prog = applyModalInterchange(prog, isMin, tension);
+
+  // 2. Secondary dominants (create forward motion)
+  if(['jazz','bossa','classical','lofi','blues'].includes(genreKey) ||
+     (genreKey==='pop' && tension > 0.6) ||
+     (genreKey==='rock' && tension > 0.7)){
+    prog = injectSecDom(prog, genreKey, tension);
+  }
+
+  // 3. Tritone subs (jazz flavour)
+  prog = applyTritoneSubs(prog, genreKey, useJazz, tension);
+
+  // 4. Passing chords (chromatic connectors) — only on complex/high tension
+  if(tension > 0.65 && COMPLEXITY[SONG_COMPLEXITY]?.passingChords){
+    prog = addPassingChords(prog);
+  }
+
+  return prog;
+}
+
+// ── Genre-authentic cadence endings ──
+// Ensure each section ends on an authentic cadence chord
+const AUTHENTIC_CADENCES = {
+  jazz:      { major: ['I','Imaj7','Imaj9'],  minor: ['im7','im9'] },
+  blues:     { major: ['I7','I9'],            minor: ['i7','i9'] },
+  pop:       { major: ['I','V'],              minor: ['i','V'] },
+  rock:      { major: ['I','V'],              minor: ['i','♭VII'] },
+  classical: { major: ['I','V7'],             minor: ['i','V7'] },
+  bossa:     { major: ['Imaj7','Imaj9'],      minor: ['im7','im9'] },
+  funk:      { major: ['I7','I9'],            minor: ['i7','i9'] },
+  folk:      { major: ['I','IV'],             minor: ['i','VII'] },
+  house:     { major: ['Imaj7','I'],          minor: ['im7','i'] },
+  techno:    { major: ['i','♭VII'],           minor: ['i','♭VII'] },
+  ambient:   { major: ['Imaj7','Imaj9'],      minor: ['im7','im9'] },
+  dnb:       { major: ['I','♭VII'],           minor: ['i','♭VI'] },
+  lofi:      { major: ['Imaj7','I6'],         minor: ['im7','im9'] },
+};
+
+function ensureAuthenticCadence(prog, genreKey, isMin){
+  if(!prog || prog.length === 0) return prog;
+  const cad = AUTHENTIC_CADENCES[genreKey];
+  if(!cad) return prog;
+  const validEndings = isMin ? cad.minor : cad.major;
+  const lastChord = prog[prog.length - 1];
+  // Check if last chord is already a valid ending
+  const alreadyGood = validEndings.some(e =>
+    lastChord === e || lastChord.startsWith(e) || e.startsWith(lastChord.replace(/[79]/g,''))
+  );
+  if(!alreadyGood && Math.random() < 0.6){
+    // Replace last chord with authentic cadence ending
+    const newEnding = [...prog];
+    newEnding[newEnding.length-1] = validEndings[Math.floor(Math.random()*validEndings.length)];
+    return newEnding;
+  }
+  return prog;
+}
+
+// ── Wrap the existing bp() function with smart harmony ──
+// This is called per-section so we can shape tension per section
+function smartBp(rawProg, sectionLabel, genreKey, isMin, useJazz){
+  const tension = getSectionTension(sectionLabel || 'Verse');
+  let prog = buildSmartProgression(rawProg, genreKey, isMin, tension, useJazz);
+  prog = ensureAuthenticCadence(prog, genreKey, isMin);
+  return prog;
+}
+
+
+
+// ══════════════════════════════════════════════════
 // ── FUSION RECIPES ──
 // Keyed by sorted genre pairs (e.g. "blues+jazz")
 // Each recipe blends two genres into a unified musical identity
@@ -2334,30 +2558,30 @@ function generateSong(formOverride){
 
   if(form==='Intro-Drop-Breakdown-Drop-Outro'){
     const M=pp();const B=pb();
-    sections.push({label:'Intro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:2});
-    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:4});
-    sections.push({label:'Breakdown',prog:bp(B),bars:B.length,midiReps:2});
-    sections.push({label:'Drop (Reprise)',prog:bp(M),bars:M.length,midiReps:4});
-    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:2});
+    sections.push({label:'Intro',prog:bp(M.slice(0,2)||M,'Intro'),bars:2,midiReps:2});
+    sections.push({label:'Drop',prog:bp(M,'Drop'),bars:M.length,midiReps:4});
+    sections.push({label:'Breakdown',prog:bp(B,'Breakdown'),bars:B.length,midiReps:2});
+    sections.push({label:'Drop (Reprise)',prog:bp(M,'Drop'),bars:M.length,midiReps:4});
+    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M,'Outro'),bars:2,midiReps:2});
   } else if(form==='Intro-Build-Drop-Break-Drop-Outro'){
     const M=pp();const B=pb();
-    sections.push({label:'Intro',prog:bp(M.slice(0,Math.max(1,Math.floor(M.length/2)))),bars:2,midiReps:2});
-    sections.push({label:'Build',prog:bp(M),bars:M.length,midiReps:2});
-    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:4});
-    sections.push({label:'Break',prog:bp(B),bars:B.length,midiReps:2});
-    sections.push({label:'Drop (Full)',prog:bp(M),bars:M.length,midiReps:4});
-    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:1});
+    sections.push({label:'Intro',prog:bp(M.slice(0,Math.max(1,Math.floor(M.length/2))),'Intro'),bars:2,midiReps:2});
+    sections.push({label:'Build',prog:bp(M,'Build'),bars:M.length,midiReps:2});
+    sections.push({label:'Drop',prog:bp(M,'Drop'),bars:M.length,midiReps:4});
+    sections.push({label:'Break',prog:bp(B,'Breakdown'),bars:B.length,midiReps:2});
+    sections.push({label:'Drop (Full)',prog:bp(M,'Drop'),bars:M.length,midiReps:4});
+    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M,'Outro'),bars:2,midiReps:1});
   } else if(form==='Intro-Drop-Break-Drop'){
     const M=pp();const B=pb();
-    sections.push({label:'Intro',prog:bp(M),bars:M.length,midiReps:2});
-    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:4});
-    sections.push({label:'Break',prog:bp(B),bars:B.length,midiReps:2});
-    sections.push({label:'Drop (Full)',prog:bp(M),bars:M.length,midiReps:4});
+    sections.push({label:'Intro',prog:bp(M,'Intro'),bars:M.length,midiReps:2});
+    sections.push({label:'Drop',prog:bp(M,'Drop'),bars:M.length,midiReps:4});
+    sections.push({label:'Break',prog:bp(B,'Breakdown'),bars:B.length,midiReps:2});
+    sections.push({label:'Drop (Full)',prog:bp(M,'Drop'),bars:M.length,midiReps:4});
   } else if(form==='Build-Drop'){
     const M=pp();
-    sections.push({label:'Build',prog:bp(M),bars:M.length,midiReps:4});
-    sections.push({label:'Drop',prog:bp(M),bars:M.length,midiReps:8});
-    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M),bars:2,midiReps:2});
+    sections.push({label:'Build',prog:bp(M,'Build'),bars:M.length,midiReps:4});
+    sections.push({label:'Drop',prog:bp(M,'Drop'),bars:M.length,midiReps:8});
+    sections.push({label:'Outro',prog:bp(M.slice(0,2)||M,'Outro'),bars:2,midiReps:2});
   } else if(form==='Hypnotic Loop'||form==='Loop'){
     const V=pp();
     sections.push({label:'Main Loop',prog:bp(V),bars:V.length,midiReps:8,repeat:true});
@@ -2370,26 +2594,26 @@ function generateSong(formOverride){
     sections.push({label:'Return to Drone',prog:bp(D),bars:D.length,midiReps:4});
   } else if(form==='AABA'){
     const A=pp();const B=pb();
-    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
-    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
-    sections.push({label:'B — Bridge',prog:bp(B),bars:B.length,midiReps:1});
-    sections.push({label:'A — Outro',prog:bp(A),bars:A.length,midiReps:1});
-    if(cx.maxSections>4) sections.push({label:'A — Coda',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'A — Verse',prog:bp(A,'Verse'),bars:A.length,midiReps:1});
+    sections.push({label:'A — Verse',prog:bp(A,'Verse 2'),bars:A.length,midiReps:1});
+    sections.push({label:'B — Bridge',prog:bp(B,'Bridge'),bars:B.length,midiReps:1});
+    sections.push({label:'A — Outro',prog:bp(A,'Outro'),bars:A.length,midiReps:1});
+    if(cx.maxSections>4) sections.push({label:'A — Coda',prog:bp(A,'Coda'),bars:A.length,midiReps:1});
   } else if(form==='ABAC'){
     const A=pp();const B=pb();const C=pp();
-    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
-    sections.push({label:'B — Bridge',prog:bp(B),bars:B.length,midiReps:1});
-    sections.push({label:'A — Verse',prog:bp(A),bars:A.length,midiReps:1});
-    sections.push({label:'C — Chorus',prog:bp(C),bars:C.length,midiReps:1});
+    sections.push({label:'A — Verse',prog:bp(A,'Verse'),bars:A.length,midiReps:1});
+    sections.push({label:'B — Bridge',prog:bp(B,'Bridge'),bars:B.length,midiReps:1});
+    sections.push({label:'A — Verse',prog:bp(A,'Verse 2'),bars:A.length,midiReps:1});
+    sections.push({label:'C — Chorus',prog:bp(C,'Chorus'),bars:C.length,midiReps:1});
   } else if(SELECTED_GENRE==='blues'||(form&&(form.includes('12-bar')||form.includes('8-bar')||form.includes('16-bar')))){
     // ── BLUES: use theory-correct buildBluesSong ──
     const blueSections=buildBluesSong(form, SONG_COMPLEXITY, isMin, bp);
     sections.push(...blueSections);
   } else if(form==='ABA'||form==='Ternary (ABA)'){
     const A=pp();const B=pb();
-    sections.push({label:'A — Main Theme',prog:bp(A),bars:A.length,midiReps:cx.maxSections>3?2:1});
-    sections.push({label:'B — Contrasting',prog:bp(B),bars:B.length,midiReps:1});
-    sections.push({label:'A — Recapitulation',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'A — Main Theme',prog:bp(A,'Verse'),bars:A.length,midiReps:cx.maxSections>3?2:1});
+    sections.push({label:'B — Contrasting',prog:bp(B,'Bridge'),bars:B.length,midiReps:1});
+    sections.push({label:'A — Recapitulation',prog:bp(A,'Outro'),bars:A.length,midiReps:1});
   } else if(form==='Binary (AB)'){
     const A=pp();const B=pb();
     sections.push({label:'A',prog:bp(A),bars:A.length,midiReps:2});
@@ -2397,34 +2621,34 @@ function generateSong(formOverride){
   } else if(form==='Verse-Chorus'||form==='ABABCB'){
     const V=pp();const C=pickFresh(progPool,V);
     const B=pb();
-    sections.push({label:'Intro',prog:bp(V.slice(0,2)||V),bars:2,midiReps:1});
-    sections.push({label:'Verse',prog:bp(V),bars:V.length,midiReps:2});
-    sections.push({label:'Pre-Chorus',prog:bp(B),bars:B.length,midiReps:1});
-    sections.push({label:'Chorus',prog:bp(C),bars:C.length,midiReps:2});
-    sections.push({label:'Verse 2',prog:bp(V),bars:V.length,midiReps:2});
-    if(cx.maxSections>5) sections.push({label:'Bridge',prog:bp(B),bars:B.length,midiReps:1});
-    sections.push({label:'Chorus (Final)',prog:bp(C),bars:C.length,midiReps:2});
+    sections.push({label:'Intro',prog:bp(V.slice(0,2)||V,'Intro'),bars:2,midiReps:1});
+    sections.push({label:'Verse',prog:bp(V,'Verse'),bars:V.length,midiReps:2});
+    sections.push({label:'Pre-Chorus',prog:bp(B,'Pre-Chorus'),bars:B.length,midiReps:1});
+    sections.push({label:'Chorus',prog:bp(C,'Chorus'),bars:C.length,midiReps:2});
+    sections.push({label:'Verse 2',prog:bp(V,'Verse 2'),bars:V.length,midiReps:2});
+    if(cx.maxSections>5) sections.push({label:'Bridge',prog:bp(B,'Bridge'),bars:B.length,midiReps:1});
+    sections.push({label:'Chorus (Final)',prog:bp(C,'Chorus'),bars:C.length,midiReps:2});
   } else if(form==='Groove-based'||form==='Vamp'){
     const V=pp();
-    sections.push({label:'Intro Vamp',prog:bp(V.slice(0,Math.max(1,Math.floor(V.length/2)))),bars:2,midiReps:4,repeat:true});
-    sections.push({label:'Main Groove',prog:bp(V),bars:V.length,midiReps:8,repeat:true});
-    sections.push({label:'Solo',prog:bp(V),bars:V.length,isSolo:true,midiReps:4});
-    sections.push({label:'Outro',prog:bp(V.slice(0,Math.max(1,Math.floor(V.length/2)))),bars:2,midiReps:2});
+    sections.push({label:'Intro Vamp',prog:bp(V.slice(0,Math.max(1,Math.floor(V.length/2))),'Intro'),bars:2,midiReps:4,repeat:true});
+    sections.push({label:'Main Groove',prog:bp(V,'Verse'),bars:V.length,midiReps:8,repeat:true});
+    sections.push({label:'Solo',prog:bp(V,'Solo'),bars:V.length,isSolo:true,midiReps:4});
+    sections.push({label:'Outro',prog:bp(V.slice(0,Math.max(1,Math.floor(V.length/2))),'Outro'),bars:2,midiReps:2});
   } else if(form==='Sonata'){
     const A=pp();const B=pb();const D=pp();
-    sections.push({label:'Exposition — Theme A',prog:bp(A),bars:A.length,midiReps:2});
-    sections.push({label:'Exposition — Theme B',prog:bp(B),bars:B.length,midiReps:2});
-    sections.push({label:'Development',prog:bp(D),bars:D.length,midiReps:2});
-    sections.push({label:'Recapitulation — Theme A',prog:bp(A),bars:A.length,midiReps:2});
-    sections.push({label:'Recapitulation — Theme B',prog:bp(B),bars:B.length,midiReps:2});
-    if(cx.maxSections>=6) sections.push({label:'Coda',prog:bp(A.slice(0,2)||A),bars:2,midiReps:1});
+    sections.push({label:'Exposition — Theme A',prog:bp(A,'Exposition'),bars:A.length,midiReps:2});
+    sections.push({label:'Exposition — Theme B',prog:bp(B,'Exposition'),bars:B.length,midiReps:2});
+    sections.push({label:'Development',prog:bp(D,'Development'),bars:D.length,midiReps:2});
+    sections.push({label:'Recapitulation — Theme A',prog:bp(A,'Recapitulation'),bars:A.length,midiReps:2});
+    sections.push({label:'Recapitulation — Theme B',prog:bp(B,'Recapitulation'),bars:B.length,midiReps:2});
+    if(cx.maxSections>=6) sections.push({label:'Coda',prog:bp(A.slice(0,2)||A,'Coda'),bars:2,midiReps:1});
   } else if(form==='Rondo'){
     const A=pp();const B=pb();const C=pp();
-    sections.push({label:'A — Rondo Theme',prog:bp(A),bars:A.length,midiReps:2});
-    sections.push({label:'B — Episode 1',prog:bp(B),bars:B.length,midiReps:2});
-    sections.push({label:'A — Rondo Theme',prog:bp(A),bars:A.length,midiReps:1});
-    sections.push({label:'C — Episode 2',prog:bp(C),bars:C.length,midiReps:2});
-    sections.push({label:'A — Rondo Theme',prog:bp(A),bars:A.length,midiReps:2});
+    sections.push({label:'A — Rondo Theme',prog:bp(A,'Verse'),bars:A.length,midiReps:2});
+    sections.push({label:'B — Episode 1',prog:bp(B,'Bridge'),bars:B.length,midiReps:2});
+    sections.push({label:'A — Rondo Theme',prog:bp(A,'Verse'),bars:A.length,midiReps:1});
+    sections.push({label:'C — Episode 2',prog:bp(C,'Development'),bars:C.length,midiReps:2});
+    sections.push({label:'A — Rondo Theme',prog:bp(A,'Outro'),bars:A.length,midiReps:2});
   } else if(form==='Through-composed'){
     for(let i=0;i<Math.min(cx.maxSections,5);i++){
       const p=pp();
@@ -2432,15 +2656,15 @@ function generateSong(formOverride){
     }
   } else if(form==='Liquid'){
     const A=pp();const B=pb();
-    sections.push({label:'Intro',prog:bp(A),bars:A.length,midiReps:2});
-    sections.push({label:'Verse',prog:bp(A),bars:A.length,midiReps:4});
-    sections.push({label:'Chorus',prog:bp(B),bars:B.length,midiReps:2});
-    sections.push({label:'Drop',prog:bp(A),bars:A.length,midiReps:4});
+    sections.push({label:'Intro',prog:bp(A,'Intro'),bars:A.length,midiReps:2});
+    sections.push({label:'Verse',prog:bp(A,'Verse'),bars:A.length,midiReps:4});
+    sections.push({label:'Chorus',prog:bp(B,'Chorus'),bars:B.length,midiReps:2});
+    sections.push({label:'Drop',prog:bp(A,'Drop'),bars:A.length,midiReps:4});
   } else {
     const A=pp();const B=pb();
-    sections.push({label:'Verse',prog:bp(A),bars:A.length,midiReps:2});
-    sections.push({label:'Chorus',prog:bp(B),bars:B.length,midiReps:2});
-    sections.push({label:'Verse',prog:bp(A),bars:A.length,midiReps:1});
+    sections.push({label:'Verse',prog:bp(A,'Verse'),bars:A.length,midiReps:2});
+    sections.push({label:'Chorus',prog:bp(B,'Chorus'),bars:B.length,midiReps:2});
+    sections.push({label:'Verse',prog:bp(A,'Outro'),bars:A.length,midiReps:1});
   }
 
   // Resolve all chords
@@ -2753,6 +2977,7 @@ function displaySong(song){
           <div class="chord-sym${JAZZ||song.useJazz?' jazz-chord':''}">
             <div class="chord-sym-name">${fmtJazzChord(ch.root,ch.q)}</div>
             <div class="chord-sym-notes">${notesTip}</div>
+            ${ch.rom&&getChordFunction(ch.rom,song.isMin)?`<div style="font-family:var(--f-mono);font-size:8px;color:var(--ink4);letter-spacing:.5px;margin-top:2px;opacity:.7">${getChordFunction(ch.rom,song.isMin)}</div>`:''}
           </div>
         </div>
       </div>`;
