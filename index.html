@@ -4547,7 +4547,7 @@ async function submitFeedback(payload){
       app_version: '3.2',
     };
     const { error } = await sb.from('feedback').insert(row);
-    if(error){ console.error('Feedback error:', error); return false; }
+    if(error){ console.error('Feedback DB error:', error.message, '|', error.details, '|', error.hint); return false; }
     return true;
   } catch(e){
     console.error('submitFeedback threw:', e);
@@ -5007,14 +5007,17 @@ function _wireFbPage(){
     try {
       const ok = await submitFeedback({
         rating: _fb.rating,
-        role: _fb.role,
-        features_used: _fb.features||[],
+        background: _fb.role||'',
+        instrument: _fb.role||'',
+        tab_used: '',
+        genres_used: '',
         worked_well: _fb.liked||'',
+        didnt_work: '',
+        wrong_info: '',
+        features_used: _fb.features||[],
         missing_features: _fb.missing||'',
         priorities: _fb.next?[_fb.next]:[],
-        // legacy fields — send empty so DB schema stays compatible
-        background:'', instrument:_fb.role||'', tab_used:'', genres_used:'',
-        didnt_work:'', wrong_info:'', other_notes:'',
+        other_notes: '',
       });
       if(ok){
         showModal(`
