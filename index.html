@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v3.1</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v3.3</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -2895,9 +2895,7 @@ function generateSong(formOverride){
     resolvedChords:s.prog.map(r=>resolveChord(upgradeRoman(r,primaryGenre()),ROOT,scaleIvs,primaryGenre(),JAZZ))
   }));
 
-  const titles=SONG_THAAT&&THAAT_TITLES[SONG_THAAT]
-    ?(()=>{const t=pick(THAAT_TITLES[SONG_THAAT]);return{title:t[0],subtitle:t[1]};})()
-    :genSongTitle(primaryGenre(),scaleName,isMin);
+  const titles=genSongTitle(primaryGenre(),scaleName,isMin);
 
   const thaatCtx=SONG_THAAT&&THAAT_SONG[SONG_THAAT]?{
     name:SONG_THAAT,western:THAAT_SONG[SONG_THAAT].western,
@@ -4538,18 +4536,23 @@ async function toggleFavScale(scaleKey){
 
 // ── Feedback ──
 async function submitFeedback(payload){
-  if(!isSupaConfigured()){ alert('Connect Supabase first to submit feedback.'); return false; }
-  const sb = supabase(); if(!sb) return false;
-  const row = {
-    ...payload,
-    user_id: _user?.id || null,
-    user_email: _user?.email || null,
-    created_at: new Date().toISOString(),
-    app_version: '2.0',
-  };
-  const { error } = await sb.from('feedback').insert(row);
-  if(error){ console.error('Feedback error:', error); return false; }
-  return true;
+  try {
+    if(!isSupaConfigured()) return false;
+    const sb = supabase(); if(!sb) return false;
+    const row = {
+      ...payload,
+      user_id: _user?.id || null,
+      user_email: _user?.email || null,
+      created_at: new Date().toISOString(),
+      app_version: '3.2',
+    };
+    const { error } = await sb.from('feedback').insert(row);
+    if(error){ console.error('Feedback error:', error); return false; }
+    return true;
+  } catch(e){
+    console.error('submitFeedback threw:', e);
+    return false;
+  }
 }
 
 // ── UI Helpers ──
@@ -4849,155 +4852,192 @@ async function showFavScales(){
   renderFavTab('scale');
 }
 
-// ── Feedback Modal ──
-let _fbRating = 0;
-let _fbFeaturesUsed = new Set();
-let _fbPriorities = new Set();
+// ── Feedback Modal — 3-page micro-form ──
+const _fb = { rating:0, role:'', liked:'', missing:'', next:'' };
+let _fbPage = 1;
+const FB_PAGES = 3;
 
 function showFeedbackModal(){
-  showModal(`
-    <div class="modal-header">
-      <span class="modal-title">✎ Share Feedback</span>
+  _fb.rating=0; _fb.role=''; _fb.liked=''; _fb.missing=''; _fb.next='';
+  _fbPage=1;
+  _renderFbPage();
+}
+
+function _fbModalBody(content, page){
+  // Dot progress indicator
+  const dots = Array.from({length:FB_PAGES},(_,i)=>
+    `<span style="width:6px;height:6px;border-radius:50%;display:inline-block;margin:0 3px;background:${i<page?'var(--jade)':'var(--border2)'};transition:background .2s"></span>`
+  ).join('');
+  return `
+    <div class="modal-header" style="border-bottom:none;padding-bottom:4px">
+      <span class="modal-title">✎ Quick Feedback</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body">
-      <!-- Rating -->
-      <div class="fb-field">
-        <label class="fb-label">Overall Rating</label>
-        <div class="fb-rating" id="fbStars">
-          ${[1,2,3,4,5].map(n=>`<span class="fb-star" data-star="${n}">★</span>`).join('')}
-        </div>
-      </div>
+    <div style="text-align:center;padding:0 0 12px">${dots}</div>
+    <div class="modal-body" style="padding-top:0">${content}</div>`;
+}
 
-      <!-- About you -->
-      <div class="fb-field">
-        <label class="fb-label">Musical Background</label>
-        <select class="fb-select" id="fbBackground">
-          <option value="">Select…</option>
-          <option>Beginner</option><option>Intermediate</option>
-          <option>Advanced</option><option>Professional</option>
-        </select>
-      </div>
-      <div class="fb-field">
-        <label class="fb-label">Primary Instrument / Role</label>
-        <input class="fb-input" id="fbInstrument" placeholder="e.g. Guitar, Producer, Composer…">
-      </div>
+function _renderFbPage(){
+  const q = {
+    1: _fbPage1Html,
+    2: _fbPage2Html,
+    3: _fbPage3Html,
+  }[_fbPage];
+  showModal(_fbModalBody(q(), _fbPage));
+  _wireFbPage();
+}
 
-      <!-- Context -->
-      <div class="fb-field">
-        <label class="fb-label">Which tab were you using?</label>
-        <select class="fb-select" id="fbTab">
-          <option value="">Select…</option>
-          <option>Scales</option><option>Modes</option><option>Thaats</option>
-          <option>Song Generator</option><option>Arpeggio</option><option>Multiple</option>
-        </select>
-      </div>
-      <div class="fb-field">
-        <label class="fb-label">Genre(s) you worked with</label>
-        <input class="fb-input" id="fbGenres" placeholder="e.g. Jazz Blues, Funk Rock…">
-      </div>
+function _fbPage1Html(){
+  const roles = ['Guitarist','Bassist','Keys / Piano','Producer','Composer','Vocalist','Drummer','Student','Teacher','Curious Listener'];
+  return `
+    <div style="font-family:var(--f-serif);font-size:18px;font-weight:700;margin-bottom:4px;color:var(--ink)">How was it?</div>
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-bottom:16px">Rate your experience and tell us who you are</div>
 
-      <!-- Core feedback -->
-      <div class="fb-field">
-        <label class="fb-label">What worked well?</label>
-        <textarea class="fb-textarea" id="fbWorkedWell" placeholder="What did you enjoy or find useful?"></textarea>
-      </div>
-      <div class="fb-field">
-        <label class="fb-label">What didn't work or felt off?</label>
-        <textarea class="fb-textarea" id="fbDidntWork" placeholder="Anything confusing, broken, or frustrating?"></textarea>
-      </div>
-      <div class="fb-field">
-        <label class="fb-label">Any musically incorrect information?</label>
-        <textarea class="fb-textarea" id="fbWrongInfo" placeholder="Chord names, progressions, theory errors…"></textarea>
-      </div>
-
-      <!-- Features -->
-      <div class="fb-field">
-        <label class="fb-label">Features you actually used</label>
-        <div class="fb-chips" id="fbFeaturesRow">
-          ${['Chord Grid','Diatonic Notes','Song Generator','MIDI Export','Arpeggio','Fusion Genres','Scale Favourites','Thaat / Raga','Complexity Levels','Form Selector'].map(f=>`<button class="fb-chip" data-feat="${f}">${f}</button>`).join('')}
-        </div>
-      </div>
-      <div class="fb-field">
-        <label class="fb-label">Missing genres, scales, ragas, or features</label>
-        <textarea class="fb-textarea" id="fbMissing" placeholder="What would you add?" style="min-height:60px"></textarea>
-      </div>
-
-      <!-- Priorities -->
-      <div class="fb-field">
-        <label class="fb-label">Top priorities for next version (pick up to 3)</label>
-        <div class="fb-chips" id="fbPrioritiesRow">
-          ${['Audio Playback','More Ragas','Sheet Music Export','Mobile App','More Genres','Community Sharing','Video Tutorials','DAW Plugin','Notation View','Performance Mode'].map(p=>`<button class="fb-chip" data-pri="${p}">${p}</button>`).join('')}
-        </div>
-      </div>
-
-      <!-- Open field -->
-      <div class="fb-field">
-        <label class="fb-label">Anything else</label>
-        <textarea class="fb-textarea" id="fbOther" placeholder="Any other thoughts, ideas, or context…"></textarea>
-      </div>
-
-      <button class="fb-submit" id="fbSubmitBtn">Submit Feedback</button>
-      <div id="fbStatus" style="font-family:var(--f-mono);font-size:11px;color:var(--jade);text-align:center;margin-top:8px;display:none"></div>
+    <div class="fb-rating" id="fbStars" style="justify-content:center;font-size:28px;gap:6px;margin-bottom:20px">
+      ${[1,2,3,4,5].map(n=>`<span class="fb-star" data-star="${n}" style="cursor:pointer;opacity:${_fb.rating>=n?1:.3};transition:opacity .15s">★</span>`).join('')}
     </div>
-  `);
 
-  // Wire stars
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);margin-bottom:8px;font-weight:600;letter-spacing:.5px">YOUR ROLE</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px" id="fbRoleRow">
+      ${roles.map(r=>`<button class="fb-chip${_fb.role===r?' on':''}" data-role="${r}" style="font-size:10px;padding:5px 10px">${r}</button>`).join('')}
+    </div>
+
+    <button class="fb-submit" id="fbNextBtn" style="width:100%" ${!_fb.rating?'disabled':''}>Next →</button>`;
+}
+
+function _fbPage2Html(){
+  const features = ['Scales','Modes','Thaats / Ragas','Song Generator','MIDI Export','Arpeggio','Fusion Genres','Saved Songs'];
+  return `
+    <div style="font-family:var(--f-serif);font-size:18px;font-weight:700;margin-bottom:4px;color:var(--ink)">What clicked?</div>
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-bottom:16px">Which features did you actually use?</div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px" id="fbFeatRow">
+      ${features.map(f=>`<button class="fb-chip${(_fb.features||[]).includes(f)?' on':''}" data-feat="${f}" style="font-size:10px;padding:5px 10px">${f}</button>`).join('')}
+    </div>
+
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);margin-bottom:6px;font-weight:600;letter-spacing:.5px">ONE THING YOU LIKED <span style="color:var(--ink4);font-weight:400">(optional)</span></div>
+    <textarea class="fb-textarea" id="fbLiked" placeholder="e.g. the modal progressions, fusion genres…" style="min-height:56px;margin-bottom:16px;font-size:11px">${_fb.liked||''}</textarea>
+
+    <div style="display:flex;gap:8px">
+      <button class="v-btn" id="fbBackBtn" style="flex:0 0 auto;padding:8px 14px">← Back</button>
+      <button class="fb-submit" id="fbNextBtn" style="flex:1">Next →</button>
+    </div>`;
+}
+
+function _fbPage3Html(){
+  const priorities = ['Audio Playback','More Ragas','Sheet Music','Mobile App','More Genres','DAW Plugin','Notation View','Performance Mode'];
+  return `
+    <div style="font-family:var(--f-serif);font-size:18px;font-weight:700;margin-bottom:4px;color:var(--ink)">Shape what's next</div>
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-bottom:16px">Pick your top priority and tell us what's missing</div>
+
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);margin-bottom:6px;font-weight:600;letter-spacing:.5px">MOST WANTED FEATURE</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="fbPriRow">
+      ${priorities.map(p=>`<button class="fb-chip${_fb.next===p?' on':''}" data-pri="${p}" style="font-size:10px;padding:5px 10px">${p}</button>`).join('')}
+    </div>
+
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);margin-bottom:6px;font-weight:600;letter-spacing:.5px">ANYTHING MISSING OR BROKEN? <span style="color:var(--ink4);font-weight:400">(optional)</span></div>
+    <textarea class="fb-textarea" id="fbMissing" placeholder="Scales, ragas, genres, theory errors, bugs…" style="min-height:56px;margin-bottom:16px;font-size:11px">${_fb.missing||''}</textarea>
+
+    <div style="display:flex;gap:8px">
+      <button class="v-btn" id="fbBackBtn" style="flex:0 0 auto;padding:8px 14px">← Back</button>
+      <button class="fb-submit" id="fbSubmitBtn" style="flex:1">Submit →</button>
+    </div>
+    <div id="fbStatus" style="font-family:var(--f-mono);font-size:11px;text-align:center;margin-top:8px;display:none"></div>`;
+}
+
+function _wireFbPage(){
+  // Stars (page 1)
   document.querySelectorAll('.fb-star').forEach(s=>{
     s.addEventListener('click',()=>{
-      _fbRating=+s.dataset.star;
-      document.querySelectorAll('.fb-star').forEach((x,i)=>x.classList.toggle('on',i<_fbRating));
+      _fb.rating=+s.dataset.star;
+      document.querySelectorAll('.fb-star').forEach((x,i)=>{x.style.opacity=i<_fb.rating?1:.3;});
+      const nb=document.getElementById('fbNextBtn');
+      if(nb) nb.disabled=false;
     });
   });
 
-  // Wire feature chips
-  document.querySelectorAll('#fbFeaturesRow .fb-chip').forEach(chip=>{
+  // Role chips (page 1)
+  document.querySelectorAll('#fbRoleRow .fb-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      _fb.role=chip.dataset.role;
+      document.querySelectorAll('#fbRoleRow .fb-chip').forEach(c=>c.classList.toggle('on',c===chip));
+    });
+  });
+
+  // Feature chips (page 2)
+  if(!_fb.features) _fb.features=[];
+  document.querySelectorAll('#fbFeatRow .fb-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
       chip.classList.toggle('on');
-      if(chip.classList.contains('on')) _fbFeaturesUsed.add(chip.dataset.feat);
-      else _fbFeaturesUsed.delete(chip.dataset.feat);
+      const f=chip.dataset.feat;
+      if(chip.classList.contains('on')){ if(!_fb.features.includes(f)) _fb.features.push(f); }
+      else _fb.features=_fb.features.filter(x=>x!==f);
     });
   });
 
-  // Wire priority chips (max 3)
-  document.querySelectorAll('#fbPrioritiesRow .fb-chip').forEach(chip=>{
+  // Priority chips (page 3, single-select)
+  document.querySelectorAll('#fbPriRow .fb-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
-      if(!chip.classList.contains('on')&&_fbPriorities.size>=3) return;
-      chip.classList.toggle('on');
-      if(chip.classList.contains('on')) _fbPriorities.add(chip.dataset.pri);
-      else _fbPriorities.delete(chip.dataset.pri);
+      _fb.next=chip.dataset.pri;
+      document.querySelectorAll('#fbPriRow .fb-chip').forEach(c=>c.classList.toggle('on',c===chip));
     });
   });
 
-  // Wire submit
+  // Save textarea values on input so they survive page navigation
+  document.getElementById('fbLiked')?.addEventListener('input',e=>{ _fb.liked=e.target.value; });
+  document.getElementById('fbMissing')?.addEventListener('input',e=>{ _fb.missing=e.target.value; });
+
+  // Back button
+  document.getElementById('fbBackBtn')?.addEventListener('click',()=>{
+    _fbPage--; _renderFbPage();
+  });
+
+  // Next button
+  document.getElementById('fbNextBtn')?.addEventListener('click',()=>{
+    _fbPage++; _renderFbPage();
+  });
+
+  // Submit button (page 3) — with proper error handling so it never gets stuck
   document.getElementById('fbSubmitBtn')?.addEventListener('click', async()=>{
     const btn=document.getElementById('fbSubmitBtn');
     const status=document.getElementById('fbStatus');
-    btn.disabled=true; btn.textContent='Submitting…';
-    const ok = await submitFeedback({
-      rating: _fbRating,
-      background: document.getElementById('fbBackground').value,
-      instrument: document.getElementById('fbInstrument').value,
-      tab_used: document.getElementById('fbTab').value,
-      genres_used: document.getElementById('fbGenres').value,
-      worked_well: document.getElementById('fbWorkedWell').value,
-      didnt_work: document.getElementById('fbDidntWork').value,
-      wrong_info: document.getElementById('fbWrongInfo').value,
-      features_used: [..._fbFeaturesUsed],
-      missing_features: document.getElementById('fbMissing').value,
-      priorities: [..._fbPriorities],
-      other_notes: document.getElementById('fbOther').value,
-    });
-    if(ok){
-      btn.style.display='none';
-      status.style.display='block';
-      status.textContent='✓ Thank you! Your feedback has been submitted.';
-      _fbFeaturesUsed.clear(); _fbPriorities.clear(); _fbRating=0;
-    } else {
-      btn.disabled=false; btn.textContent='Submit Feedback';
-      status.style.display='block';
-      status.style.color='#c0392b';
-      status.textContent='Could not submit. Check your Supabase connection.';
+    if(!btn) return;
+    btn.disabled=true; btn.textContent='Sending…';
+    status.style.display='none';
+    try {
+      const ok = await submitFeedback({
+        rating: _fb.rating,
+        role: _fb.role,
+        features_used: _fb.features||[],
+        worked_well: _fb.liked||'',
+        missing_features: _fb.missing||'',
+        priorities: _fb.next?[_fb.next]:[],
+        // legacy fields — send empty so DB schema stays compatible
+        background:'', instrument:_fb.role||'', tab_used:'', genres_used:'',
+        didnt_work:'', wrong_info:'', other_notes:'',
+      });
+      if(ok){
+        showModal(`
+          <div class="modal-header" style="border-bottom:none">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+          </div>
+          <div class="modal-body" style="text-align:center;padding:30px 20px">
+            <div style="font-size:40px;margin-bottom:12px">★</div>
+            <div style="font-family:var(--f-serif);font-size:20px;font-weight:700;margin-bottom:8px">Thank you!</div>
+            <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);line-height:1.8">Your feedback shapes Vaikhari.<br>Every response is read.</div>
+          </div>
+        `);
+        _fb.rating=0; _fb.role=''; _fb.liked=''; _fb.missing=''; _fb.next=''; _fb.features=[];
+      } else {
+        btn.disabled=false; btn.textContent='Submit →';
+        status.style.display='block'; status.style.color='#c0392b';
+        status.textContent='Could not send — please try again.';
+      }
+    } catch(err) {
+      console.error('Feedback submit error:', err);
+      btn.disabled=false; btn.textContent='Submit →';
+      status.style.display='block'; status.style.color='#c0392b';
+      status.textContent='Error: '+( err.message||'Please try again.');
     }
   });
 }
