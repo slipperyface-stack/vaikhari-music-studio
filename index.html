@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v3.3</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v3.4</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -1245,7 +1245,21 @@ const GENRES={
       'iii7':'iii9','ii7':'ii9','im7':'im9','iv7':'iv9',
     }
   },
+  rnb:{label:'R&B / Soul',icon:'🎤',color:'on-lapis',forms:['Verse-Chorus','AABA','Groove-based'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Groove-based'],tempos:['Slow Jam (♩=60)','Neo-Soul (♩=80)','Upbeat R&B (♩=100)','Contemporary (♩=120)'],styleNote:'maj7 · dom9 · gospel-influenced · lush extensions · chromatic movement',progressions:{major:[['Imaj7','IV7','iii7','vi7'],['Imaj7','♭VII7','IVmaj7','IV7'],['I7','IV7','iii7','♭III7'],['Imaj7','vi7','ii7','V7'],['I7','♭VII7','♭VI7','V7']],minor:[['im7','♭VII7','♭VImaj7','V7'],['im9','iv9','♭VII9','♭III9'],['im7','iv7','♭VII7','im7'],['im9','♭VImaj7','ii7','V7']],bridge:[['IV7','♭VII7','Imaj7'],['ii7','♭II7','Imaj7'],['♭VImaj7','♭VII7','im7']]},jazzMods:{'Imaj7':'Imaj9','IV7':'IV9','iii7':'iii9','vi7':'vi9','♭VII7':'♭VII9','IVmaj7':'IVmaj9','im7':'im9','iv7':'iv9','V7':'V9','♭VImaj7':'♭VImaj9'}},
+  hiphop:{label:'Hip-Hop',icon:'🎧',color:'on',forms:['Verse-Chorus','Groove-based','Loop'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Groove-based','Loop'],tempos:['Boom Bap (♩=90)','Trap (♩=140 half-time)','Chill Rap (♩=80)','Drill (♩=144)'],styleNote:'Sample-driven · minor-heavy · looped changes · sparse but deliberate harmony',progressions:{major:[['Imaj7','♭VII','IV','I'],['I','♭VII','♭VI','♭VII'],['Imaj7','vi7','IVmaj7','V7'],['I','IV','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['im7','iv7','♭VII7','im7'],['i','♭VI','♭III','♭VII'],['im7','♭VImaj7','♭VII7','im7'],['i','♭VII','iv','i'],['i','♭II','♭VII','i']],bridge:[['♭VI','♭VII','i'],['iv','♭VII','i'],['♭III','♭VII','im7']]},jazzMods:{'im7':'im9','iv7':'iv9','♭VII7':'♭VII9','Imaj7':'Imaj9','vi7':'vi9','IVmaj7':'IVmaj9','♭VImaj7':'♭VImaj9'}},
+  country:{label:'Country',icon:'🤠',color:'on',forms:['Verse-Chorus','AABA','Ballad (AABB)'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Ballad (AABB)'],tempos:['Country Ballad (♩=66)','Mid Tempo (♩=92)','Nashville (♩=120)','Hoedown (♩=160)'],styleNote:'Triads · I-IV-V backbone · pedal steel feel · Mixolydian influence · direct and honest',progressions:{major:[['I','IV','V','I'],['I','V','IV','I'],['I','IV','I','V'],['I','ii','IV','V'],['I','♭VII','IV','I'],['I','IV','V','IV'],['I','vi','IV','V']],minor:[['i','VII','VI','VII'],['i','iv','V','i'],['i','VII','III','IV']],bridge:[['IV','V','I'],['ii','V','I'],['♭VII','IV','I']]},jazzMods:{}},
+  reggae:{label:'Reggae',icon:'🌿',color:'on',forms:['Verse-Chorus','Groove-based','Vamp'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Groove-based','Vamp'],tempos:['Roots Reggae (♩=70)','Rocksteady (♩=80)','One Drop (♩=90)','Dancehall (♩=100)'],styleNote:'Offbeat skank · one-drop rhythm · I-IV-V or modal · bass-led harmony',progressions:{major:[['I','IV','V','IV'],['I','IV','I','V'],['I','♭VII','IV','I'],['I','IV','♭VII','IV'],['I','V','IV','I']],minor:[['i','iv','V','i'],['i','♭VII','♭VI','♭VII'],['i','iv','i','V'],['i','♭VI','♭VII','i']],bridge:[['IV','V','I'],['♭VII','IV','I'],['iv','V','i']]},jazzMods:{}},
+  metal:{label:'Metal',icon:'🤘',color:'on',forms:['Verse-Chorus','Riff-based','Through-composed'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Riff-based','Through-composed'],tempos:['Doom (♩=60)','Heavy Metal (♩=120)','Thrash (♩=180)','Death/Black (♩=200+)'],styleNote:'Power chords · tritone · Phrygian dominant · drop tuning · riff-centric',progressions:{major:[['I','♭VII','♭VI','♭VII'],['I','♭II','♭VII','I'],['I','♭VI','♭VII','I'],['I','♭III','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭II','i','♭II'],['i','♭VI','♭VII','i'],['i','v','♭VI','♭VII'],['i','♭VII','iv','i'],['i','♭II','♭VII','♭VI']],bridge:[['♭VI','♭VII','i'],['♭II','i'],['iv','♭VII','i']]},jazzMods:{}},
+  flamenco:{label:'Flamenco',icon:'💃',color:'on-lapis',forms:['Through-composed','ABA','Verse-Chorus'],signatureForm:'Through-composed',formAlts:['Through-composed','ABA','Verse-Chorus'],tempos:['Soleares (♩=60)','Bulería (♩=160)','Rumba Flamenca (♩=120)','Seguiriya (♩=80)'],styleNote:'Phrygian dominant · Andalusian cadence · ♭II as dominant · guitar-centric',progressions:{major:[['I','♭VII','♭VI','V'],['V','♭VI','V','i'],['I','♭II','I','V']],minor:[['i','♭VII','♭VI','V'],['i','♭II','i','♭II'],['i','♭VII','♭VI','♭VII'],['i','iv','V','i'],['i','♭VI','♭VII','V']],bridge:[['♭VI','V','i'],['♭II','V','i'],['♭VII','♭VI','V']]},jazzMods:{}},
+  afrobeat:{label:'Afrobeat',icon:'🪘',color:'on',forms:['Groove-based','Vamp','Loop'],signatureForm:'Groove-based',formAlts:['Groove-based','Vamp','Loop'],tempos:['Lagos Groove (♩=96)','Afrobeat (♩=108)','High-life (♩=120)','Afropop (♩=130)'],styleNote:'Polyrhythmic · dominant 7ths · I-IV vamp · sparse changes · horn-driven',progressions:{major:[['I7','IV7'],['I7','♭VII7','IV7','I7'],['I7','IV7','I7','V7'],['I9','IV9'],['I7','II7','IV7','I7']],minor:[['i7','iv7'],['i7','♭VII7','♭VI7','♭VII7'],['i9','iv9'],['i7','♭VII7','iv7','i7']],bridge:[['IV7','V7','I7'],['♭VII7','IV7','I7'],['ii7','V7','I7']]},jazzMods:{'I7':'I9','IV7':'IV9','♭VII7':'♭VII9','i7':'i9','iv7':'iv9','V7':'V9','II7':'II9'}},
+  samba:{label:'Samba',icon:'🥁',color:'on-lapis',forms:['AABA','Verse-Chorus','Through-composed'],signatureForm:'AABA',formAlts:['AABA','Verse-Chorus','Through-composed'],tempos:['Samba-Canção (♩=80)','Samba (♩=100)','Pagode (♩=120)','Carnaval (♩=160)'],styleNote:'Syncopated · ii-V-I · chromatic movement · higher energy than Bossa',progressions:{major:[['I7','IV7','ii7','V7'],['Imaj7','♭III7','ii7','♭II7'],['I7','VI7','II7','V7'],['Imaj7','♭VII7','IVmaj7','V7']],minor:[['im7','♭VII7','♭VImaj7','V7'],['im7','iv7','♭VII7','V7'],['im9','II7','V7','im9']],bridge:[['♭II7','V7','I7'],['II7','V7','I']]},jazzMods:{'I7':'I9','IV7':'IV9','ii7':'ii9','V7':'V9','VI7':'VI9','II7':'II9','im7':'im9','♭VII7':'♭VII9'}},
+  gospel:{label:'Gospel',icon:'🙏',color:'on',forms:['Verse-Chorus','AABA','Through-composed'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Through-composed'],tempos:['Slow Gospel (♩=60)','Contemporary Gospel (♩=80)','Joyful (♩=100)','Shout (♩=120)'],styleNote:'IV chord emphasis · secondary dominants · major 7ths · call-and-response',progressions:{major:[['I','IV','I','V'],['I','IV','♭VII','IV'],['I','III7','IV','IV7'],['I','vi','IV','I7'],['Imaj7','IV7','iii7','VI7'],['I','V','IV','I']],minor:[['i','♭VII','♭VI','V'],['i','iv','V','i'],['i','III','♭VII','IV'],['im7','IV7','♭VII7','III7']],bridge:[['IV','V','I'],['IV7','I7','V7'],['♭VII','IV','I']]},jazzMods:{'I':'Imaj7','IV':'IVmaj7','V':'V7','vi':'vi7','I7':'I9','IV7':'IV9','III7':'III9','VI7':'VI9'}},
+  trance:{label:'Trance',icon:'🌀',color:'on-lapis',forms:['Intro-Build-Drop-Break-Drop-Outro','Build-Drop','Hypnotic Loop'],signatureForm:'Intro-Build-Drop-Break-Drop-Outro',formAlts:['Intro-Build-Drop-Break-Drop-Outro','Build-Drop','Hypnotic Loop'],tempos:['Progressive (♩=128)','Classic Trance (♩=138)','Uplifting (♩=142)','Hard Trance (♩=150)'],styleNote:'Minor-driven · arpeggiated synths · 8-bar loops · emotional uplift on the drop',progressions:{major:[['I','♭VII','IV','I'],['Imaj7','vi','IV','V'],['I','vi','♭VII','IV']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭VI','♭III','♭VII'],['i','v','♭VI','♭VII'],['i','♭VII','iv','i'],['i','♭VI','♭VII','i'],['i','♭III','♭VII','♭VI']],bridge:[['♭VI','♭VII','i'],['iv','♭VII','i'],['♭III','♭VII','im7']]},jazzMods:{}},
+  synthwave:{label:'Synthwave',icon:'🌆',color:'on-lapis',forms:['Verse-Chorus','ABA','Intro-Drop-Breakdown-Drop-Outro'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','ABA','Intro-Drop-Breakdown-Drop-Outro'],tempos:['Darksynth (♩=100)','Retrowave (♩=110)','Outrun (♩=118)','Electro (♩=128)'],styleNote:'80s analog feel · minor-major tension · lush pads · John Carpenter aesthetic',progressions:{major:[['I','♭VII','♭VI','♭VII'],['Imaj7','vi','IVmaj7','V'],['I','V','vi','IV'],['I','♭VI','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭VI','♭III','♭VII'],['i','♭VII','iv','V'],['im7','♭VImaj7','♭VII7','V7'],['i','♭VI','♭VII','i'],['i','♭III','♭VI','♭VII']],bridge:[['♭VI','♭VII','i'],['IV','V','I'],['♭VI','♭III','♭VII','i']]},jazzMods:{'im7':'im9','♭VImaj7':'♭VImaj9','♭VII7':'♭VII9','Imaj7':'Imaj9'}},
+  latinjazz:{label:'Latin Jazz',icon:'🎺',color:'on-lapis',forms:['AABA','Groove-based','Through-composed'],signatureForm:'AABA',formAlts:['AABA','Groove-based','Through-composed'],tempos:['Bolero (♩=80)','Son Montuno (♩=180)','Mambo (♩=200)','Cha-cha (♩=120)'],styleNote:'Clave rhythm · ii-V-I · montuno patterns · Afro-Cuban polyrhythm',progressions:{major:[['ii7','V7','Imaj7','VI7'],['Imaj7','VI7','II7','V7'],['ii7','♭II7','Imaj7','VI7'],['Imaj7','♭VII7','iii7','VI7'],['I7','IV7','iii7','♭III7']],minor:[['im7','iv7','V7','im7'],['im7','♭VImaj7','ii7','V7'],['im9','II7','V7','im9'],['im7','iv7','♭VII7','V7']],bridge:[['♭II7','V7','Imaj7'],['II7','V7','I7'],['iv7','♭VII7','Imaj7']]},jazzMods:{'Imaj7':'Imaj9','ii7':'ii9','V7':'V9','VI7':'VI9','II7':'II9','IV7':'IV9','im7':'im9','iv7':'iv9'}},
+  modaljazz:{label:'Modal Jazz',icon:'🎼',color:'on-lapis',forms:['Through-composed','AABA','Groove-based'],signatureForm:'Through-composed',formAlts:['Through-composed','AABA','Groove-based'],tempos:['Slow Modal (♩=60)','Miles Tempo (♩=120)','Medium Modal (♩=140)','Open (♩=80)'],styleNote:'Static harmony · modal scales · no ii-V-I resolution · So What voicing · colour over function',progressions:{major:[['Imaj7','♭VIImaj7'],['Imaj7','IVmaj7'],['I','II'],['Imaj7','♭VImaj7','♭VIImaj7','Imaj7']],minor:[['im7','♭VIImaj7'],['im7','IVmaj7'],['im7','♭VImaj7'],['im9','♭VII9'],['im7','ii7'],['im7','♭VIImaj7','♭VImaj7','im7']],bridge:[['♭VIImaj7','Imaj7'],['IVmaj7','im7'],['♭VImaj7','♭VIImaj7']]},jazzMods:{'Imaj7':'Imaj9','♭VIImaj7':'♭VIImaj9','IVmaj7':'IVmaj9','im7':'im9','♭VImaj7':'♭VImaj9','ii7':'ii9'}},
 };
+
 
 // Add signatureForm/formAlts to original genres
 GENRES.jazz.signatureForm='AABA';GENRES.jazz.formAlts=['AABA','ABAC','ABA','Through-composed'];
@@ -2261,6 +2275,19 @@ const AUTHENTIC_CADENCES = {
   techno:    { major: ['i','♭VII'],           minor: ['i','♭VII'] },
   ambient:   { major: ['Imaj7','Imaj9'],      minor: ['im7','im9'] },
   dnb:       { major: ['I','♭VII'],           minor: ['i','♭VI'] },
+  rnb:       { major: ['Imaj7','Imaj9'],      minor: ['im7','im9'] },
+  hiphop:    { major: ['I','♭VII'],           minor: ['i','♭VII'] },
+  country:   { major: ['I','V'],              minor: ['i','V'] },
+  reggae:    { major: ['I','IV'],             minor: ['i','iv'] },
+  metal:     { major: ['I','♭VII'],           minor: ['i','♭VI'] },
+  flamenco:  { major: ['i','V'],              minor: ['i','V'] },
+  afrobeat:  { major: ['I7','IV7'],           minor: ['i7','iv7'] },
+  samba:     { major: ['Imaj7','I7'],         minor: ['im7','im9'] },
+  gospel:    { major: ['I','IV'],             minor: ['i','V'] },
+  trance:    { major: ['I','Imaj7'],          minor: ['i','♭VI'] },
+  synthwave: { major: ['Imaj7','I'],          minor: ['i','♭VII'] },
+  latinjazz: { major: ['Imaj7','Imaj9'],      minor: ['im7','im9'] },
+  modaljazz: { major: ['Imaj7','♭VIImaj7'],  minor: ['im7','♭VIImaj7'] },
   lofi:      { major: ['Imaj7','I6'],         minor: ['im7','im9'] },
 };
 
@@ -3029,6 +3056,84 @@ function melodyHint(section, isMin, scaleIvs, genreKey){
       'Leave more space than feels comfortable — the silence IS the groove.',
       'Lock to the kick drum rhythm for the main motif, vary on the repeat.',
     ],
+    rnb:[
+      'Land on the 9th of the chord — that warm extended tone is the R&B sound.',
+      'Chromatic approach notes: slide into chord tones from a half-step below.',
+      'Call-and-response between voice and keys — the answer phrase completes the thought.',
+      'The IV chord is home in R&B. Linger there before returning to I.',
+    ],
+    hiphop:[
+      'Loop the most compelling two bars — repetition is the point, not a limitation.',
+      'Leave space. The silence between notes is where the rap lives.',
+      'Target the ♭7 and ♭3 — the hip-hop melody note set.',
+      'Melody fragments, not full phrases — short motifs that rhyme with the beat.',
+    ],
+    country:[
+      'Stepwise melody — no big leaps. Country melody walks, not jumps.',
+      'Land on the 5th over the V chord and hold it — classic pedal steel feel.',
+      'The IV chord in bar 2 is the country instinct. Trust it.',
+      'Simple is honest. One memorable hook, repeated with small variations.',
+    ],
+    reggae:[
+      'Melody on the offbeat — land between the kicks, not on them.',
+      'Sparse phrasing: three notes, a breath, three more. Space is the rhythm.',
+      'The root and ♭7 are the reggae tones. Stay in that world.',
+      'Call phrases that end unresolved — the riddim answers for you.',
+    ],
+    metal:[
+      'Riff first, melody later — the guitar line IS the melody.',
+      'Tritone (♭5) from the root for maximum tension. The devil\u2019s interval.',
+      'Phrygian ♭2 over the tonic — approach it from below for maximum darkness.',
+      'Unison melody and rhythm guitar: no separation between riff and tune.',
+    ],
+    flamenco:[
+      'The descending Andalusian tetrachord: i → ♭VII → ♭VI → V. This is flamenco.',
+      'Ornament every note — mordents, trills, grace notes. The melody breathes.',
+      'The ♭2 (Phrygian note) resolves DOWN to the root, not up. Ancient gravity.',
+      'Silence is compás. Count the beats in the silence between phrases.',
+    ],
+    afrobeat:[
+      'Short riff, repeated exactly. The melody is a groove element, not a statement.',
+      'Horn unisons on beats 2 and 4 — the Afrobeat punch.',
+      'The melody circles one note for an entire section — that is correct.',
+      'Syncopate against the clave. If it locks too neatly, push it off the beat.',
+    ],
+    samba:[
+      'Anticipate the beat — melody lands just before the downbeat. That’s samba feel.',
+      'Fast chromatic passing notes between chord tones — the samba melodic ornament.',
+      'The ii-V-I happens in two bars in samba. Melody must move that fast.',
+      'Syncopation is structural. A straight melody in samba sounds wrong by design.',
+    ],
+    gospel:[
+      'The IV chord arrival is the climax. Build everything toward it.',
+      'Call-and-response: solo phrase answered by the full choir voicing.',
+      'Add the major 7th over the I chord — the gospel sweetness note.',
+      'Long held notes with vibrato over the V chord — the tension before release.',
+    ],
+    trance:[
+      'The arp is the melody. Write the synth line as a 4-bar sequence that loops.',
+      'Build to the 8th bar and release. Trance melody is about the journey to the drop.',
+      'Minor key verse, relative major on the breakdown — the emotional uplift.',
+      'Simple, singable, high in register — the lead synth should feel like a voice.',
+    ],
+    synthwave:[
+      'Melody in the upper register of the lead synth — clean and cutting through pads.',
+      'Slow vibrato on held notes — the analog synth character.',
+      '80s aesthetic: no passing notes, just pure chord tones held with expression.',
+      'The melody should sound like it’s being played in an empty car park at 2am.',
+    ],
+    latinjazz:[
+      'Clave dictates everything — phrase with the clave or intentionally against it.',
+      'Target the 3rd and 7th on strong clave beats — jazz melody in a Latin frame.',
+      'The montuno pattern under the melody: short, repetitive, harmonically clear.',
+      'Let the rhythm section play — melodic phrases need space to land between the polyrhythm.',
+    ],
+    modaljazz:[
+      'Stay on the mode — avoid the leading tone. Resolution is not the goal.',
+      'Space over density. Miles Davis left more space than notes.',
+      'The colour notes of the mode are the melody: ♮6 in Dorian, ♯4 in Lydian.',
+      'A single note held long enough becomes a statement. Modal jazz is about patience.',
+    ],
     folk:[
       'A simple stepwise melody that can be sung without accompaniment.',
       'Double the chord root in the melody to ground each phrase.',
@@ -3112,7 +3217,33 @@ function renderSongView(){
     :(SELECTED_GENRES.size>1
       ?`<div style="padding:7px 12px;border-radius:8px;background:rgba(255,160,0,.08);border:1px solid rgba(255,160,0,.2);margin-bottom:10px;font-family:var(--f-mono);font-size:10px;color:rgba(200,130,0,1)">⚡ Fusion blend — no dedicated recipe yet. Using <strong>${primaryGenre()}</strong> as primary with blended progressions.</div>`
       :'');
-  const genrePills=Object.entries(GENRES).map(([k,g])=>`<button class="genre-pill${SELECTED_GENRES.has(k)?' on':''} genre-multi-pill" data-genre="${k}" title="${SELECTED_GENRES.has(k)&&SELECTED_GENRES.size>1?'Click to remove from fusion':'Click to select / add to fusion'}">${g.icon} ${g.label}${SELECTED_GENRES.has(k)&&SELECTED_GENRES.size>1?' ✕':''}</button>`).join('');
+  // Genre groups with subsections
+  const GENRE_GROUPS=[
+    {label:'Jazz',            icon:'🎷', keys:['jazz','modaljazz','latinjazz','bossa']},
+    {label:'Blues',           icon:'🎸', keys:['blues']},
+    {label:'R&B · Soul · Gospel', icon:'🎤', keys:['rnb','gospel','funk']},
+    {label:'Hip-Hop · Lo-fi',icon:'🎧', keys:['hiphop','lofi']},
+    {label:'Pop · Rock',     icon:'🎵', keys:['pop','rock','country','folk']},
+    {label:'Metal',          icon:'🤘', keys:['metal']},
+    {label:'Electronic',     icon:'🎛️', keys:['house','techno','trance','synthwave','dnb','ambient']},
+    {label:'World',          icon:'🌍', keys:['reggae','afrobeat','samba','flamenco']},
+    {label:'Classical',      icon:'🎻', keys:['classical']},
+  ];
+  function makePill(k){
+    const g=GENRES[k]; if(!g) return '';
+    const on=SELECTED_GENRES.has(k);
+    const multi=on&&SELECTED_GENRES.size>1;
+    return `<button class="genre-pill${on?' on':''} genre-multi-pill" data-genre="${k}" title="${multi?'Click to remove from fusion':'Click to select / add to fusion'}">${g.icon} ${g.label}${multi?' ✕':''}</button>`;
+  }
+  const genrePills=GENRE_GROUPS.map(grp=>`
+    <div style="margin-bottom:14px">
+      <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:7px;padding-left:1px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px">${grp.icon}</span>
+        <span>${grp.label}</span>
+        <span style="flex:1;height:1px;background:var(--border2);display:inline-block"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${grp.keys.map(makePill).join('')}</div>
+    </div>`).join('');
 
   // Complexity selector
   const cxPills=Object.entries(COMPLEXITY).map(([k,c])=>`<button class="cx-pill${k===SONG_COMPLEXITY?' on':''}" data-cx="${k}" title="${c.desc}">${c.label}</button>`).join('');
@@ -3138,7 +3269,7 @@ function renderSongView(){
     </div>
     <div class="sec" style="margin-bottom:6px">Genre <span style="font-family:var(--f-mono);font-size:9px;color:var(--ink4);font-weight:400;letter-spacing:0">— select multiple for fusion</span></div>
     ${fusionBadge}
-    <div class="genre-row" style="margin-bottom:14px">${genrePills}</div>
+    <div style="margin-bottom:14px">${genrePills}</div>
     <div class="sec" style="margin-bottom:6px">Form</div>
     <div class="genre-row" id="formAltRow" style="margin-bottom:14px">${formPills}</div>
     <div class="sec" style="margin-bottom:6px">Complexity</div>
@@ -3157,7 +3288,7 @@ function renderSongView(){
     const k=p.dataset.genre;
     if(SELECTED_GENRES.has(k)){
       if(SELECTED_GENRES.size>1) SELECTED_GENRES.delete(k);
-      // Don't deselect last one
+      // Don’t deselect last one
     } else {
       if(SELECTED_GENRES.size>=2){
         // Replace oldest (keep only 2 for meaningful fusion)
@@ -4366,7 +4497,7 @@ async function signInWithGoogle(){
   const sb = supabase();
   if(!sb) return;
   // Use a clean redirect URI — strip hash, query params, trailing slashes
-  // Must match exactly what's registered in Supabase Auth > URL Configuration
+  // Must match exactly what’s registered in Supabase Auth > URL Configuration
   // Supabase handles the OAuth callback itself; we just need a clean origin+path
   const cleanPath = (window.location.origin + window.location.pathname).replace(/\/+$/, '');
   const redirectTo = cleanPath || window.location.origin;
@@ -4554,7 +4685,7 @@ async function submitFeedback(payload){
       missing_features: payload.missing_features || '',
       priorities:       JSON.stringify(Array.isArray(payload.priorities)?payload.priorities:[]),
       other_notes:      payload.other_notes || '',
-      app_version:      'v3.3',
+      app_version:      'v3.4',
       created_at:       new Date().toISOString(),
     };
     const { error } = await sb.from('feedback').insert(row);
@@ -4950,8 +5081,8 @@ function _fbPage2Html(){
 function _fbPage3Html(){
   const priorities = ['Audio Playback','More Ragas','Sheet Music','Mobile App','More Genres','DAW Plugin','Notation View','Performance Mode'];
   return `
-    <div style="font-family:var(--f-serif);font-size:18px;font-weight:700;margin-bottom:4px;color:var(--ink)">Shape what's next</div>
-    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-bottom:16px">Pick your top priority and tell us what's missing</div>
+    <div style="font-family:var(--f-serif);font-size:18px;font-weight:700;margin-bottom:4px;color:var(--ink)">Shape what’s next</div>
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-bottom:16px">Pick your top priority and tell us what’s missing</div>
 
     <div style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);margin-bottom:6px;font-weight:600;letter-spacing:.5px">MOST WANTED FEATURE</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="fbPriRow">
