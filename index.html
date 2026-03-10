@@ -4540,18 +4540,32 @@ async function submitFeedback(payload){
     if(!isSupaConfigured()) return false;
     const sb = supabase(); if(!sb) return false;
     const row = {
-      ...payload,
-      user_id: _user?.id || null,
-      user_email: _user?.email || null,
-      created_at: new Date().toISOString(),
-      app_version: '3.2',
+      user_id:          _user?.id || null,
+      user_email:       _user?.email || null,
+      rating:           Number(payload.rating) || null,
+      background:       payload.background || '',
+      instrument:       payload.instrument || '',
+      tab_used:         payload.tab_used || '',
+      genres_used:      payload.genres_used || '',
+      worked_well:      payload.worked_well || '',
+      didnt_work:       payload.didnt_work || '',
+      wrong_info:       payload.wrong_info || '',
+      features_used:    JSON.stringify(Array.isArray(payload.features_used)?payload.features_used:[]),
+      missing_features: payload.missing_features || '',
+      priorities:       JSON.stringify(Array.isArray(payload.priorities)?payload.priorities:[]),
+      other_notes:      payload.other_notes || '',
+      app_version:      'v3.3',
+      created_at:       new Date().toISOString(),
     };
     const { error } = await sb.from('feedback').insert(row);
-    if(error){ console.error('Feedback DB error:', error.message, '|', error.details, '|', error.hint); return false; }
-    return true;
+    if(error){
+      console.error('Feedback insert error:', JSON.stringify(error));
+      return { ok:false, msg: error.message||error.code||JSON.stringify(error) };
+    }
+    return { ok:true };
   } catch(e){
     console.error('submitFeedback threw:', e);
-    return false;
+    return { ok:false, msg: e.message||String(e) };
   }
 }
 
@@ -4605,8 +4619,17 @@ feedback: id, user_id, user_email, rating, background, instrument, tab_used, gen
       </div>
       <div style="margin-top:12px;padding:12px 14px;border-radius:8px;background:var(--lapis4);border:1px solid var(--lapis3)">
         <div style="font-family:var(--f-mono);font-size:10px;color:var(--lapis);font-weight:600;margin-bottom:6px">ROW LEVEL SECURITY (RLS)</div>
-        <pre style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.8;white-space:pre-wrap">Enable RLS on all three tables.
-Policy: users can only SELECT/INSERT/DELETE their own rows where user_id = auth.uid()</pre>
+        <pre style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.8;white-space:pre-wrap">Run in Supabase SQL Editor:
+
+-- saved_songs: users own their rows
+create policy "own songs" on saved_songs for all using (auth.uid() = user_id);
+
+-- fav_scales: users own their rows  
+create policy "own favs" on fav_scales for all using (auth.uid() = user_id);
+
+-- feedback: anyone can insert (anon + authenticated)
+create policy "insert feedback" on feedback for insert with check (true);
+create policy "read own feedback" on feedback for select using (auth.uid() = user_id);</pre>
       </div>
       <div style="margin-top:12px;padding:12px 14px;border-radius:8px;background:var(--saffron4);border:1px solid var(--saffron3)">
         <div style="font-family:var(--f-mono);font-size:10px;color:var(--saffron);font-weight:600;margin-bottom:6px">GOOGLE OAUTH SETUP</div>
@@ -5005,10 +5028,10 @@ function _wireFbPage(){
     btn.disabled=true; btn.textContent='Sending…';
     status.style.display='none';
     try {
-      const ok = await submitFeedback({
+      const result = await submitFeedback({
         rating: _fb.rating,
-        background: _fb.role||'',
         instrument: _fb.role||'',
+        background: '',
         tab_used: '',
         genres_used: '',
         worked_well: _fb.liked||'',
@@ -5019,7 +5042,7 @@ function _wireFbPage(){
         priorities: _fb.next?[_fb.next]:[],
         other_notes: '',
       });
-      if(ok){
+      if(result && result.ok){
         showModal(`
           <div class="modal-header" style="border-bottom:none">
             <button class="modal-close" onclick="closeModal()">✕</button>
