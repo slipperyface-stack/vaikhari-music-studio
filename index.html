@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.5</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.6</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -4148,14 +4148,17 @@ async function showSavedSongs(){
     return;
   }
   list.innerHTML = songs.map(s=>`
-    <div class="saved-song-card" data-song-id="${s.id}">
+    <div class="saved-song-card" data-song-id="${s.id}" data-song-idx="">
       <div class="ssc-info">
         <div class="ssc-title">${s.title}</div>
-        <div class="ssc-meta">${s.genre} · ${s.key_root} · ${s.form} · ${s.tempo}</div>
+        <div class="ssc-meta">${s.genre} · ${s.key_root} · ${s.form} · ${s.tempo||''}</div>
+        <div style="font-family:var(--f-mono);font-size:9px;color:var(--lapis);margin-top:3px">▶ Click to load into Song tab</div>
       </div>
       <button class="ssc-del" data-del="${s.id}" title="Delete">🗑</button>
     </div>
   `).join('');
+
+  // Wire delete buttons
   list.querySelectorAll('.ssc-del[data-del]').forEach(btn=>{
     btn.addEventListener('click', async e=>{
       e.stopPropagation();
@@ -4165,6 +4168,44 @@ async function showSavedSongs(){
       btn.closest('.saved-song-card').remove();
       if(!list.querySelector('.saved-song-card'))
         list.innerHTML=`<div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:30px">No saved songs.</div>`;
+    });
+  });
+
+  // Wire card click → load song into Song tab
+  list.querySelectorAll('.saved-song-card').forEach((card, idx)=>{
+    card.addEventListener('click', ()=>{
+      const s = songs[idx];
+      // Restore state
+      if(s.key_root) ROOT = s.key_root;
+      document.querySelectorAll('.k').forEach(k=>k.classList.toggle('on', k.dataset.root===ROOT));
+      if(s.genre){
+        const genreKey = Object.keys(GENRES).find(k=>GENRES[k].label===s.genre || s.genre.includes(GENRES[k].label));
+        if(genreKey) SELECTED_GENRES = new Set([genreKey]);
+      }
+      if(s.complexity) SONG_COMPLEXITY = s.complexity;
+      // Reconstruct a displayable song object from saved data
+      const savedSong = {
+        title: s.title,
+        genre: s.genre,
+        fusionLabel: s.genre,
+        form: s.form,
+        tempo: s.tempo,
+        scaleName: s.scale_name,
+        complexity: s.complexity,
+        useJazz: false,
+        sections: (s.sections||[]).map(sec=>({
+          label: sec.label,
+          prog: sec.prog,
+          bars: sec.prog?.length||4,
+          roleDesc: '',
+          resolvedChords: (sec.prog||[]).map(r=>resolveChord(r, s.key_root||ROOT, [0,2,4,5,7,9,11], 'jazz', false)),
+        })),
+      };
+      closeModal();
+      setView('song');
+      CURRENT_SONG = savedSong;
+      renderSongView();
+      setTimeout(()=>displaySong(savedSong), 50);
     });
   });
 }
