@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v3.0</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v3.1</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -4367,11 +4367,19 @@ async function signInWithGoogle(){
   if(!isSupaConfigured()){showConfigModal();return;}
   const sb = supabase();
   if(!sb) return;
+  // Use a clean redirect URI — strip hash, query params, trailing slashes
+  // Must match exactly what's registered in Supabase Auth > URL Configuration
+  // Supabase handles the OAuth callback itself; we just need a clean origin+path
+  const cleanPath = (window.location.origin + window.location.pathname).replace(/\/+$/, '');
+  const redirectTo = cleanPath || window.location.origin;
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: {
+      redirectTo,
+      queryParams: { prompt: 'select_account' }, // always show account picker
+    }
   });
-  if(error) console.error('Sign in error:', error);
+  if(error){ console.error('Sign in error:', error); alert('Sign-in error: '+error.message); }
 }
 
 async function signOut(){
@@ -4409,13 +4417,7 @@ function updateAuthUI(){
 
 // ── Saved Songs ──
 async function saveSong(song){
-  if(!_user){
-    const sb=supabase();
-    if(sb){
-      const { data:{ session } } = await sb.auth.getSession();
-      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
-    }
-  }
+  await ensureSession();
   if(!_user){ showLoginPrompt('Save songs'); return; }
   const sb = supabase(); if(!sb) return;
   const payload = {
@@ -4430,25 +4432,74 @@ async function saveSong(song){
     sections: song.sections.map(s=>({label:s.label, prog:s.prog})),
     created_at: new Date().toISOString(),
   };
+  _savedSongsCache = null; // invalidate cache
   const { error } = await sb.from('saved_songs').insert(payload);
   if(error){ console.error('Save error:', error); return false; }
   return true;
 }
 
-async function loadSavedSongs(){
+async function loadSavedSongs(forceRefresh){
   if(!_user) return [];
+  if(!forceRefresh && _savedSongsCache !== null) return _savedSongsCache;
   const sb = supabase(); if(!sb) return [];
   const { data, error } = await sb.from('saved_songs')
     .select('*').eq('user_id', _user.id)
     .order('created_at', { ascending: false }).limit(50);
   if(error){ console.error(error); return []; }
-  return data || [];
+  _savedSongsCache = data || [];
+  return _savedSongsCache;
 }
 
 async function deleteSavedSong(id){
   const sb = supabase(); if(!sb) return;
   await sb.from('saved_songs').delete().eq('id', id).eq('user_id', _user.id);
+  _savedSongsCache = null; // invalidate cache
 }
+
+// ── Shared session cache — call once, reuse everywhere ──
+let _sessionChecked = false;
+async function ensureSession(){
+  if(_user) return true;
+  if(_sessionChecked) return false; // already checked, no session
+  _sessionChecked = false; // reset so fresh check works
+  const sb = supabase();
+  if(!sb) return false;
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){
+      _user = session.user;
+      updateAuthUI();
+      // Load all user data in parallel — one round-trip
+      await loadAllUserData();
+      return true;
+    }
+  } catch(e){ console.warn('Session check failed:', e); }
+  _sessionChecked = true;
+  return false;
+}
+
+// Load all saved data in one parallel batch
+async function loadAllUserData(){
+  if(!_user) return;
+  const sb = supabase(); if(!sb) return;
+  // Parallel fetch — fav scales + saved songs (both at once, one round-trip)
+  const [favRes, songsRes] = await Promise.all([
+    sb.from('fav_scales').select('scale_key,label,created_at').eq('user_id', _user.id),
+    sb.from('saved_songs').select('*').eq('user_id', _user.id).order('created_at',{ascending:false}).limit(50),
+  ]);
+  if(favRes.data){
+    _favScales = new Set(favRes.data.map(r=>r.scale_key));
+    _favData = favRes.data; // cache raw rows
+    document.querySelectorAll('.fav-btn[data-scale-key]').forEach(btn=>{
+      btn.classList.toggle('on', _favScales.has(btn.dataset.scaleKey));
+      btn.title = _favScales.has(btn.dataset.scaleKey) ? 'Remove from favourites' : 'Add to favourites';
+    });
+  }
+  if(songsRes.data) _savedSongsCache = songsRes.data;
+}
+
+let _favData = []; // cached fav rows
+let _savedSongsCache = null; // null = not yet fetched
 
 // ── Favourite Scales ──
 async function loadFavScales(){
@@ -4465,13 +4516,7 @@ async function loadFavScales(){
 }
 
 async function toggleFavScale(scaleKey){
-  if(!_user){
-    const sb=supabase();
-    if(sb){
-      const { data:{ session } } = await sb.auth.getSession();
-      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
-    }
-  }
+  await ensureSession();
   if(!_user){ showLoginPrompt('Favourite scales'); return; }
   const sb = supabase(); if(!sb) return;
   if(_favScales.has(scaleKey)){
@@ -4597,14 +4642,7 @@ function closeModal(){
 
 // ── Saved Songs Modal ──
 async function showSavedSongs(){
-  // Re-check session in case state wasn't restored yet after re-login
-  if(!_user){
-    const sb=supabase(); 
-    if(sb){
-      const { data:{ session } } = await sb.auth.getSession();
-      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
-    }
-  }
+  await ensureSession();
   if(!_user){ showLoginPrompt('Saved Songs'); return; }
   showModal(`<div class="modal-header"><span class="modal-title">♬ Saved Songs</span><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><div id="savedSongsList" style="min-height:60px"><div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:20px">Loading…</div></div></div>`);
   const songs = await loadSavedSongs();
@@ -4679,29 +4717,136 @@ async function showSavedSongs(){
 
 // ── Favourite Scales Modal ──
 async function showFavScales(){
-  if(!_user){
-    const sb=supabase();
-    if(sb){
-      const { data:{ session } } = await sb.auth.getSession();
-      if(session){ _user=session.user; updateAuthUI(); await loadFavScales(); }
-    }
-  }
+  await ensureSession();
   if(!_user){ showLoginPrompt('Favourite Scales'); return; }
-  showModal(`<div class="modal-header"><span class="modal-title">★ Favourite Scales</span><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><div id="favScalesList"><div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:20px">Loading…</div></div></div>`);
-  const sb=supabase(); if(!sb) return;
-  const {data}=await sb.from('fav_scales').select('*').eq('user_id',_user.id).order('created_at',{ascending:false});
-  const list=document.getElementById('favScalesList');
-  if(!list) return;
-  if(!data||!data.length){
-    list.innerHTML=`<div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:30px">No favourited scales yet.<br>Use the ★ button on any scale, mode or thaat.</div>`;
-    return;
-  }
-  list.innerHTML=data.map(s=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2)">
-      <div style="flex:1;font-family:var(--f-mono);font-size:12px;color:var(--ink)">${s.label}</div>
-      <button style="padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--ink4);cursor:pointer;font-family:var(--f-mono);font-size:10px" onclick="toggleFavScale('${s.scale_key}');this.closest('[style]').remove()">Remove</button>
+
+  // Use cached data if available, otherwise fetch
+  let data = _favData.length ? _favData : null;
+
+  // Show modal immediately with cached data or loading state
+  showModal(`
+    <div class="modal-header">
+      <span class="modal-title">★ Favourites</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-  `).join('');
+    <div class="modal-body" style="padding-top:0">
+      <div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border2)">
+        <button class="fav-tab-btn on" data-tab="scale" style="flex:1;padding:10px 6px;border:none;background:none;font-family:var(--f-mono);font-size:11px;font-weight:600;color:var(--jade);border-bottom:2px solid var(--jade);cursor:pointer">Scales</button>
+        <button class="fav-tab-btn" data-tab="mode" style="flex:1;padding:10px 6px;border:none;background:none;font-family:var(--f-mono);font-size:11px;color:var(--ink4);border-bottom:2px solid transparent;cursor:pointer">Modes</button>
+        <button class="fav-tab-btn" data-tab="thaat" style="flex:1;padding:10px 6px;border:none;background:none;font-family:var(--f-mono);font-size:11px;color:var(--ink4);border-bottom:2px solid transparent;cursor:pointer">Thaats</button>
+      </div>
+      <div id="favContent"><div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:20px">Loading…</div></div>
+    </div>
+  `);
+
+  // Fetch if not cached
+  if(!data){
+    const sb=supabase(); if(!sb) return;
+    const res = await sb.from('fav_scales').select('*').eq('user_id',_user.id).order('created_at',{ascending:false});
+    data = res.data || [];
+    _favData = data;
+    _favScales = new Set(data.map(r=>r.scale_key));
+  }
+
+  // Classify each entry: scale_key is "root|name"
+  // Mode names come from MODES[].n, thaat names end with " Thaat"
+  const modeNames = new Set(MODES.map(m=>m.n));
+  function classifyKey(sk){
+    const parts = sk.split('|');
+    const name = parts[1] || '';
+    if(name.endsWith(' Thaat')) return 'thaat';
+    if(modeNames.has(name)) return 'mode';
+    return 'scale';
+  }
+
+  function renderFavTab(tab){
+    const filtered = data.filter(s=>classifyKey(s.scale_key)===tab);
+    const content = document.getElementById('favContent');
+    if(!content) return;
+
+    // Update tab styles
+    document.querySelectorAll('.fav-tab-btn').forEach(b=>{
+      const on = b.dataset.tab===tab;
+      b.classList.toggle('on', on);
+      b.style.color = on ? 'var(--jade)' : 'var(--ink4)';
+      b.style.fontWeight = on ? '600' : '400';
+      b.style.borderBottom = on ? '2px solid var(--jade)' : '2px solid transparent';
+    });
+
+    if(!filtered.length){
+      const labels = {scale:'scales',mode:'modes',thaat:'thaats'};
+      content.innerHTML = '<div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:30px">No favourited '+labels[tab]+' yet.<br>Use the ★ button on any '+tab+'.</div>';
+      return;
+    }
+
+    content.innerHTML = filtered.map(s=>{
+      const parts = s.scale_key.split('|');
+      const root = parts[0];
+      const name = (parts[1]||'').replace(' Thaat','');
+      const displayLabel = root + ' ' + name;
+      return `
+      <div class="saved-song-card fav-entry" data-key="${s.scale_key}" data-type="${tab}" style="cursor:pointer">
+        <div class="ssc-info">
+          <div class="ssc-title">${displayLabel}</div>
+          <div class="ssc-meta">${root} · ${tab.charAt(0).toUpperCase()+tab.slice(1)}</div>
+          <div style="font-family:var(--f-mono);font-size:9px;color:var(--lapis);margin-top:3px">▶ Click to open</div>
+        </div>
+        <button class="ssc-del fav-remove" data-key="${s.scale_key}" title="Remove">🗑</button>
+      </div>`;
+    }).join('');
+
+    // Wire open — navigate to the scale/mode/thaat
+    content.querySelectorAll('.fav-entry').forEach(card=>{
+      card.addEventListener('click', e=>{
+        if(e.target.closest('.fav-remove')) return;
+        const sk = card.dataset.key;
+        const type = card.dataset.type;
+        const parts = sk.split('|');
+        const root = parts[0];
+        const name = parts[1]||'';
+        closeModal();
+        // Set root
+        ROOT = root;
+        document.querySelectorAll('.k').forEach(k=>k.classList.toggle('on',k.dataset.root===ROOT));
+        if(type==='scale'){
+          OPEN_SCALE = name;
+          setView('scale');
+          setTimeout(()=>renderScale(), 30);
+        } else if(type==='mode'){
+          const mIdx = MODES.findIndex(m=>m.n===name);
+          if(mIdx>=0){ OPEN_MODE=mIdx; setView('mode'); setTimeout(()=>renderMode(),30); }
+        } else if(type==='thaat'){
+          const tName = name.replace(' Thaat','').trim();
+          OPEN_THAAT=tName; OPEN_RAGA=null;
+          setView('thaat');
+          setTimeout(()=>renderThaat(),30);
+        }
+      });
+    });
+
+    // Wire remove buttons
+    content.querySelectorAll('.fav-remove').forEach(btn=>{
+      btn.addEventListener('click', async e=>{
+        e.stopPropagation();
+        const sk = btn.dataset.key;
+        btn.textContent='…';
+        await toggleFavScale(sk);
+        _favData = _favData.filter(r=>r.scale_key!==sk);
+        data = _favData;
+        renderFavTab(tab);
+      });
+    });
+  }
+
+  // Wire tab buttons
+  const overlay = document.getElementById('modalOverlay');
+  if(overlay){
+    overlay.querySelectorAll('.fav-tab-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>renderFavTab(btn.dataset.tab));
+    });
+  }
+
+  renderFavTab('scale');
 }
 
 // ── Feedback Modal ──
@@ -4891,14 +5036,15 @@ async function initSupabase(){
 
   // Handle OAuth redirect / existing session
   const { data: { session } } = await sb.auth.getSession();
-  if(session){ _user = session.user; updateAuthUI(); await loadFavScales(); }
+  if(session){ _user = session.user; updateAuthUI(); await loadAllUserData(); }
 
-  // Listen for auth state changes
+  // Listen for auth state changes (sign-in, sign-out, token refresh)
   sb.auth.onAuthStateChange(async(_event, session)=>{
     _user = session?.user || null;
+    _sessionChecked = true;
     updateAuthUI();
-    if(_user) await loadFavScales();
-    else _favScales.clear();
+    if(_user){ _favData=[]; _savedSongsCache=null; await loadAllUserData(); } // clear cache on new session
+    else { _favScales.clear(); _favData=[]; _savedSongsCache=null; }
   });
 }
 
