@@ -7,6 +7,7 @@
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 window._supabaseCreateClient = createClient;
+window.dispatchEvent(new Event("supabase-ready"));
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -729,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.3</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.4</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -4347,11 +4348,11 @@ document.getElementById('ddSignOut')?.addEventListener('click',()=>{ closeDropdo
 function closeDropdown(){ document.getElementById('userDropdown').style.display='none'; }
 
 // ── Init Supabase session ──
-(async()=>{
+async function initSupabase(){
   if(!isSupaConfigured()) return;
   const sb = supabase(); if(!sb) return;
 
-  // Handle OAuth redirect
+  // Handle OAuth redirect / existing session
   const { data: { session } } = await sb.auth.getSession();
   if(session){ _user = session.user; updateAuthUI(); await loadFavScales(); }
 
@@ -4360,8 +4361,18 @@ function closeDropdown(){ document.getElementById('userDropdown').style.display=
     _user = session?.user || null;
     updateAuthUI();
     if(_user) await loadFavScales();
+    else _favScales.clear();
   });
-})();
+}
+
+// Wait for ESM module to load before initialising
+if(window._supabaseCreateClient){
+  initSupabase();
+} else {
+  window.addEventListener('supabase-ready', initSupabase, { once: true });
+  // Fallback: also try after DOM is fully loaded
+  window.addEventListener('load', ()=>{ if(!_supa) initSupabase(); }, { once: true });
+}
 
 // ── Add fav button to scale/mode/thaat renders ──
 // Called at end of renderScale, renderMode, renderThaat — injects star button
