@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vaikhari — Unified Music Theory Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -562,6 +563,162 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .arp-card-desc{font-family:var(--f-sans);font-size:11px;color:var(--ink3);line-height:1.5;margin-bottom:6px;}
 .arp-card-genres{display:flex;flex-wrap:wrap;gap:3px}
 .arp-genre-tag{font-family:var(--f-mono);font-size:8px;padding:1px 5px;border-radius:3px;background:var(--surface2);border:1px solid var(--border2);color:var(--ink4);letter-spacing:.3px;}
+
+/* Multi-select genre pills */
+.genre-pill.on{background:var(--lapis);color:#fff;border-color:var(--lapis);}
+.genre-multi-pill.on{
+  background:linear-gradient(135deg,var(--jade3),var(--lapis3));
+  border:1.5px solid var(--lapis);color:var(--lapis);font-weight:600;
+}
+/* When 2 genres selected, both pills glow */
+.genre-multi-pill.on + .genre-multi-pill.on,
+.genre-multi-pill.on{
+  box-shadow:0 0 0 2px rgba(93,143,224,.18);
+}
+
+/* ── Auth & User Panel ── */
+.auth-btn{
+  display:flex;align-items:center;gap:7px;padding:6px 14px;
+  border-radius:20px;border:1.5px solid var(--border);
+  background:transparent;font-family:var(--f-mono);font-size:11px;
+  color:var(--ink3);cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.auth-btn:hover{border-color:var(--lapis);color:var(--lapis);background:var(--lapis4);}
+.auth-btn img{width:20px;height:20px;border-radius:50%;object-fit:cover;}
+.auth-btn.signed-in{border-color:var(--jade);color:var(--jade);background:var(--jade4);}
+
+/* User dropdown */
+.user-menu{
+  position:relative;display:inline-block;
+}
+.user-dropdown{
+  position:absolute;right:0;top:calc(100% + 6px);
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:12px;box-shadow:var(--shadow-lg);
+  min-width:200px;z-index:1000;overflow:hidden;
+  animation:dropIn .15s ease;
+}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.user-dropdown-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;font-family:var(--f-mono);font-size:11px;
+  color:var(--ink3);cursor:pointer;border:none;background:none;
+  width:100%;text-align:left;transition:background .12s;
+  border-bottom:1px solid var(--border2);
+}
+.user-dropdown-item:last-child{border-bottom:none;}
+.user-dropdown-item:hover{background:var(--surface2);}
+.user-dropdown-item.danger{color:#c0392b;}
+
+/* Save/fav buttons on songs & scales */
+.btn-save-song{
+  padding:5px 12px;border-radius:7px;
+  border:1.5px solid var(--border2);background:transparent;
+  font-family:var(--f-mono);font-size:10px;color:var(--ink4);
+  cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:5px;
+}
+.btn-save-song:hover,.btn-save-song.saved{
+  border-color:var(--jade);color:var(--jade);background:var(--jade4);
+}
+.fav-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:7px;
+  border:1.5px solid var(--border2);background:transparent;
+  font-size:14px;cursor:pointer;transition:all .13s;
+  flex-shrink:0;
+}
+.fav-btn:hover,.fav-btn.on{
+  border-color:var(--saffron);background:var(--saffron4);
+  transform:scale(1.1);
+}
+
+/* Modal overlay */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:2000;display:flex;align-items:center;justify-content:center;
+  padding:20px;animation:fadeIn .18s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;box-shadow:var(--shadow-lg);
+  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  animation:slideUp .18s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 14px;border-bottom:1px solid var(--border2);
+}
+.modal-title{font-family:var(--f-serif);font-size:20px;font-weight:700;color:var(--ink);}
+.modal-close{
+  width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--ink4);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;
+}
+.modal-close:hover{background:var(--surface2);color:var(--ink);}
+.modal-body{padding:20px;}
+
+/* Feedback form */
+.fb-field{margin-bottom:16px;}
+.fb-label{
+  display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;
+  color:var(--ink4);text-transform:uppercase;margin-bottom:6px;
+}
+.fb-input,.fb-select,.fb-textarea{
+  width:100%;padding:9px 12px;border-radius:8px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  font-family:var(--f-sans);font-size:13px;color:var(--ink);
+  transition:border-color .13s;outline:none;
+}
+.fb-input:focus,.fb-select:focus,.fb-textarea:focus{border-color:var(--lapis);}
+.fb-textarea{min-height:80px;resize:vertical;line-height:1.5;}
+.fb-rating{display:flex;gap:8px;margin-top:4px;}
+.fb-star{
+  font-size:22px;cursor:pointer;transition:transform .1s;
+  filter:grayscale(1);opacity:.4;
+}
+.fb-star.on,.fb-star:hover{filter:none;opacity:1;transform:scale(1.15);}
+.fb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.fb-chip{
+  padding:4px 10px;border-radius:16px;border:1.5px solid var(--border2);
+  background:transparent;font-family:var(--f-mono);font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .12s;
+}
+.fb-chip.on{background:var(--lapis3);border-color:var(--lapis);color:var(--lapis);}
+.fb-submit{
+  width:100%;padding:11px;border-radius:10px;
+  border:none;background:var(--jade);color:#fff;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:1px;
+  cursor:pointer;transition:all .14s;margin-top:8px;
+}
+.fb-submit:hover{background:var(--jade2);}
+.fb-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+/* Saved songs panel */
+.saved-song-card{
+  border:1.5px solid var(--border2);border-radius:10px;
+  padding:12px 14px;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);transition:border-color .13s;cursor:pointer;
+}
+.saved-song-card:hover{border-color:var(--lapis);}
+.ssc-info{flex:1;min-width:0;}
+.ssc-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ssc-meta{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:2px;letter-spacing:.3px;}
+.ssc-del{
+  padding:4px 8px;border-radius:6px;border:1px solid var(--border2);
+  background:none;color:var(--ink4);cursor:pointer;font-size:11px;
+  transition:all .12s;flex-shrink:0;
+}
+.ssc-del:hover{border-color:#c0392b;color:#c0392b;}
+
+/* Config panel */
+.config-field{margin-bottom:14px;}
+.config-label{font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;display:block;}
+.config-input{width:100%;padding:8px 12px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:12px;color:var(--ink);outline:none;transition:border-color .13s;}
+.config-input:focus{border-color:var(--lapis);}
+.config-note{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:4px;line-height:1.6;}
 </style>
 </head>
 <body>
@@ -574,6 +731,22 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
     <button class="v-btn" id="darkToggle">◑ Dark</button>
+    <div class="user-menu" id="userMenu">
+      <button class="auth-btn" id="authBtn" title="Sign in with Google">
+        <span id="authBtnIcon">☁</span>
+        <span id="authBtnLabel">Sign In</span>
+      </button>
+      <div class="user-dropdown" id="userDropdown" style="display:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border2)">
+          <div id="userDropName" style="font-family:var(--f-serif);font-size:14px;font-weight:700;color:var(--ink)"></div>
+          <div id="userDropEmail" style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:2px"></div>
+        </div>
+        <button class="user-dropdown-item" id="ddSavedSongs">♬ Saved Songs</button>
+        <button class="user-dropdown-item" id="ddFavScales">★ Favourite Scales</button>
+        <button class="user-dropdown-item" id="ddFeedback">✎ Leave Feedback</button>
+        <button class="user-dropdown-item danger" id="ddSignOut">↩ Sign Out</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -743,7 +916,14 @@ function diatonicChords(root,ivs,jazz){
 let ROOT='C',VIEW='scale',JAZZ=false,INDIAN=false,OPEN_SCALE=null,OPEN_MODE=null,OPEN_THAAT=null,OPEN_RAGA=null;
 let dcLit=new Set();
 let CURRENT_SONG=null;
-let SELECTED_GENRE='jazz';
+let SELECTED_GENRES=new Set(['jazz']); // multi-select set
+// Helper: primary genre (first selected, or 'jazz')
+function primaryGenre(){return [...SELECTED_GENRES][0]||'jazz';}
+// Helper: sorted genre key for fusion lookup
+function fusionKey(){return [...SELECTED_GENRES].sort().join('+');}
+// Legacy compat alias used internally
+Object.defineProperty(window,'SELECTED_GENRE',{get:()=>primaryGenre(),set:(v)=>{SELECTED_GENRES=new Set([v]);}});
+
 
 // ── Swara names ──
 const SWARAS={0:'Sa',1:'re♭',2:'Re',3:'ga♭',4:'Ga',5:'Ma',6:'Ma#',7:'Pa',8:'dha♭',9:'Dha',10:'ni♭',11:'Ni'};
@@ -1680,8 +1860,437 @@ function addPassingChords(prog){
   return result.slice(0,prog.length+2);
 }
 
+
+// ══════════════════════════════════════════════════
+// ── FUSION RECIPES ──
+// Keyed by sorted genre pairs (e.g. "blues+jazz")
+// Each recipe blends two genres into a unified musical identity
+// ══════════════════════════════════════════════════
+const FUSION_RECIPES = {
+  // ── Jazz + Blues (Jazz Blues) ──
+  'blues+jazz':{
+    label:'Jazz Blues',icon:'🎷🎸',
+    tempos:['Slow Jazz Blues (♩=60)','Medium Swing Blues (♩=100)','Up-tempo Blues (♩=160)'],
+    styleNote:'Dominant 7ths with jazz extensions · ii-V-I over blues form · tritone subs · chord-tone targeting',
+    formAlts:['12-bar (Jazz Blues)','AABA','12-bar (Chicago)'],
+    signatureForm:'12-bar (Jazz Blues)',
+    progressions:{
+      major:[
+        ['I7','IV7','I7','bVII7', 'IV7','#IVdim','I7','VI7', 'II7','V7','I7','II7 V7'],
+        ['Imaj7','IV9','iii7','VI7', 'ii7','V7','Imaj7','VI7', 'II7','bII7','Imaj7','VI7 II7 V7'],
+      ],
+      minor:[
+        ['im7','iv7','im7','bVII7', 'iv7','#IVdim','im7','VI7', 'II7','V7','im7','II7 V7'],
+      ],
+      bridge:[['II7','V7','I7','I7'],['IV7','bII7','I7','VI7']],
+    },
+    melodyHints:[
+      'Target the 3rd and 7th of each chord on the downbeat — guide tones define the harmony.',
+      'Use bebop scale runs through the blues changes — chromatic passing tones connect chord tones.',
+      'Over the #IVdim: play the tritone of V7 — they share the same guide tones.',
+      'ii-V-I resolution at the turnaround: outline each chord in 2 beats, land on the Imaj7.',
+      'Blend the blues scale into jazz lines — use the b5 (blue note) as a chromatic approach.',
+    ],
+    description:'The great American synthesis — blues emotional rawness dressed in jazz harmonic sophistication. Every chord is a dominant 7th or higher extension. The 12-bar form stays intact; the harmony moves like a jazz standard inside it.',
+  },
+
+  // ── Funk + Rock ──
+  'funk+rock':{
+    label:'Funk Rock',icon:'🔥🎸',
+    tempos:['Tight Groove (♩=96)','Funk Rock (♩=112)','Hard Funk (♩=126)'],
+    styleNote:'16th-note syncopation · power chords + dominant 7ths · riff-based · modal',
+    formAlts:['Verse-Chorus','Groove-based','ABA'],
+    signatureForm:'Verse-Chorus',
+    progressions:{
+      major:[
+        ['I7','♭VII','IV','I7'],['I9','IV7','♭VII','I9'],
+        ['I7','♭III','IV','I7'],['I7','ii7','♭VII','I7'],
+      ],
+      minor:[
+        ['i7','♭VII','♭VI','i7'],['i9','iv7','♭VII','i9'],
+        ['i7','♭VI','♭VII','i7'],
+      ],
+      bridge:[['IV7','♭VII','I7'],['♭VI','♭VII','i7']],
+    },
+    melodyHints:[
+      'Riff on the I7 — syncopate the attack on the "and" of beat 2.',
+      'Power chord stabs on upbeats, funk scratches between the beats.',
+      'Use pentatonic minor with b7 extensions — the Hendrix zone.',
+      'Call-and-response between riff and fills: 3 beats riff, 1 beat answer.',
+    ],
+    description:'Heavy syncopation meets raw power. Dominant 7ths where rock would use triads; modal flatted 7ths where funk would sit on one chord. Think RHCP, Rage Against the Machine, Living Colour.',
+  },
+
+  // ── Jazz + Funk ──
+  'funk+jazz':{
+    label:'Jazz Funk',icon:'🎷🔥',
+    tempos:['Mid Jazz Funk (♩=96)','Funky Jazz (♩=110)','Fast Fusion (♩=130)'],
+    styleNote:'Extended dominant chords · 16th-note feel · ii-V motion · chromatic bass lines',
+    formAlts:['Groove-based','AABA','Vamp'],
+    signatureForm:'Groove-based',
+    progressions:{
+      major:[
+        ['I9','IV9','iii7','VI9'],['I9','♭VII9','IV9','I9'],
+        ['ii9','V13','Imaj9','VI9'],['I9','ii9','I9','V9'],
+      ],
+      minor:[
+        ['im9','♭VII9','♭VI9','♭VII9'],['im9','iv9','V9','im9'],
+        ['im9','♭VImaj9','♭VII9','im9'],
+      ],
+      bridge:[['IV9','♭II7','I9'],['II9','V13','Imaj9']],
+    },
+    melodyHints:[
+      'Land on the 9th of each chord on beat 1 — the jazz-funk money note.',
+      'Syncopate the melodic line against the 16th-note groove.',
+      'Short bebop phrases between the beats — answer the bass riff.',
+      'Use the Dorian mode for improvisation over minor vamps.',
+    ],
+    description:'Miles Davis "In a Silent Way", Herbie Hancock "Chameleon", Headhunters. Extensions up to the 13th, rhythmic precision of funk, harmonic depth of jazz.',
+  },
+
+  // ── Electronic + Rock ──
+  'house+rock':{
+    label:'Electronic Rock',icon:'🎛️🎸',
+    tempos:['Indie Electronic (♩=120)','Electro Rock (♩=128)','Industrial Rock (♩=132)'],
+    styleNote:'Four-on-the-floor + guitar riffs · synth pads · power chords + maj7s',
+    formAlts:['Verse-Chorus','Intro-Drop-Breakdown-Drop-Outro','ABA'],
+    signatureForm:'Verse-Chorus',
+    progressions:{
+      major:[
+        ['I','♭VII','IV','I'],['Imaj7','IV','V','I'],
+        ['I','♭VII','♭VI','♭VII'],['I','vi','IV','V'],
+      ],
+      minor:[
+        ['i','♭VII','♭VI','♭VII'],['i7','iv7','♭VII','i7'],
+        ['i','♭VI','♭VII','i'],
+      ],
+      bridge:[['♭VI','♭VII','i'],['IV','V','I']],
+    },
+    melodyHints:[
+      'Synth melody doubles the guitar riff an octave up.',
+      'Use reverb-heavy arpeggios over rock power chord changes.',
+      'Drop the guitar on the breakdown — let synth pads breathe.',
+    ],
+    description:'Nine Inch Nails, Radiohead OK Computer, Crystal Castles. The collision of organic guitar aggression with electronic precision and texture.',
+  },
+
+  // ── Ambient + Jazz ──
+  'ambient+jazz':{
+    label:'Ambient Jazz',icon:'🌊🎷',
+    tempos:['Floating Jazz (♩=60)','Slow Drift (♩=72)','Modal Pulse (♩=80)'],
+    styleNote:'maj9 · sustained voicings · modal stasis · spacious harmony · no cadences',
+    formAlts:['Through-composed','AABA','Drone'],
+    signatureForm:'Through-composed',
+    progressions:{
+      major:[
+        ['Imaj9','IVmaj9','Imaj9','♭VIImaj7'],
+        ['Imaj9','iii7','IVmaj9','Imaj9'],
+        ['Imaj7','♭VIImaj7','IVmaj7','Imaj7'],
+      ],
+      minor:[
+        ['im9','♭VImaj9','♭VIImaj7','im9'],
+        ['im11','♭VImaj9','♭VII','im11'],
+      ],
+      bridge:[['IVmaj9','Imaj9'],['♭VImaj9','♭VIImaj9']],
+    },
+    melodyHints:[
+      'Sustain a single note through two chord changes — let the harmony move beneath.',
+      'Modal melody: stay within one scale, let the chords drift under.',
+      'Space is the melody. Silence between notes IS the phrase.',
+      'Use the 11th and 13th as resting points — suspended tension with no resolution needed.',
+    ],
+    description:'ECM Records sound — Keith Jarrett, Jan Garbarek, Nils Petter Molvær. Jazz harmony emptied of urgency, stretched into atmosphere.',
+  },
+
+  // ── Blues + Rock ──
+  'blues+rock':{
+    label:'Blues Rock',icon:'🎸🎸',
+    tempos:['Classic Blues Rock (♩=100)','Hard Blues (♩=120)','Fast Blues Rock (♩=150)'],
+    styleNote:'Power chords + dominant 7ths · pentatonic · Hendrix chord · riff-driven',
+    formAlts:['12-bar (Blues-Rock)','Verse-Chorus','12-bar (Chicago)'],
+    signatureForm:'12-bar (Blues-Rock)',
+    progressions:{
+      major:[
+        ['I7','IV7','I7','I7','IV7','#IVdim','I7','VI7','II7','V7','I7','V7#9'],
+        ['I7','♭VII','IV7','I7'],['I7','IV7','♭VII','I7'],
+      ],
+      minor:[
+        ['i7','iv7','i7','i7','iv7','#IVdim','i7','VI7','II7','V7','i7','V7#9'],
+        ['i7','♭VII','♭VI','♭VII'],
+      ],
+      bridge:[['II7','V7','I7','I7'],['♭VI','♭VII','i7']],
+    },
+    melodyHints:[
+      'Bend the b3 into the 3rd — the defining blues-rock expression.',
+      'Use pentatonic minor with the added #4 (blue note) for Hendrix colour.',
+      'V7#9 turnaround: clash the major and minor 3rd simultaneously.',
+      'Riff on the I7 for bars 1-4, move it to IV7 keeping the same shape.',
+    ],
+    description:'Cream, Led Zeppelin, Stevie Ray Vaughan. The 12-bar form with rock energy — power and distortion applied to blues harmony. Every dominant 7th hits harder.',
+  },
+
+  // ── Lo-fi + Jazz ──
+  'jazz+lofi':{
+    label:'Lo-fi Jazz',icon:'📻🎷',
+    tempos:['Lazy Jazz (♩=70)','Chill Swing (♩=80)','Dusty Bop (♩=90)'],
+    styleNote:'maj7 · min9 · ii-V-I · vinyl texture · understated swing · no pressure',
+    formAlts:['AABA','Loop','Verse-Chorus'],
+    signatureForm:'AABA',
+    progressions:{
+      major:[
+        ['Imaj7','vi7','ii7','V7'],['Imaj9','iii7','vi7','ii7'],
+        ['I6','IVmaj7','ii7','V7'],['Imaj7','♭III°7','ii7','V7'],
+      ],
+      minor:[
+        ['im7','♭VImaj7','♭III7','♭VII7'],['im9','iv9','♭VII7','♭III7'],
+      ],
+      bridge:[['IVmaj7','♭II7','Imaj7'],['ii7','V7','Imaj9']],
+    },
+    melodyHints:[
+      'Play slightly behind the beat — lo-fi is never rushing.',
+      "Hum the melody: if it doesn’t feel natural to hum, simplify.",
+      'One phrase, then space. The vinyl crackle fills the silence.',
+      'Use the 9th as the melody note on maj7 chords — the Satie touch.',
+    ],
+    description:'The Study lo-fi playlist, Nujabes, J Dilla. Jazz harmony deliberately slowed down, worn out, cassette-warped. Comfort over complexity.',
+  },
+
+  // ── Folk + Jazz ──
+  'folk+jazz':{
+    label:'Folk Jazz',icon:'🪕🎷',
+    tempos:['Acoustic Ballad (♩=60)','Walking Folk (♩=90)','Celtic Jazz (♩=110)'],
+    styleNote:'Diatonic + extensions · modal flavour · ii-V with open voicings · acoustic texture',
+    formAlts:['AABA','Verse-Chorus','Through-composed'],
+    signatureForm:'AABA',
+    progressions:{
+      major:[
+        ['Imaj7','IV','V7','Imaj7'],['Imaj7','ii7','IV','V7'],
+        ['I','iii7','IVmaj7','V7'],['Imaj7','♭VII','IV','V7'],
+      ],
+      minor:[
+        ['im7','♭VII','♭VI','V7'],['im7','iv','♭VII','im7'],
+      ],
+      bridge:[['IVmaj7','V7','Imaj7'],['♭VII','IV','Imaj7']],
+    },
+    melodyHints:[
+      'Singable melody first — jazz extensions colour it, not define it.',
+      'Use a modal drone root under jazz voicings for Celtic-jazz feel.',
+      'Simple stepwise motion with unexpected jazz chord underneath.',
+    ],
+    description:'Django Reinhardt, Pat Metheny folk side, Nickel Creek. Acoustic intimacy with harmonic sophistication. The melody is always folk; the chords are jazz.',
+  },
+
+  // ── Bossa Nova + Jazz ──
+  'bossa+jazz':{
+    label:'Bossa Jazz',icon:'🌴🎷',
+    tempos:['Slow Jobim (♩=100)','Medium Bossa (♩=130)','Samba Jazz (♩=155)'],
+    styleNote:'ii-V-I · chromatic mediants · Jobim extensions · Brazilian rhythm',
+    formAlts:['AABA','Through-composed','16-bar'],
+    signatureForm:'AABA',
+    progressions:{
+      major:[
+        ['Imaj7','♭III7','ii7','♭II7'],['Imaj9','VI7','IIImaj7','♭III7'],
+        ['ii9','V13','Imaj9','♭VIImaj7'],['Imaj7','IVmaj7','♭IV°7','iii7'],
+      ],
+      minor:[
+        ['im9','iv9','V7sus','V7'],['im7','♭VII7','♭VImaj7','V7'],
+      ],
+      bridge:[['♭II7','V7','Imaj9'],['IV7♯11','♭IV°7','iii7','♭III7']],
+    },
+    melodyHints:[
+      'Anticipate the chord by a half beat — bossa melody always leans forward.',
+      'Use the 9th and 13th as primary melody notes — Jobim signature.',
+      "Speak the melody, don’t sing it — intimate, conversational tone.",
+    ],
+    description:'The Getz/Gilberto synthesis. Brazilian rhythmic feel with bebop harmonic complexity. Chromatic voice leading, Coltrane-influenced substitutions, samba feel.',
+  },
+
+  // ── Ambient + Electronic (Techno) ──
+  'ambient+techno':{
+    label:'Dark Ambient / Industrial',icon:'🌊⚡',
+    tempos:['Slow Industrial (♩=90)','Dark Pulse (♩=110)','Ambient Techno (♩=120)'],
+    styleNote:'Modal stasis · dissonant tension · minimalist repetition · textural',
+    formAlts:['Drone','Hypnotic Loop','Through-composed'],
+    signatureForm:'Drone',
+    progressions:{
+      major:[['Imaj7','♭VIImaj7'],['i','♭II'],['Imaj7','♭IImaj7']],
+      minor:[
+        ['i','♭II'],['im7','♭VImaj7'],['i','♭VII','♭VI','♭VII'],
+      ],
+      bridge:[['♭II','i'],['♭VII','♭VI']],
+    },
+    melodyHints:[
+      'No melody — texture IS the musical statement.',
+      'A single held note against shifting harmony is enough.',
+      'Modal drones: the tonic never moves; the world moves around it.',
+    ],
+    description:'Aphex Twin Selected Ambient Works Vol.2, Basic Channel, early Autechre. Electronic minimalism with harmonic darkness. Repetition as hypnosis.',
+  },
+
+  // ── House + Jazz ──
+  'house+jazz':{
+    label:'Jazz House',icon:'🎛️🎷',
+    tempos:['Deep Jazz House (♩=120)','Classic Jazz House (♩=126)','Acid Jazz (♩=130)'],
+    styleNote:'Four-on-the-floor + maj9/min9 chords · soulful vocal chops · ii-V-I over dance groove',
+    formAlts:['Intro-Drop-Breakdown-Drop-Outro','AABA','Build-Drop'],
+    signatureForm:'Intro-Drop-Breakdown-Drop-Outro',
+    progressions:{
+      major:[
+        ['Imaj9','IVmaj9','ii9','V9'],['Imaj9','vi9','ii9','V9'],
+        ['I6','♭III°7','ii9','♭II7'],
+      ],
+      minor:[
+        ['im9','♭VImaj9','♭VII9','im9'],['im9','iv9','V9','im9'],
+      ],
+      bridge:[['ii9','V13','Imaj9'],['♭II9','V9','Imaj9']],
+    },
+    melodyHints:[
+      'Vocal chop on the 9th — the Kerri Chandler signature.',
+      'Piano comping on the upbeat 16th, chord stabs between the kick.',
+      'Sustained jazz pad under the drop — let the chord ring for 4 bars.',
+    ],
+    description:'Larry Heard, Kerri Chandler, Incognito. Four-on-the-floor discipline with jazz harmonic richness. The chord changes are bebop; the feel is the dance floor.',
+  },
+
+  // ── Lo-fi + Blues ──
+  'blues+lofi':{
+    label:'Lo-fi Blues',icon:'📻🎸',
+    tempos:['Slow Lo-fi Blues (♩=60)','Dusty Blues (♩=80)','Lazy Shuffle (♩=90)'],
+    styleNote:'Dominant 7ths + jazz voicings · vinyl warmth · understated blues feel',
+    formAlts:['12-bar (Chicago)','AABA','Loop'],
+    signatureForm:'12-bar (Chicago)',
+    progressions:{
+      major:[
+        ['I7','IV7','I7','I7','IV7','IV7','I7','I7','V7','IV7','I7','V7'],
+        ['I9','IV9','I9','I9','IV9','IV9','I9','I9','V9','IV9','I9','V7'],
+      ],
+      minor:[
+        ['i7','iv7','i7','i7','iv7','iv7','i7','i7','V7','iv7','i7','V7'],
+      ],
+      bridge:[['IV9','V9','I7','I7'],['II9','V9','I9','I9']],
+    },
+    melodyHints:[
+      'Play slightly behind the grid — lo-fi blues never rushes.',
+      'Use the b3 and b7 as resting tones — no need to resolve.',
+      'A simple three-note riff repeated with tiny variations carries everything.',
+    ],
+    description:'A worn-out record of country blues played through a bedroom amp. Dominant 7ths with lazy 9th extensions, tape hiss, and no urgency. Robert Johnson through a lo-fi lens.',
+  },
+
+  // ── Classical + Jazz ──
+  'classical+jazz':{
+    label:'Third Stream',icon:'🎻🎷',
+    tempos:['Slow Fusion (♩=60)','Andante Jazz (♩=90)','Allegro Jazz (♩=130)'],
+    styleNote:'Voice leading + jazz extensions · counterpoint + ii-V · classical form with jazz harmony',
+    formAlts:['Sonata','AABA','Through-composed'],
+    signatureForm:'AABA',
+    progressions:{
+      major:[
+        ['Imaj7','ii7','V7','Imaj7'],['I','IV','♭II7','I'],
+        ['Imaj7','iii7','vi7','♭II7','Imaj7'],
+        ['I','♭VII7','IVmaj7','V7'],
+      ],
+      minor:[
+        ['im7','ii°7','V7','im7'],['im7','♭VImaj7','♭II7','im7'],
+      ],
+      bridge:[['♭II7','V7','Imaj7'],['IV','ii7','♭II7','I']],
+    },
+    melodyHints:[
+      'Strict voice leading between chords — every voice moves by step where possible.',
+      'Use jazz extensions on classical cadences — V9 instead of V7 on the dominant.',
+      'Counterpoint between bass line and melody — independent voices over jazz harmony.',
+    ],
+    description:"Gunther Schuller Third Stream — the fusion of classical compositional rigor and jazz improvisation. Bach voice-leading applied to Coltrane changes.",
+  },
+
+  // ── DnB + Jazz ──
+  'dnb+jazz':{
+    label:'Jazz DnB / Liquid',icon:'🥁🎷',
+    tempos:['Liquid DnB (♩=170)','Jazz DnB (♩=174)','Atmospheric DnB (♩=172)'],
+    styleNote:'Half-time jazz feel · maj7/min9 · amen break · sophisticated harmony at speed',
+    formAlts:['Intro-Drop-Break-Drop','Liquid','AABA'],
+    signatureForm:'Liquid',
+    progressions:{
+      major:[
+        ['Imaj7','♭VIImaj7','IVmaj7','Imaj7'],
+        ['Imaj9','vi7','ii7','V7'],
+        ['I6','IVmaj7','ii7','V7'],
+      ],
+      minor:[
+        ['im9','♭VImaj9','♭VII','im9'],['im7','iv7','♭VII','♭III'],
+      ],
+      bridge:[['IVmaj7','V7','Imaj7'],['ii7','♭II7','im7']],
+    },
+    melodyHints:[
+      'Sax or piano melody over the amen break — jazz phrasing at 174bpm.',
+      'Half-time feel: phrase across 2 bars as if it were 1 bar at 87bpm.',
+      'Use jazz extensions for the pad, keep the bass line minimal and deep.',
+    ],
+    description:'LTJ Bukem, Goldie "Inner City Life", Hospital Records. Amen breaks under jazz harmony and soulful singing. The most lyrical form of drum and bass.',
+  },
+
+  // ── Folk + Blues ──
+  'blues+folk':{
+    label:'Country Blues / Roots',icon:'🪕🎸',
+    tempos:['Delta Slow (♩=54)','Country Walk (♩=80)','Upbeat Roots (♩=100)'],
+    styleNote:'Open tunings · dominant 7ths · modal folk feel · acoustic Delta',
+    formAlts:['12-bar (Delta)','Verse-Chorus','Ballad (AABB)'],
+    signatureForm:'12-bar (Delta)',
+    progressions:{
+      major:[
+        ['I7','I7','I7','I7','IV7','IV7','I7','I7','V7','V7','I7','I7'],
+        ['I','IV','I','V'],['I','IV','V','IV'],
+      ],
+      minor:[
+        ['i7','i7','i7','i7','iv7','iv7','i7','i7','V7','V7','i7','i7'],
+        ['i','VII','VI','VII'],
+      ],
+      bridge:[['IV','V','I'],['♭VII','IV','I']],
+    },
+    melodyHints:[
+      'Open string drones underneath the melody — acoustic resonance.',
+      'Simple pentatonic melody with blue notes as passing tones.',
+      'Call-and-response: vocal phrase answered by guitar line.',
+    ],
+    description:'Robert Johnson, Mississippi John Hurt, early Bob Dylan. The acoustic origin point — where blues and Appalachian folk traditions meet. No electrification, maximum soul.',
+  },
+};
+
+// Get fusion recipe for current selection (or null if single/unsupported combo)
+function getFusionRecipe(){
+  if(SELECTED_GENRES.size<=1) return null;
+  const key=fusionKey();
+  return FUSION_RECIPES[key]||null;
+}
+
+// Get effective genre data (fusion recipe or single genre)
+function getEffectiveGenre(){
+  const fusion=getFusionRecipe();
+  if(fusion){
+    // Build a genre-like object from the fusion recipe
+    return {
+      label:fusion.label, icon:fusion.icon,
+      forms:fusion.formAlts, signatureForm:fusion.signatureForm,
+      formAlts:fusion.formAlts, tempos:fusion.tempos,
+      styleNote:fusion.styleNote,
+      progressions:fusion.progressions,
+      jazzMods: fusion.jazzMods || GENRES[primaryGenre()]?.jazzMods || {},
+      isFusion:true, fusionKey:fusionKey(), recipe:fusion,
+    };
+  }
+  return GENRES[primaryGenre()]||GENRES.jazz;
+}
+
+// Build fusion genre label for display
+function getFusionLabel(){
+  const fusion=getFusionRecipe();
+  if(fusion) return fusion.icon+' '+fusion.label;
+  const g=GENRES[primaryGenre()];
+  return (g?.icon||'♬')+' '+(g?.label||'Jazz');
+}
+
 function generateSong(formOverride){
-  const genre=GENRES[SELECTED_GENRE];
+  const genre=getEffectiveGenre();
   if(!genre) return null;
   const cx=COMPLEXITY[SONG_COMPLEXITY]||COMPLEXITY.medium;
 
@@ -1689,7 +2298,7 @@ function generateSong(formOverride){
   const scaleName=getCurrentScaleName();
   const isMin=isMinorish(scaleIvs);
 
-  const thaatProgs=getThaatProgressions(SELECTED_GENRE);
+  const thaatProgs=getThaatProgressions(primaryGenre());
   let progPool=thaatProgs?(isMin?thaatProgs.minor:thaatProgs.major):(isMin?genre.progressions.minor:genre.progressions.major);
   let bridgePool=thaatProgs?thaatProgs.bridge:(genre.progressions.bridge||[]);
   if(!progPool||!progPool.length) progPool=isMin?genre.progressions.minor:genre.progressions.major;
@@ -1833,12 +2442,12 @@ function generateSong(formOverride){
   // Resolve all chords
   const resolvedSections=sections.filter(s=>s.prog&&s.prog.length>0).map(s=>({
     ...s,
-    resolvedChords:s.prog.map(r=>resolveChord(upgradeRoman(r,SELECTED_GENRE),ROOT,scaleIvs,SELECTED_GENRE,JAZZ))
+    resolvedChords:s.prog.map(r=>resolveChord(upgradeRoman(r,primaryGenre()),ROOT,scaleIvs,primaryGenre(),JAZZ))
   }));
 
   const titles=SONG_THAAT&&THAAT_TITLES[SONG_THAAT]
     ?(()=>{const t=pick(THAAT_TITLES[SONG_THAAT]);return{title:t[0],subtitle:t[1]};})()
-    :genSongTitle(SELECTED_GENRE,scaleName,isMin);
+    :genSongTitle(primaryGenre(),scaleName,isMin);
 
   const thaatCtx=SONG_THAAT&&THAAT_SONG[SONG_THAAT]?{
     name:SONG_THAAT,western:THAAT_SONG[SONG_THAAT].western,
@@ -1849,7 +2458,7 @@ function generateSong(formOverride){
   return{
     title:titles.title,subtitle:titles.subtitle,
     genre:genre.label,genreIcon:genre.icon,
-    form,tempo,scaleName,scaleIvs,isMin,
+    form,tempo,scaleName,scaleIvs,isMin,fusionLabel:getFusionLabel(),
     styleNote:genre.styleNote,
     sections:resolvedSections,
     totalBars:resolvedSections.reduce((s,sec)=>s+(sec.bars||sec.prog.length),0),
@@ -1969,6 +2578,11 @@ function melodyHint(section, isMin, scaleIvs, genreKey){
       'Use modal colour: rest on the ♭7 or ♭3 to give a folk / Celtic feel.',
     ],
   };
+  // Fusion: use recipe melody hints if available
+  const fusionRec=getFusionRecipe();
+  if(fusionRec&&fusionRec.melodyHints&&fusionRec.melodyHints.length){
+    return pick(fusionRec.melodyHints);
+  }
   // Blues: use theory-correct bluesMelodyHint keyed to arc + level
   if(genreKey==='blues'&&section){
     const level=bluesLevel(CURRENT_SONG?.form||'12-bar (Chicago)', SONG_COMPLEXITY);
@@ -2015,7 +2629,7 @@ function fmtJazzChord(root, q){
 // ── Song Rendering ──
 function renderSongView(){
   const v=document.getElementById('songView');v.innerHTML='';
-  const genre=GENRES[SELECTED_GENRE];
+  const genre=getEffectiveGenre();
 
   // Context: what scale/mode/thaat is active
   const activeScale=OPEN_SCALE?ROOT+' '+OPEN_SCALE:null;
@@ -2025,15 +2639,26 @@ function renderSongView(){
   const thaatCtxBox=OPEN_THAAT&&THAAT_SONG[OPEN_THAAT]?`
     <span style="font-family:var(--f-mono);font-size:10px;color:var(--saffron);background:var(--saffron4);padding:3px 8px;border-radius:5px;border:1px solid var(--saffron3)">🪔 ${OPEN_THAAT} · ${THAAT_SONG[OPEN_THAAT].swaras}</span>`:'' ;
 
-  // Genre pills
-  const genrePills=Object.entries(GENRES).map(([k,g])=>`<button class="genre-pill${k===SELECTED_GENRE?' on':''}" data-genre="${k}">${g.icon} ${g.label}</button>`).join('');
+  // Genre pills — multi-select
+  const fusion=getFusionRecipe();
+  const fusionBadge=fusion
+    ?`<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;background:linear-gradient(135deg,var(--jade4),var(--lapis4));border:1.5px solid var(--lapis3);margin-bottom:10px;flex-wrap:wrap">
+        <span style="font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--lapis)">${fusion.icon} ${fusion.label}</span>
+        <span style="font-family:var(--f-mono);font-size:9px;color:var(--ink3);flex:1;line-height:1.5">${fusion.description}</span>
+        <button onclick="SELECTED_GENRES=new Set(['jazz']);renderSongView()" style="font-family:var(--f-mono);font-size:9px;padding:3px 8px;border-radius:5px;border:1px solid var(--border2);background:var(--surface);color:var(--ink4);cursor:pointer">✕ Clear</button>
+      </div>`
+    :(SELECTED_GENRES.size>1
+      ?`<div style="padding:7px 12px;border-radius:8px;background:rgba(255,160,0,.08);border:1px solid rgba(255,160,0,.2);margin-bottom:10px;font-family:var(--f-mono);font-size:10px;color:rgba(200,130,0,1)">⚡ Fusion blend — no dedicated recipe yet. Using <strong>${primaryGenre()}</strong> as primary with blended progressions.</div>`
+      :'');
+  const genrePills=Object.entries(GENRES).map(([k,g])=>`<button class="genre-pill${SELECTED_GENRES.has(k)?' on':''} genre-multi-pill" data-genre="${k}" title="${SELECTED_GENRES.has(k)&&SELECTED_GENRES.size>1?'Click to remove from fusion':'Click to select / add to fusion'}">${g.icon} ${g.label}${SELECTED_GENRES.has(k)&&SELECTED_GENRES.size>1?' ✕':''}</button>`).join('');
 
   // Complexity selector
   const cxPills=Object.entries(COMPLEXITY).map(([k,c])=>`<button class="cx-pill${k===SONG_COMPLEXITY?' on':''}" data-cx="${k}" title="${c.desc}">${c.label}</button>`).join('');
 
   // Form alternatives for current genre
-  const formAlts=(genre?.formAlts||genre?.forms||[]);
-  const SELECTED_FORM=CURRENT_SONG?CURRENT_SONG.form:(genre?.signatureForm||formAlts[0]||'');
+  const effGenre=getEffectiveGenre();
+  const formAlts=(effGenre?.formAlts||effGenre?.forms||[]);
+  const SELECTED_FORM=CURRENT_SONG?CURRENT_SONG.form:(effGenre?.signatureForm||formAlts[0]||'');
   const formPills=formAlts.map(f=>`<button class="form-alt-pill${f===SELECTED_FORM?' on':''}" data-form="${f}">${f}</button>`).join('');
 
   v.innerHTML=`
@@ -2043,7 +2668,8 @@ function renderSongView(){
       ${thaatCtxBox}
       ${JAZZ?'<span style="font-family:var(--f-mono);font-size:10px;color:var(--lapis);background:var(--lapis4);padding:3px 8px;border-radius:5px;border:1px solid var(--lapis3)">● Jazz+ ON</span>':''}
     </div>
-    <div class="sec" style="margin-bottom:6px">Genre</div>
+    <div class="sec" style="margin-bottom:6px">Genre <span style="font-family:var(--f-mono);font-size:9px;color:var(--ink4);font-weight:400;letter-spacing:0">— select multiple for fusion</span></div>
+    ${fusionBadge}
     <div class="genre-row" style="margin-bottom:14px">${genrePills}</div>
     <div class="sec" style="margin-bottom:6px">Form</div>
     <div class="genre-row" id="formAltRow" style="margin-bottom:14px">${formPills}</div>
@@ -2054,12 +2680,25 @@ function renderSongView(){
       <button class="btn-shuffle" id="shuffleSongBtn">⟳ Regenerate</button>
       <button class="btn-copy" id="copySongBtn">⎘ Copy</button>
       <button class="btn-midi" id="midiSongBtn">⬇ MIDI</button>
+      <button class="btn-save-song" id="saveSongBtn">☁ Save</button>
     </div>
     <div id="songOutput"></div>`;
 
-  // Wire genre
-  v.querySelectorAll('.genre-pill[data-genre]').forEach(p=>p.addEventListener('click',()=>{
-    SELECTED_GENRE=p.dataset.genre;CURRENT_SONG=null;renderSongView();
+  // Wire genre pills — multi-select toggle
+  v.querySelectorAll('.genre-multi-pill[data-genre]').forEach(p=>p.addEventListener('click',e=>{
+    const k=p.dataset.genre;
+    if(SELECTED_GENRES.has(k)){
+      if(SELECTED_GENRES.size>1) SELECTED_GENRES.delete(k);
+      // Don't deselect last one
+    } else {
+      if(SELECTED_GENRES.size>=2){
+        // Replace oldest (keep only 2 for meaningful fusion)
+        const first=[...SELECTED_GENRES][0];
+        SELECTED_GENRES.delete(first);
+      }
+      SELECTED_GENRES.add(k);
+    }
+    CURRENT_SONG=null;renderSongView();
   }));
   // Wire form alts
   v.querySelectorAll('.form-alt-pill[data-form]').forEach(p=>p.addEventListener('click',()=>{
@@ -2079,6 +2718,13 @@ function renderSongView(){
   });
   v.querySelector('#copySongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)copySongToClipboard(CURRENT_SONG);});
   v.querySelector('#midiSongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)downloadMidi(CURRENT_SONG);});
+  v.querySelector('#saveSongBtn')?.addEventListener('click',async()=>{
+    const btn=v.querySelector('#saveSongBtn'); if(!CURRENT_SONG) return;
+    btn.textContent='Saving…'; btn.disabled=true;
+    const ok=await saveSong(CURRENT_SONG);
+    if(ok){ btn.textContent='✓ Saved'; btn.classList.add('saved'); setTimeout(()=>{btn.textContent='☁ Save';btn.disabled=false;btn.classList.remove('saved');},2500); }
+    else { btn.textContent='☁ Save'; btn.disabled=false; }
+  });
 }
 function displaySong(song){
   const out=document.getElementById('songOutput');
@@ -2189,7 +2835,7 @@ function displaySong(song){
         <div class="song-title">${song.title}</div>
         <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);font-style:italic;margin-bottom:8px">${song.subtitle}</div>
         <div class="song-meta-row">
-          <span class="song-tag genre-tag">${song.genreIcon} ${song.genre}</span>
+          <span class="song-tag genre-tag">${song.fusionLabel||((song.genreIcon||'♬')+' '+song.genre)}</span>
           <span class="song-tag key-tag">♩ ${song.scaleName}</span>
           ${song.useJazz?'<span class="song-tag jazz-tag">Jazz+</span>':''}
           ${song.thaatCtx?`<span class="song-tag" style="color:var(--saffron);border-color:var(--saffron3);background:var(--saffron4)">🪔 ${song.thaatCtx.name}</span>`:''}
@@ -2294,7 +2940,7 @@ function getArpNotes(scaleIvs, rootNote, patternKey){
 }
 
 function renderArpPanel(rootNote, scaleIvs, scaleName){
-  const genreKey=SELECTED_GENRE||'default';
+  const genreKey=primaryGenre()||'default';
   const recs=GENRE_ARP_RECS[genreKey]||GENRE_ARP_RECS.thaat||GENRE_ARP_RECS.default;
   // Show recommended first, then all others
   const allKeys=Object.keys(ARP_PATTERNS);
@@ -2349,7 +2995,7 @@ function wireArpPanel(container, rootNote, scaleIvs){
   });
   
   // Auto-render the first recommended pattern
-  const genreKey=SELECTED_GENRE||'default';
+  const genreKey=primaryGenre()||'default';
   const firstRec=(GENRE_ARP_RECS[genreKey]||GENRE_ARP_RECS.default)[0];
   if(firstRec){
     ACTIVE_ARP=firstRec;
@@ -2727,6 +3373,7 @@ function renderScale(){
     ${chordGridHTML(chords)}`;
   wireXlinks(v);
   wireChordGridDL(v, chords, ROOT+'_'+OPEN_SCALE);
+  injectFavBtn(v, ROOT+'|'+OPEN_SCALE, ROOT+' '+OPEN_SCALE);
 }
 
 // ── Render: Mode ──
@@ -2756,6 +3403,7 @@ function renderMode(){
     ${chordGridHTML(chords)}`;
   wireXlinks(v);
   wireChordGridDL(v, chords, mr+'_'+m.n);
+  injectFavBtn(v, mr+'|'+m.n, mr+' '+m.n);
 }
 
 // ── Render: Thaat ──
@@ -2793,6 +3441,7 @@ function renderThaat(){
     ${secLbl('Ragas of '+OPEN_THAAT)}
     <div class="raga-grid">${tiles}</div>`;
 
+  injectFavBtn(con, ROOT+'|'+OPEN_THAAT+' Thaat', ROOT+' '+OPEN_THAAT);
   wireXlinks(con);
   con.querySelectorAll('.raga-tile[data-raga]').forEach(t=>t.addEventListener('click',()=>renderRaga(t.dataset.raga)));
   // Wire thaat chord table download buttons
@@ -3210,6 +3859,532 @@ function downloadArpMidiAdvanced(notes, rootNote, patternKey, noteLen, reps, lab
   a.click();
   setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
+
+
+// ══════════════════════════════════════════════════
+// ── SUPABASE + AUTH + DATA LAYER ──
+// ══════════════════════════════════════════════════
+
+// ─── CONFIG ────────────────────────────────────────
+// Replace these with your actual Supabase project values
+// Get them from: https://app.supabase.com → Project → Settings → API
+const SUPA_URL = 'https://xslzrjozwolrhlfooglz.supabase.co';      
+const SUPA_KEY = 'sb_publishable_fITmtdDWWQ9ljgNUueubXA_-bYI6ESl'; 
+
+
+let _supa = null;
+let _user = null;
+let _favScales = new Set(); // Set of "root|scaleName" strings
+
+function supabase(){
+  if(!_supa && window.supabase?.createClient){
+    try{
+      _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+    } catch(e){
+      console.warn('Supabase init failed:', e);
+    }
+  }
+  return _supa;
+}
+
+function isSupaConfigured(){
+  return SUPA_URL !== 'YOUR_SUPABASE_URL' && SUPA_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+}
+
+// ── Auth ──
+async function signInWithGoogle(){
+  if(!isSupaConfigured()){showConfigModal();return;}
+  const sb = supabase();
+  if(!sb) return;
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if(error) console.error('Sign in error:', error);
+}
+
+async function signOut(){
+  const sb = supabase(); if(!sb) return;
+  await sb.auth.signOut();
+  _user = null; _favScales.clear();
+  updateAuthUI();
+}
+
+async function getSession(){
+  const sb = supabase(); if(!sb) return null;
+  const { data } = await sb.auth.getSession();
+  return data?.session || null;
+}
+
+function updateAuthUI(){
+  const btn = document.getElementById('authBtn');
+  const iconEl = document.getElementById('authBtnIcon');
+  const labelEl = document.getElementById('authBtnLabel');
+  if(!btn) return;
+  if(_user){
+    btn.classList.add('signed-in');
+    iconEl.innerHTML = _user.user_metadata?.avatar_url
+      ? `<img src="${_user.user_metadata.avatar_url}" alt="">`
+      : '●';
+    labelEl.textContent = _user.user_metadata?.full_name?.split(' ')[0] || 'Me';
+    document.getElementById('userDropName').textContent = _user.user_metadata?.full_name || '';
+    document.getElementById('userDropEmail').textContent = _user.email || '';
+  } else {
+    btn.classList.remove('signed-in');
+    iconEl.textContent = '☁';
+    labelEl.textContent = 'Sign In';
+  }
+}
+
+// ── Saved Songs ──
+async function saveSong(song){
+  if(!_user){ showLoginPrompt('Save songs'); return; }
+  const sb = supabase(); if(!sb) return;
+  const payload = {
+    user_id: _user.id,
+    title: song.title,
+    genre: song.fusionLabel || song.genre,
+    form: song.form,
+    tempo: song.tempo,
+    scale_name: song.scaleName,
+    key_root: ROOT,
+    complexity: song.complexity,
+    sections: song.sections.map(s=>({label:s.label, prog:s.prog})),
+    created_at: new Date().toISOString(),
+  };
+  const { error } = await sb.from('saved_songs').insert(payload);
+  if(error){ console.error('Save error:', error); return false; }
+  return true;
+}
+
+async function loadSavedSongs(){
+  if(!_user) return [];
+  const sb = supabase(); if(!sb) return [];
+  const { data, error } = await sb.from('saved_songs')
+    .select('*').eq('user_id', _user.id)
+    .order('created_at', { ascending: false }).limit(50);
+  if(error){ console.error(error); return []; }
+  return data || [];
+}
+
+async function deleteSavedSong(id){
+  const sb = supabase(); if(!sb) return;
+  await sb.from('saved_songs').delete().eq('id', id).eq('user_id', _user.id);
+}
+
+// ── Favourite Scales ──
+async function loadFavScales(){
+  if(!_user) return;
+  const sb = supabase(); if(!sb) return;
+  const { data } = await sb.from('fav_scales')
+    .select('scale_key').eq('user_id', _user.id);
+  _favScales = new Set((data||[]).map(r=>r.scale_key));
+  // Re-render fav buttons if any are visible
+  document.querySelectorAll('.fav-btn[data-scale-key]').forEach(btn=>{
+    btn.classList.toggle('on', _favScales.has(btn.dataset.scaleKey));
+    btn.title = _favScales.has(btn.dataset.scaleKey) ? 'Remove from favourites' : 'Add to favourites';
+  });
+}
+
+async function toggleFavScale(scaleKey){
+  if(!_user){ showLoginPrompt('Favourite scales'); return; }
+  const sb = supabase(); if(!sb) return;
+  if(_favScales.has(scaleKey)){
+    _favScales.delete(scaleKey);
+    await sb.from('fav_scales').delete().eq('user_id',_user.id).eq('scale_key',scaleKey);
+  } else {
+    _favScales.add(scaleKey);
+    await sb.from('fav_scales').insert({ user_id:_user.id, scale_key:scaleKey, label:scaleKey });
+  }
+  document.querySelectorAll(`.fav-btn[data-scale-key="${scaleKey}"]`).forEach(btn=>{
+    btn.classList.toggle('on', _favScales.has(scaleKey));
+    btn.title = _favScales.has(scaleKey) ? 'Remove from favourites' : 'Add to favourites';
+    if(_favScales.has(scaleKey)){
+      btn.style.transform='scale(1.3)';
+      setTimeout(()=>btn.style.transform='',300);
+    }
+  });
+}
+
+// ── Feedback ──
+async function submitFeedback(payload){
+  if(!isSupaConfigured()){ alert('Connect Supabase first to submit feedback.'); return false; }
+  const sb = supabase(); if(!sb) return false;
+  const row = {
+    ...payload,
+    user_id: _user?.id || null,
+    user_email: _user?.email || null,
+    created_at: new Date().toISOString(),
+    app_version: '2.0',
+  };
+  const { error } = await sb.from('feedback').insert(row);
+  if(error){ console.error('Feedback error:', error); return false; }
+  return true;
+}
+
+// ── UI Helpers ──
+function showLoginPrompt(feature){
+  showModal(`
+    <div class="modal-header">
+      <span class="modal-title">Sign in to use this feature</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:30px 20px">
+      <div style="font-size:40px;margin-bottom:12px">☁</div>
+      <div style="font-family:var(--f-serif);font-size:18px;font-weight:700;margin-bottom:8px">${feature} requires an account</div>
+      <div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);margin-bottom:20px;line-height:1.7">Sign in with Google to save songs,<br>favourite scales, and submit feedback.</div>
+      <button class="fb-submit" style="max-width:220px;display:inline-flex;align-items:center;gap:8px;justify-content:center" onclick="closeModal();signInWithGoogle()">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+  `);
+}
+
+function showConfigModal(){
+  showModal(`
+    <div class="modal-header">
+      <span class="modal-title">🔧 Connect Supabase</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-family:var(--f-mono);font-size:11px;color:var(--ink3);line-height:1.7;margin-bottom:16px">
+        To enable auth, saved songs, and feedback — connect your Supabase project.<br>
+        Open the HTML file and replace the two config values near the top of the script.
+      </p>
+      <div class="config-field">
+        <label class="config-label">SUPA_URL</label>
+        <input class="config-input" readonly value="${SUPA_URL}" onclick="this.select()">
+        <div class="config-note">Find at: supabase.com → your project → Settings → API → Project URL</div>
+      </div>
+      <div class="config-field">
+        <label class="config-label">SUPA_KEY (anon/public)</label>
+        <input class="config-input" readonly value="${SUPA_KEY}" onclick="this.select()">
+        <div class="config-note">Find at: supabase.com → your project → Settings → API → anon key</div>
+      </div>
+      <div style="margin-top:16px;padding:12px 14px;border-radius:8px;background:var(--jade4);border:1px solid var(--jade3)">
+        <div style="font-family:var(--f-mono);font-size:10px;color:var(--jade);font-weight:600;margin-bottom:6px">REQUIRED SUPABASE TABLES</div>
+        <pre style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.8;white-space:pre-wrap">saved_songs: id, user_id, title, genre, form, tempo, scale_name, key_root, complexity, sections (jsonb), created_at
+
+fav_scales: id, user_id, scale_key, label, created_at
+
+feedback: id, user_id, user_email, rating, background, instrument, tab_used, genres_used, worked_well, didnt_work, wrong_info, features_used (jsonb), missing_features, priorities (jsonb), other_notes, created_at, app_version</pre>
+      </div>
+      <div style="margin-top:12px;padding:12px 14px;border-radius:8px;background:var(--lapis4);border:1px solid var(--lapis3)">
+        <div style="font-family:var(--f-mono);font-size:10px;color:var(--lapis);font-weight:600;margin-bottom:6px">ROW LEVEL SECURITY (RLS)</div>
+        <pre style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.8;white-space:pre-wrap">Enable RLS on all three tables.
+Policy: users can only SELECT/INSERT/DELETE their own rows where user_id = auth.uid()</pre>
+      </div>
+      <div style="margin-top:12px;padding:12px 14px;border-radius:8px;background:var(--saffron4);border:1px solid var(--saffron3)">
+        <div style="font-family:var(--f-mono);font-size:10px;color:var(--saffron);font-weight:600;margin-bottom:6px">GOOGLE OAUTH SETUP</div>
+        <pre style="font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.8;white-space:pre-wrap">1. Supabase → Authentication → Providers → Google → Enable
+2. Add your Google OAuth client ID & secret
+3. Add your site URL to redirect URLs
+4. (Get OAuth credentials from console.cloud.google.com)</pre>
+      </div>
+    </div>
+  `);
+}
+
+function showModal(html){
+  let overlay = document.getElementById('modalOverlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'modalOverlay';
+    overlay.className = 'modal-overlay';
+    overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+    document.body.appendChild(overlay);
+  }
+  const box = document.createElement('div');
+  box.className = 'modal-box';
+  box.innerHTML = html;
+  overlay.innerHTML = '';
+  overlay.appendChild(box);
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(){
+  const overlay = document.getElementById('modalOverlay');
+  if(overlay){ overlay.style.display='none'; overlay.innerHTML=''; }
+  document.body.style.overflow = '';
+}
+
+// ── Saved Songs Modal ──
+async function showSavedSongs(){
+  if(!_user){ showLoginPrompt('Saved Songs'); return; }
+  showModal(`<div class="modal-header"><span class="modal-title">♬ Saved Songs</span><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><div id="savedSongsList" style="min-height:60px"><div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:20px">Loading…</div></div></div>`);
+  const songs = await loadSavedSongs();
+  const list = document.getElementById('savedSongsList');
+  if(!list) return;
+  if(!songs.length){
+    list.innerHTML=`<div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:30px">No saved songs yet.<br>Generate a song and click Save.</div>`;
+    return;
+  }
+  list.innerHTML = songs.map(s=>`
+    <div class="saved-song-card" data-song-id="${s.id}">
+      <div class="ssc-info">
+        <div class="ssc-title">${s.title}</div>
+        <div class="ssc-meta">${s.genre} · ${s.key_root} · ${s.form} · ${s.tempo}</div>
+      </div>
+      <button class="ssc-del" data-del="${s.id}" title="Delete">🗑</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.ssc-del[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      const id = btn.dataset.del;
+      btn.textContent='…';
+      await deleteSavedSong(id);
+      btn.closest('.saved-song-card').remove();
+      if(!list.querySelector('.saved-song-card'))
+        list.innerHTML=`<div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:30px">No saved songs.</div>`;
+    });
+  });
+}
+
+// ── Favourite Scales Modal ──
+async function showFavScales(){
+  if(!_user){ showLoginPrompt('Favourite Scales'); return; }
+  showModal(`<div class="modal-header"><span class="modal-title">★ Favourite Scales</span><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body"><div id="favScalesList"><div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:20px">Loading…</div></div></div>`);
+  const sb=supabase(); if(!sb) return;
+  const {data}=await sb.from('fav_scales').select('*').eq('user_id',_user.id).order('created_at',{ascending:false});
+  const list=document.getElementById('favScalesList');
+  if(!list) return;
+  if(!data||!data.length){
+    list.innerHTML=`<div style="font-family:var(--f-mono);font-size:11px;color:var(--ink4);text-align:center;padding:30px">No favourited scales yet.<br>Use the ★ button on any scale, mode or thaat.</div>`;
+    return;
+  }
+  list.innerHTML=data.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2)">
+      <div style="flex:1;font-family:var(--f-mono);font-size:12px;color:var(--ink)">${s.label}</div>
+      <button style="padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--ink4);cursor:pointer;font-family:var(--f-mono);font-size:10px" onclick="toggleFavScale('${s.scale_key}');this.closest('[style]').remove()">Remove</button>
+    </div>
+  `).join('');
+}
+
+// ── Feedback Modal ──
+let _fbRating = 0;
+let _fbFeaturesUsed = new Set();
+let _fbPriorities = new Set();
+
+function showFeedbackModal(){
+  showModal(`
+    <div class="modal-header">
+      <span class="modal-title">✎ Share Feedback</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Rating -->
+      <div class="fb-field">
+        <label class="fb-label">Overall Rating</label>
+        <div class="fb-rating" id="fbStars">
+          ${[1,2,3,4,5].map(n=>`<span class="fb-star" data-star="${n}">★</span>`).join('')}
+        </div>
+      </div>
+
+      <!-- About you -->
+      <div class="fb-field">
+        <label class="fb-label">Musical Background</label>
+        <select class="fb-select" id="fbBackground">
+          <option value="">Select…</option>
+          <option>Beginner</option><option>Intermediate</option>
+          <option>Advanced</option><option>Professional</option>
+        </select>
+      </div>
+      <div class="fb-field">
+        <label class="fb-label">Primary Instrument / Role</label>
+        <input class="fb-input" id="fbInstrument" placeholder="e.g. Guitar, Producer, Composer…">
+      </div>
+
+      <!-- Context -->
+      <div class="fb-field">
+        <label class="fb-label">Which tab were you using?</label>
+        <select class="fb-select" id="fbTab">
+          <option value="">Select…</option>
+          <option>Scales</option><option>Modes</option><option>Thaats</option>
+          <option>Song Generator</option><option>Arpeggio</option><option>Multiple</option>
+        </select>
+      </div>
+      <div class="fb-field">
+        <label class="fb-label">Genre(s) you worked with</label>
+        <input class="fb-input" id="fbGenres" placeholder="e.g. Jazz Blues, Funk Rock…">
+      </div>
+
+      <!-- Core feedback -->
+      <div class="fb-field">
+        <label class="fb-label">What worked well?</label>
+        <textarea class="fb-textarea" id="fbWorkedWell" placeholder="What did you enjoy or find useful?"></textarea>
+      </div>
+      <div class="fb-field">
+        <label class="fb-label">What didn't work or felt off?</label>
+        <textarea class="fb-textarea" id="fbDidntWork" placeholder="Anything confusing, broken, or frustrating?"></textarea>
+      </div>
+      <div class="fb-field">
+        <label class="fb-label">Any musically incorrect information?</label>
+        <textarea class="fb-textarea" id="fbWrongInfo" placeholder="Chord names, progressions, theory errors…"></textarea>
+      </div>
+
+      <!-- Features -->
+      <div class="fb-field">
+        <label class="fb-label">Features you actually used</label>
+        <div class="fb-chips" id="fbFeaturesRow">
+          ${['Chord Grid','Diatonic Notes','Song Generator','MIDI Export','Arpeggio','Fusion Genres','Scale Favourites','Thaat / Raga','Complexity Levels','Form Selector'].map(f=>`<button class="fb-chip" data-feat="${f}">${f}</button>`).join('')}
+        </div>
+      </div>
+      <div class="fb-field">
+        <label class="fb-label">Missing genres, scales, ragas, or features</label>
+        <textarea class="fb-textarea" id="fbMissing" placeholder="What would you add?" style="min-height:60px"></textarea>
+      </div>
+
+      <!-- Priorities -->
+      <div class="fb-field">
+        <label class="fb-label">Top priorities for next version (pick up to 3)</label>
+        <div class="fb-chips" id="fbPrioritiesRow">
+          ${['Audio Playback','More Ragas','Sheet Music Export','Mobile App','More Genres','Community Sharing','Video Tutorials','DAW Plugin','Notation View','Performance Mode'].map(p=>`<button class="fb-chip" data-pri="${p}">${p}</button>`).join('')}
+        </div>
+      </div>
+
+      <!-- Open field -->
+      <div class="fb-field">
+        <label class="fb-label">Anything else</label>
+        <textarea class="fb-textarea" id="fbOther" placeholder="Any other thoughts, ideas, or context…"></textarea>
+      </div>
+
+      <button class="fb-submit" id="fbSubmitBtn">Submit Feedback</button>
+      <div id="fbStatus" style="font-family:var(--f-mono);font-size:11px;color:var(--jade);text-align:center;margin-top:8px;display:none"></div>
+    </div>
+  `);
+
+  // Wire stars
+  document.querySelectorAll('.fb-star').forEach(s=>{
+    s.addEventListener('click',()=>{
+      _fbRating=+s.dataset.star;
+      document.querySelectorAll('.fb-star').forEach((x,i)=>x.classList.toggle('on',i<_fbRating));
+    });
+  });
+
+  // Wire feature chips
+  document.querySelectorAll('#fbFeaturesRow .fb-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      chip.classList.toggle('on');
+      if(chip.classList.contains('on')) _fbFeaturesUsed.add(chip.dataset.feat);
+      else _fbFeaturesUsed.delete(chip.dataset.feat);
+    });
+  });
+
+  // Wire priority chips (max 3)
+  document.querySelectorAll('#fbPrioritiesRow .fb-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      if(!chip.classList.contains('on')&&_fbPriorities.size>=3) return;
+      chip.classList.toggle('on');
+      if(chip.classList.contains('on')) _fbPriorities.add(chip.dataset.pri);
+      else _fbPriorities.delete(chip.dataset.pri);
+    });
+  });
+
+  // Wire submit
+  document.getElementById('fbSubmitBtn')?.addEventListener('click', async()=>{
+    const btn=document.getElementById('fbSubmitBtn');
+    const status=document.getElementById('fbStatus');
+    btn.disabled=true; btn.textContent='Submitting…';
+    const ok = await submitFeedback({
+      rating: _fbRating,
+      background: document.getElementById('fbBackground').value,
+      instrument: document.getElementById('fbInstrument').value,
+      tab_used: document.getElementById('fbTab').value,
+      genres_used: document.getElementById('fbGenres').value,
+      worked_well: document.getElementById('fbWorkedWell').value,
+      didnt_work: document.getElementById('fbDidntWork').value,
+      wrong_info: document.getElementById('fbWrongInfo').value,
+      features_used: [..._fbFeaturesUsed],
+      missing_features: document.getElementById('fbMissing').value,
+      priorities: [..._fbPriorities],
+      other_notes: document.getElementById('fbOther').value,
+    });
+    if(ok){
+      btn.style.display='none';
+      status.style.display='block';
+      status.textContent='✓ Thank you! Your feedback has been submitted.';
+      _fbFeaturesUsed.clear(); _fbPriorities.clear(); _fbRating=0;
+    } else {
+      btn.disabled=false; btn.textContent='Submit Feedback';
+      status.style.display='block';
+      status.style.color='#c0392b';
+      status.textContent='Could not submit. Check your Supabase connection.';
+    }
+  });
+}
+
+// ── Wire auth button & dropdown ──
+document.addEventListener('DOMContentLoaded',()=>{});
+
+// Auth button click
+document.getElementById('authBtn')?.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(_user){
+    const dd=document.getElementById('userDropdown');
+    dd.style.display=dd.style.display==='none'?'block':'none';
+  } else {
+    signInWithGoogle();
+  }
+});
+
+// Close dropdown on outside click
+document.addEventListener('click',()=>{
+  document.getElementById('userDropdown').style.display='none';
+});
+
+// Dropdown items
+document.getElementById('ddSavedSongs')?.addEventListener('click',()=>{ closeDropdown(); showSavedSongs(); });
+document.getElementById('ddFavScales')?.addEventListener('click',()=>{ closeDropdown(); showFavScales(); });
+document.getElementById('ddFeedback')?.addEventListener('click',()=>{ closeDropdown(); showFeedbackModal(); });
+document.getElementById('ddSignOut')?.addEventListener('click',()=>{ closeDropdown(); signOut(); });
+
+function closeDropdown(){ document.getElementById('userDropdown').style.display='none'; }
+
+// ── Init Supabase session ──
+(async()=>{
+  if(!isSupaConfigured()) return;
+  const sb = supabase(); if(!sb) return;
+
+  // Handle OAuth redirect
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){ _user = session.user; updateAuthUI(); await loadFavScales(); }
+
+  // Listen for auth state changes
+  sb.auth.onAuthStateChange(async(_event, session)=>{
+    _user = session?.user || null;
+    updateAuthUI();
+    if(_user) await loadFavScales();
+  });
+})();
+
+// ── Add fav button to scale/mode/thaat renders ──
+// Called at end of renderScale, renderMode, renderThaat — injects star button
+function injectFavBtn(container, scaleKey, labelText){
+  const hero = container.querySelector('.scale-hero-name,.thaat-hero-name');
+  if(!hero || container.querySelector('.fav-btn')) return;
+  const btn = document.createElement('button');
+  btn.className = 'fav-btn';
+  btn.dataset.scaleKey = scaleKey;
+  btn.innerHTML = '★';
+  btn.title = _favScales.has(scaleKey) ? 'Remove from favourites' : 'Add to favourites';
+  btn.classList.toggle('on', _favScales.has(scaleKey));
+  btn.addEventListener('click', ()=>toggleFavScale(scaleKey));
+  hero.style.display='flex'; hero.style.alignItems='center'; hero.style.gap='10px';
+  hero.appendChild(btn);
+}
+
+// Also expose a feedback button in the footer area
+(()=>{
+  const fb = document.createElement('button');
+  fb.className = 'v-btn';
+  fb.style.cssText='position:fixed;bottom:20px;right:20px;z-index:100;box-shadow:0 4px 14px rgba(0,0,0,.15);background:var(--surface)';
+  fb.innerHTML = '✎ Feedback';
+  fb.addEventListener('click', showFeedbackModal);
+  document.body.appendChild(fb);
+})();
 
 // ── Init ──
 setView('scale');showEmpty('Choose a category above, then select from the dropdown');
