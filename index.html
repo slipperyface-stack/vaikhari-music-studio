@@ -730,7 +730,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 <div class="v-header">
   <div class="v-wordmark">
     <div class="v-name">Vaikhari</div>
-    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.7</div>
+    <div class="v-tagline">Unified Music Theory Portal &nbsp;·&nbsp; v2.8</div>
   </div>
   <div class="v-ctrls">
     <button class="v-btn indian" id="indianToggle">🪔 Indian</button>
@@ -1506,6 +1506,211 @@ function getCurrentScaleName(){
 function isMinorish(ivs){
   // Check if scale has a minor third (interval 3)
   return ivs.includes(3);
+}
+
+
+// ══════════════════════════════════════════════════
+// ── MODE-AWARE PROGRESSIONS ──
+// Each mode has characteristic progressions that
+// exploit its unique intervals. These are used
+// when a mode is selected in the Song generator.
+// ══════════════════════════════════════════════════
+const MODE_PROGRESSIONS = {
+  Ionian: {
+    // Standard major — same as genre major progressions
+    character: 'Bright · Resolved · Classical',
+    styleNote: 'Standard diatonic major. All genre progressions apply.',
+    useGenre: true, // delegate to genre progressions
+  },
+
+  Dorian: {
+    // Minor with raised 6th — the "cool" minor
+    // Characteristic: i–IV (the ♮6 appears as major IV)
+    // Used in: So What (Miles), Scarborough Fair, Santana
+    character: 'Cool · Jazzy · Soulful · Medieval',
+    styleNote: 'Minor with ♮6 — the i–IV move is the Dorian signature. Major IV over minor i.',
+    major: [
+      ['i','IV','i','IV'],          // The Dorian move — minor i, MAJOR IV
+      ['i','IV','♭VII','i'],        // So What voicing
+      ['i','ii','♭VII','i'],        // Minor ii (not dim) — Dorian gift
+      ['i','IV','V','i'],           // Adds dominant function
+      ['i','♭VII','IV','i'],        // Rock Dorian
+      ['i','ii','IV','i'],          // ii is minor (not dim) in Dorian
+    ],
+    minor: [
+      ['i','IV','i','IV'],
+      ['i','IV','♭VII','i'],
+      ['i','ii','♭VII','i'],
+    ],
+    bridge: [
+      ['IV','♭VII','i'],['ii','V','i'],['IV','ii','i'],
+    ],
+    melodyHints: [
+      'The raised 6th (♮6) over the i chord is the Dorian colour note. Land there.',
+      'Play the major IV chord — the contrast against minor i IS the Dorian feeling.',
+      'Use the Dorian scale for solos: same as natural minor but with a raised 6th.',
+      'The ii chord is minor (not diminished) — a gift from Dorian. Use it for forward motion.',
+    ],
+  },
+
+  Phrygian: {
+    // Minor with ♭2 — Spanish/Flamenco/Metal character
+    // Characteristic: i–♭II (the half-step above tonic)
+    // Used in: Flamenco, heavy metal, Rodrigo Concierto de Aranjuez
+    character: 'Dark · Spanish · Intense · Exotic',
+    styleNote: '♭II is the Phrygian signature — the half-step above the tonic creates intense pull.',
+    major: [
+      ['i','♭II','i','♭II'],        // The Phrygian move
+      ['i','♭II','♭VII','i'],       // Spanish Phrygian
+      ['i','♭VII','♭VI','♭VII'],    // Descending Phrygian tetrachord
+      ['i','♭II','♭VII','♭VI'],     // Full descending
+      ['i','♭VI','♭VII','♭II'],     // Modal turnaround
+      ['i','♭II','V','i'],          // With raised V for tension
+    ],
+    minor: [
+      ['i','♭II','i','♭II'],
+      ['i','♭VII','♭VI','♭VII'],
+      ['i','♭II','♭VII','i'],
+    ],
+    bridge: [
+      ['♭II','♭VII','i'],['♭VI','♭VII','i'],['♭II','V','i'],
+    ],
+    melodyHints: [
+      'The ♭2 is the Phrygian note — approach the tonic from a half-step above.',
+      'Descending tetrachord: root → ♭7 → ♭6 → ♭5. This is Flamenco.',
+      'The ♭II chord functions as a substitute dominant — it resolves to i like a V.',
+      'Stay close to the tonic. Phrygian melodies circle the root obsessively.',
+    ],
+  },
+
+  Lydian: {
+    // Major with ♯4 — dreamy, cinematic, floating
+    // Characteristic: I–II (major II chord from the ♯4)
+    // Used in: John Williams film scores, Joe Satriani, Debussy
+    character: 'Dreamy · Cinematic · Ethereal · Bright',
+    styleNote: '♯4 produces a major II chord — the I–II move is uniquely Lydian. Unresolved, floating.',
+    major: [
+      ['I','II','I','II'],          // The Lydian move — major I to major II
+      ['I','II','♭VII','I'],        // Extended Lydian
+      ['I','II','vi','I'],          // Softer Lydian
+      ['I','vi','II','I'],          // Lydian with colour
+      ['Imaj7','II','iii','II'],    // Cinematic Lydian
+      ['I','II','IV','I'],          // ♯4 IV sounds normal here
+    ],
+    minor: [
+      ['I','II','I','II'],
+      ['I','vi','II','I'],
+    ],
+    bridge: [
+      ['II','I'],['vi','II','I'],['iii','II','I'],
+    ],
+    melodyHints: [
+      'The ♯4 is the Lydian note — it creates a dreamy, unresolved tension. Rest there.',
+      'The II chord (major) is built on the ♯4 — it never quite resolves, always floating.',
+      'Avoid strong V–I cadences — Lydian floats. Let phrases end on I without V setup.',
+      'Film composers use Lydian for wonder and magic. Let the ♯4 shimmer.',
+    ],
+  },
+
+  Mixolydian: {
+    // Major with ♭7 — bluesy, rock, dominant feel
+    // Characteristic: I–♭VII (the flatted 7th gives rock/blues colour)
+    // Used in: Norwegian Wood, Sweet Home Chicago, virtually all rock
+    character: 'Bluesy · Rock · Dominant · Earthy',
+    styleNote: '♭7 makes the tonic a dominant 7th. I–♭VII is the Mixolydian signature — "the rock move".',
+    major: [
+      ['I','♭VII','IV','I'],        // Classic Mixolydian rock
+      ['I','♭VII','I','♭VII'],      // Simple Mixo vamp
+      ['I','IV','♭VII','I'],        // Ascending Mixo
+      ['I','♭VII','♭VI','IV'],      // Extended Mixo
+      ['I7','IV7','♭VII7','I7'],    // All dominant 7ths
+      ['I','ii','♭VII','I'],        // With ii colour
+    ],
+    minor: [
+      ['I','♭VII','IV','I'],
+      ['I7','IV7','♭VII7','I7'],
+    ],
+    bridge: [
+      ['IV','♭VII','I'],['ii','♭VII','I'],['♭VII','IV','I'],
+    ],
+    melodyHints: [
+      'The ♭7 is the Mixolydian note — use it freely in melody over the I chord.',
+      'I–♭VII is the rock Mixolydian move. The ♭7 chord has the same root as scale degree 7.',
+      'Solo with major pentatonic + ♭7. That is the Mixolydian pentatonic.',
+      'The tonic chord IS a dominant 7th. Lean into that unresolved quality.',
+    ],
+  },
+
+  Aeolian: {
+    // Natural minor — same as minor key
+    // Has its own characteristic progressions distinct from harmonic/melodic minor
+    character: 'Sad · Introspective · Natural · Dark',
+    styleNote: 'Natural minor — v is minor (not V7). The ♭6 and ♭7 give Aeolian its darkness.',
+    major: [
+      ['i','♭VII','♭VI','♭VII'],    // Aeolian characteristic
+      ['i','♭VI','♭VII','i'],       // The "pop minor" loop
+      ['i','v','♭VI','♭VII'],       // Minor v (Aeolian, no leading tone)
+      ['i','♭VI','♭III','♭VII'],    // Medieval Aeolian
+      ['i','iv','♭VII','i'],        // With iv subdominant
+      ['i','♭VII','iv','i'],        // Descending Aeolian
+    ],
+    minor: [
+      ['i','♭VII','♭VI','♭VII'],
+      ['i','♭VI','♭VII','i'],
+      ['i','iv','♭VII','i'],
+    ],
+    bridge: [
+      ['♭VI','♭VII','i'],['iv','♭VII','i'],['♭III','♭VII','i'],
+    ],
+    melodyHints: [
+      'The ♭6 and ♭7 define Aeolian — avoid the raised 7th (leading tone). Stay natural.',
+      'Use the minor v chord (not V7) — the lack of a leading tone is pure Aeolian.',
+      'The ♭VII chord is almost as stable as i — move between them freely.',
+      'Descend: i → ♭VII → ♭VI → ♭VII → i. This is the Aeolian melodic signature.',
+    ],
+  },
+
+  Locrian: {
+    // Diminished mode — the unstable, tense, avant-garde mode
+    // Characteristic: i° (diminished tonic), ♭II
+    // Used in: jazz (half-diminished chords), metal, avant-garde
+    character: 'Tense · Unstable · Dark · Avant-garde',
+    styleNote: 'The tonic chord is diminished — inherently unstable. ♭II provides the only major chord.',
+    major: [
+      ['i°','♭II','i°','♭II'],      // The Locrian oscillation
+      ['i°','♭II','♭VII','i°'],     // Extended Locrian
+      ['i°','♭V','♭II','i°'],       // Tritone from tonic
+      ['im7b5','♭II','im7b5','♭II'],// Half-dim voicing
+    ],
+    minor: [
+      ['i°','♭II','i°','♭II'],
+      ['im7b5','♭II','im7b5','♭II'],
+    ],
+    bridge: [
+      ['♭II','♭VII','i°'],['♭V','♭II','i°'],
+    ],
+    melodyHints: [
+      'The tonic is unstable — lean into that. Locrian never fully resolves.',
+      'The ♭2 and ♭5 are the defining Locrian intervals. Use them prominently.',
+      'Treat ♭II as a temporary resolution — the only major chord in the mode.',
+      'Jazz half-diminished chords (ø7) are built on Locrian. Think ii° in minor jazz.',
+    ],
+  },
+};
+
+// ── Get mode-specific progressions for song generation ──
+function getModeProgressions(modeIdx){
+  if(modeIdx === null || modeIdx < 0 || !MODES[modeIdx]) return null;
+  const modeName = MODES[modeIdx].n;
+  const modeData = MODE_PROGRESSIONS[modeName];
+  if(!modeData || modeData.useGenre) return null; // Ionian: use genre defaults
+  return modeData;
+}
+
+// ── Check if song should use modal progressions ──
+function isModalContext(){
+  return OPEN_MODE !== null && OPEN_MODE >= 0 && MODES[OPEN_MODE] &&
+         !MODES[OPEN_MODE].n.includes('Ionian'); // Ionian = standard major
 }
 
 // Get thaat-specific progressions if a thaat is selected in Song tab
@@ -2527,8 +2732,25 @@ function generateSong(formOverride){
   const isMin=isMinorish(scaleIvs);
 
   const thaatProgs=getThaatProgressions(primaryGenre());
-  let progPool=thaatProgs?(isMin?thaatProgs.minor:thaatProgs.major):(isMin?genre.progressions.minor:genre.progressions.major);
-  let bridgePool=thaatProgs?thaatProgs.bridge:(genre.progressions.bridge||[]);
+  const modeProgs=getModeProgressions(OPEN_MODE);
+
+  let progPool, bridgePool, modalStyleNote='';
+
+  if(thaatProgs){
+    // Thaat context overrides everything
+    progPool = isMin ? thaatProgs.minor : thaatProgs.major;
+    bridgePool = thaatProgs.bridge || [];
+  } else if(modeProgs){
+    // Mode context — use mode-authentic progressions
+    progPool = modeProgs.major || modeProgs.minor || [];
+    bridgePool = modeProgs.bridge || progPool;
+    modalStyleNote = modeProgs.styleNote || '';
+  } else {
+    // Genre context (default)
+    progPool = isMin ? genre.progressions.minor : genre.progressions.major;
+    bridgePool = genre.progressions.bridge || [];
+  }
+
   if(!progPool||!progPool.length) progPool=isMin?genre.progressions.minor:genre.progressions.major;
   if(!bridgePool||!bridgePool.length) bridgePool=progPool;
   if(SONG_COMPLEXITY==='simple') progPool=progPool.map(p=>p.slice(0,4));
@@ -2683,11 +2905,20 @@ function generateSong(formOverride){
     colorNote:THAAT_SONG[SONG_THAAT].colorNote,
   }:null;
 
+  // Build modal context for display
+  const modalCtx = modeProgs ? {
+    name: MODES[OPEN_MODE]?.n,
+    character: modeProgs.character,
+    styleNote: modeProgs.styleNote,
+    melodyHints: modeProgs.melodyHints,
+  } : null;
+
   return{
     title:titles.title,subtitle:titles.subtitle,
     genre:genre.label,genreIcon:genre.icon,
     form,tempo,scaleName,scaleIvs,isMin,fusionLabel:getFusionLabel(),
-    styleNote:genre.styleNote,
+    styleNote: modalCtx ? (modalCtx.character+' · '+modalCtx.styleNote) : genre.styleNote,
+    modalCtx,
     sections:resolvedSections,
     totalBars:resolvedSections.reduce((s,sec)=>s+(sec.bars||sec.prog.length),0),
     complexity:SONG_COMPLEXITY,useJazz:JAZZ,thaatCtx,
@@ -2811,6 +3042,11 @@ function melodyHint(section, isMin, scaleIvs, genreKey){
   if(fusionRec&&fusionRec.melodyHints&&fusionRec.melodyHints.length){
     return pick(fusionRec.melodyHints);
   }
+  // Modal context: use mode-specific melody hints
+  const modeData = OPEN_MODE!==null&&OPEN_MODE>=0 ? MODE_PROGRESSIONS[MODES[OPEN_MODE]?.n] : null;
+  if(modeData&&!modeData.useGenre&&modeData.melodyHints&&modeData.melodyHints.length){
+    return pick(modeData.melodyHints);
+  }
   // Blues: use theory-correct bluesMelodyHint keyed to arc + level
   if(genreKey==='blues'&&section){
     const level=bluesLevel(CURRENT_SONG?.form||'12-bar (Chicago)', SONG_COMPLEXITY);
@@ -2894,6 +3130,7 @@ function renderSongView(){
       <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink4)">Active scale:</span>
       <span style="font-family:var(--f-mono);font-size:11px;color:var(--jade);font-weight:600">${contextLabel}</span>
       ${thaatCtxBox}
+      ${modeCtxBox}
       ${JAZZ?'<span style="font-family:var(--f-mono);font-size:10px;color:var(--lapis);background:var(--lapis4);padding:3px 8px;border-radius:5px;border:1px solid var(--lapis3)">● Jazz+ ON</span>':''}
     </div>
     <div class="sec" style="margin-bottom:6px">Genre <span style="font-family:var(--f-mono);font-size:9px;color:var(--ink4);font-weight:400;letter-spacing:0">— select multiple for fusion</span></div>
