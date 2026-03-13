@@ -269,7 +269,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .rd-desc em{color:var(--saffron);font-style:italic;font-weight:600}
 
 .aa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-@media(max-width:480px){.aa-grid{grid-template-columns:1fr}}
+
 .aa-box{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:14px}
 .aa-lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:500}
 .aa-box.aroh .aa-lbl{color:var(--jade)}
@@ -492,89 +492,84 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 
 /* ── Responsive breakpoints ──────────────────────────────── */
 
-/* ── Header responsive ── */
-@media(max-width:599px){
-  .v-tagline,.v-sep{display:none}
-  .v-header{padding:0 12px;margin-bottom:8px}
-  .v-name{font-size:22px}
-  #authBtnLabel{display:none}
-  .auth-btn{padding:5px 9px;gap:0}
-  .v-btn{padding:5px 10px;font-size:10px}
-  .csel-trigger{padding:8px 11px;gap:8px}
-  #instDrop{min-width:0!important}
-  .card{border-radius:clamp(0px,2vw,var(--r-lg));border-left:none;border-right:none}
-  body{padding-left:0;padding-right:0}
-}
+/* ── Responsive ──────────────────────────── */
 
-/* xs: phones < 400px */
-@media(max-width:399px){
+/* phone portrait  ≤ 599px */
+@media(max-width:599px){
   :root{--card-w:100vw}
-  body{padding:10px 0 60px}
-  .v-header{padding:0 12px;margin-bottom:8px}
-  .v-tagline,.v-sep{display:none}
-  .v-name{font-size:20px}
-  .v-ctrls{gap:5px}
-  .v-btn{padding:5px 10px;font-size:10px}
-  .nav-tab{padding:5px 6px 6px}
-  .nav-tab-lbl{font-size:7px;letter-spacing:.3px}
-  .nav-tab-icon{font-size:13px}
+  body{padding:12px 0 56px}
+
+  /* header: single tight row, no clipping */
+  .v-header{padding:0 14px;margin-bottom:8px;gap:6px;flex-wrap:nowrap}
+  .v-wordmark{flex:1;min-width:0;overflow:hidden}
+  .v-name{font-size:22px}
+  .v-sep,.v-tagline{display:none}
+  .v-ctrls{flex-shrink:0;gap:5px;flex-wrap:nowrap}
+  .v-btn{padding:5px 10px;font-size:10px;letter-spacing:0}
+  .auth-btn{padding:5px 9px}
+  #authBtnLabel{display:none}
+  #instDrop{min-width:0!important}
+  .csel-trigger{padding:7px 10px;gap:6px}
+  .csel-main{font-size:11px}
+
+  /* card bleeds edge to edge */
+  .card{border-radius:0;border-left:none;border-right:none}
+
+  /* nav */
+  .nav-tab{padding:6px 6px 7px}
+  .nav-tab-lbl{font-size:7.5px;letter-spacing:.3px}
+  .nav-tab-icon{font-size:14px}
+
+  /* content */
+  .pad{padding:12px 14px}
   .dgrid{grid-template-columns:repeat(4,1fr)}
-  .pad{padding:12px 10px}
-  .csel-trigger{padding:9px 12px;gap:8px}
+
+  /* song meta bar */
   .smb-item{padding:8px 10px}
-  .smb-val{font-size:17px}
+  .smb-val{font-size:18px}
   .smb-lbl{font-size:8px}
+  .song-bpm-display{font-size:18px}
+
+  /* sections */
+  .ss-header{padding:8px 12px}
+  .ss-body{padding:10px 12px}
   .chord-sym-name{font-size:22px}
-  .ss-header{padding:8px 10px}
-  .ss-body{padding:10px 10px}
+  .bar-group{min-width:70px}
+
+  /* genre selector */
   .gdr-trigger{padding:6px 10px}
   .gdr-label{font-size:11px}
   .sub-chip{padding:5px 10px;font-size:10px}
+
+  /* actions */
   .btn-generate{padding:9px 16px;font-size:11px}
   .song-actions{gap:6px}
-  .bar-group{min-width:72px}
 }
 
-/* sm: phones 400–599px */
-@media(min-width:400px) and (max-width:599px){
-  :root{--card-w:min(100vw,460px)}
-  body{padding:12px 0 60px}
-  .v-tagline{display:none}
-  .v-sep{display:none}
-  .nav-tab{padding:6px 8px 7px}
-  .nav-tab-lbl{font-size:8px;letter-spacing:.4px}
-  .pad{padding:14px 14px}
-  .smb-item{padding:9px 12px}
-  .smb-val{font-size:18px}
-  .chord-sym-name{font-size:24px}
-  .bar-group{min-width:80px}
-  .gdr-trigger{padding:7px 11px}
-  .sub-chip{padding:5px 11px;font-size:10px}
-}
-
-/* md: tablets 600–819px */
+/* phone landscape / small tablet  600–819px */
 @media(min-width:600px) and (max-width:819px){
   :root{--card-w:min(96vw,680px)}
-  body{padding:16px 8px 60px}
-  .v-tagline{font-size:9px;letter-spacing:1px}
-  .nav-tab{padding:7px 11px 8px}
-  .pad{padding:16px 18px}
+  body{padding:14px 8px 60px}
+  .v-tagline{display:none}
+  .v-sep{display:none}
+  .nav-tab{padding:7px 10px 8px}
+  .pad{padding:14px 18px}
   .smb-val{font-size:20px}
-  .chord-sym-name{font-size:26px}
-  .bar-group{min-width:88px}
+  .chord-sym-name{font-size:25px}
+  .bar-group{min-width:84px}
 }
 
-/* lg: tablet-landscape / small desktop 820–1099px */
+/* tablet  820–1099px */
 @media(min-width:820px) and (max-width:1099px){
   :root{--card-w:min(92vw,820px)}
 }
 
-/* xl: desktop 1100–1399px */
+/* desktop  1100–1399px */
 @media(min-width:1100px) and (max-width:1399px){
   :root{--card-w:min(88vw,920px)}
 }
 
-/* 2xl: wide desktop 1400px+ */
+/* wide desktop  1400px+ */
 @media(min-width:1400px){
   :root{--card-w:min(80vw,1040px)}
 }
@@ -582,11 +577,9 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 /* tall screens */
 @media(min-height:900px){.content{max-height:clamp(480px,65vh,900px)}}
 
+/* arpeggio grid narrow */
 /* header: hide tagline on cramped widths via container query fallback */
-@media(max-width:520px){
-  .v-tagline,.v-sep{display:none}
-  .v-ctrls{gap:6px}
-}
+
 
 
 /* ── Chord card download button ── */
