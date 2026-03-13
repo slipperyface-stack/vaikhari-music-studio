@@ -39,7 +39,7 @@ body.dark{
 html{font-size:16px;scroll-behavior:smooth}
 body{background:var(--bg);font-family:var(--f-sans);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:clamp(10px,2vw,20px) 0 60px;transition:background .3s,color .3s}
 
-.v-header{width:100%;max-width:var(--card-w);display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:nowrap;padding:0 clamp(12px,3vw,4px);box-sizing:border-box;}
+.v-header{width:100%;max-width:var(--card-w);display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:nowrap;padding:0 clamp(14px,3vw,22px);box-sizing:border-box;}
 .v-wordmark{display:flex;align-items:baseline;gap:6px;flex:1;min-width:0;overflow:hidden;}
 .v-name{font-family:var(--f-serif);font-size:clamp(22px,5vw,28px);font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1;white-space:nowrap;flex-shrink:0;}
 .v-tagline{font-family:var(--f-mono);font-size:clamp(8px,.9vw,10px);color:var(--ink4);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}.v-sep{color:var(--ink4);font-family:var(--f-mono);font-size:12px;flex-shrink:0;}
@@ -91,7 +91,7 @@ body.dark .form-alt-pill.on{background:var(--lapis2);color:var(--bg);}
 .btn-midi:hover{background:var(--lapis3);box-shadow:0 0 0 3px var(--lapis4);}
 .btn-midi:disabled{opacity:.5;cursor:default;}
 
-.key-strip{width:100%;max-width:var(--card-w);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:0 clamp(0px,2vw,4px);box-sizing:border-box;}
+.key-strip{width:100%;max-width:var(--card-w);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:0 clamp(14px,3vw,22px);box-sizing:border-box;}
 .key-lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;color:var(--ink4);font-weight:500;text-transform:uppercase;white-space:nowrap}
 .key-row{display:flex;gap:5px;flex-wrap:wrap}
 .k{padding:6px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .13s;line-height:1}
@@ -7099,8 +7099,15 @@ function _getTip(){
     _tipEl.id = 'globalInstTip';
     _tipEl.className = 'inst-tip';
     document.body.appendChild(_tipEl);
-    // Hide tip when hovering directly out of tip
-    _tipEl.addEventListener('mouseleave', ()=>hideTip());
+    // Hide tip on mouse leave — but NOT on touch devices (touch triggers spurious mouseleave)
+    _tipEl.addEventListener('mouseleave', (e)=>{
+      // Only hide on genuine mouse events, not touch-generated ones
+      if(e.sourceCapabilities && !e.sourceCapabilities.firesTouchEvents) hideTip();
+      else if(!('ontouchstart' in window)) hideTip();
+    });
+    // Prevent any click inside the tip from bubbling to document (stops auto-close)
+    _tipEl.addEventListener('click', e=>e.stopPropagation());
+    _tipEl.addEventListener('touchend', e=>e.stopPropagation());
   }
   return _tipEl;
 }
@@ -7129,9 +7136,9 @@ function buildTipHTML(rawName){
 
   const navHTML = (INSTRUMENT!=='keyboard' && nV>1) ? `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:4px">
-      <button class="tip-nav-btn" onmousedown="event.preventDefault();event.stopPropagation();_vCycle('${CSS.escape(name)}',-1)">◀</button>
+      <button class="tip-nav-btn" onmousedown="event.preventDefault();event.stopPropagation();" onclick="event.preventDefault();event.stopPropagation();_vCycle('${CSS.escape(name)}',-1)">◀</button>
       <span style="font:9px var(--f-mono);color:var(--ink4)">Voicing ${idx+1} / ${nV}</span>
-      <button class="tip-nav-btn" onmousedown="event.preventDefault();event.stopPropagation();_vCycle('${CSS.escape(name)}',1)">▶</button>
+      <button class="tip-nav-btn" onmousedown="event.preventDefault();event.stopPropagation();" onclick="event.preventDefault();event.stopPropagation();_vCycle('${CSS.escape(name)}',1)">▶</button>
     </div>` : '';
 
   return `<div style="font:700 13px var(--f-serif);color:var(--ink);text-align:center;margin-bottom:10px">${name}</div>
@@ -7235,26 +7242,25 @@ function initTipListeners(){
   }, true); // capture phase so it fires before tip logic
 
   // Open on click (primary trigger — works on touch too)
-  document.addEventListener('click', e=>{
+  function _handleTipClick(e){
     if(INSTRUMENT==='none') return;
-    // Clicking inside an open tip: ignore (allow nav buttons to fire)
+    // Clicking inside an open tip: stop — the tip's own stopPropagation handles this
     if(e.target.closest('#globalInstTip')) return;
     const el = e.target.closest('[data-tip-chord]');
     if(el){
       e.stopPropagation();
       const name = el.dataset.tipChord;
       const tip  = _getTip();
-      // Toggle: clicking same chord closes it
       if(tip.classList.contains('visible') && tip.dataset.chord===name){
         hideTip();
       } else {
         showTip(el, name);
       }
     } else {
-      // Click on empty area — close tip
       hideTip();
     }
-  });
+  }
+  document.addEventListener('click', _handleTipClick);
   // Also open on hover (desktop UX — but don't close on mouseout)
   document.addEventListener('mouseover', e=>{
     if(INSTRUMENT==='none') return;
