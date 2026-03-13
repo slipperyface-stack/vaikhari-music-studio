@@ -91,7 +91,7 @@ body.dark .form-alt-pill.on{background:var(--lapis2);color:var(--bg);}
 .btn-midi:hover{background:var(--lapis3);box-shadow:0 0 0 3px var(--lapis4);}
 .btn-midi:disabled{opacity:.5;cursor:default;}
 
-.key-strip{width:100%;max-width:var(--card-w);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.key-strip{width:100%;max-width:var(--card-w);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:0 clamp(0px,2vw,4px);box-sizing:border-box;}
 .key-lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;color:var(--ink4);font-weight:500;text-transform:uppercase;white-space:nowrap}
 .key-row{display:flex;gap:5px;flex-wrap:wrap}
 .k{padding:6px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .13s;line-height:1}
@@ -492,12 +492,43 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 
 /* ── Responsive breakpoints ──────────────────────────────── */
 
+/* ── Key dropdown (narrow screens) ── */
+.key-dropdown{display:none;position:relative;}
+.key-drop-trigger{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 14px;border-radius:22px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  font-family:var(--f-mono);font-size:14px;font-weight:600;
+  color:var(--ink);cursor:pointer;transition:all .15s;
+  min-width:72px;justify-content:space-between;
+}
+.key-drop-trigger:hover{border-color:var(--jade);color:var(--jade);}
+.key-drop-opts{
+  display:none;
+  position:absolute;top:calc(100% + 5px);left:0;
+  background:var(--surface);border:1.5px solid var(--jade);
+  border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);
+  z-index:600;overflow:hidden;
+  grid-template-columns:repeat(4,1fr);min-width:200px;
+}
+.key-dropdown.open .key-drop-opts{display:grid;}
+.key-drop-opt{
+  padding:10px 6px;font-family:var(--f-mono);font-size:13px;font-weight:500;
+  color:var(--ink3);cursor:pointer;text-align:center;
+  border:none;background:none;transition:background .1s;
+}
+.key-drop-opt:hover{background:var(--jade4);color:var(--jade);}
+.key-drop-opt.on{background:var(--jade);color:#fff;font-weight:700;}
+
 /* ── Responsive ──────────────────────────── */
 
 /* phone portrait  ≤ 599px */
 @media(max-width:599px){
   :root{--card-w:100vw}
   body{padding:12px 0 56px}
+  .key-strip{padding:0 14px;margin-bottom:8px}
+  .key-dropdown{display:block}
+  .key-row{display:none}
 
   /* header: single tight row, no clipping */
   .v-header{padding:0 14px;margin-bottom:8px;gap:6px;flex-wrap:nowrap}
@@ -999,6 +1030,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 
 /* ── Logo ── */
 .vk-logo{height:64px;width:auto;object-fit:contain;display:block;}
+
 </style>
 </head>
 <body>
@@ -1046,6 +1078,28 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 
 <div class="key-strip">
   <span class="key-lbl">Root / Sa</span>
+  <!-- Dropdown for narrow screens -->
+  <div class="key-dropdown" id="keyDropdown">
+    <button class="key-drop-trigger" id="keyDropTrigger">
+      <span id="keyDropVal">C</span>
+      <svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg>
+    </button>
+    <div class="key-drop-opts" id="keyDropOpts">
+      <button class="key-drop-opt on" data-root="C">C</button>
+      <button class="key-drop-opt" data-root="C#">C#</button>
+      <button class="key-drop-opt" data-root="D">D</button>
+      <button class="key-drop-opt" data-root="D#">D#</button>
+      <button class="key-drop-opt" data-root="E">E</button>
+      <button class="key-drop-opt" data-root="F">F</button>
+      <button class="key-drop-opt" data-root="F#">F#</button>
+      <button class="key-drop-opt" data-root="G">G</button>
+      <button class="key-drop-opt" data-root="G#">G#</button>
+      <button class="key-drop-opt" data-root="A">A</button>
+      <button class="key-drop-opt" data-root="A#">A#</button>
+      <button class="key-drop-opt" data-root="B">B</button>
+    </div>
+  </div>
+  <!-- Button row for wide screens -->
   <div class="key-row" id="keyRow">
     <button class="k on" data-root="C">C</button>
     <button class="k" data-root="C#">C#</button>
@@ -5801,17 +5855,34 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 });
 
 // ── Root key ──
-document.getElementById('keyRow').addEventListener('click',e=>{
-  const b=e.target.closest('[data-root]');if(!b)return;ROOT=b.dataset.root;
-  document.querySelectorAll('#keyRow .k').forEach(x=>x.classList.toggle('on',x===b));
+function _setRoot(note){
+  ROOT=note;
+  document.querySelectorAll('#keyRow .k').forEach(x=>x.classList.toggle('on',x.dataset.root===note));
+  const dv=document.getElementById('keyDropVal');if(dv)dv.textContent=note;
+  document.querySelectorAll('#keyDropOpts .key-drop-opt').forEach(x=>x.classList.toggle('on',x.dataset.root===note));
   dcLit.clear();
   if(VIEW==='scale'&&OPEN_SCALE)renderScale();
   else if(VIEW==='mode'&&OPEN_MODE>=0)renderMode();
   else if(VIEW==='thaat'&&OPEN_THAAT){OPEN_RAGA?renderRaga(OPEN_RAGA):renderThaat();}
   else if(VIEW==='song'){CURRENT_SONG=null;renderSongView();}
   else if(VIEW==='arp'){renderArpView();}
-  else if(VIEW==='arp'){renderArpView();}
+}
+document.getElementById('keyRow').addEventListener('click',e=>{
+  const b=e.target.closest('[data-root]');if(!b)return;
+  _setRoot(b.dataset.root);
 });
+(()=>{
+  const wrap=document.getElementById('keyDropdown');
+  const trig=document.getElementById('keyDropTrigger');
+  const opts=document.getElementById('keyDropOpts');
+  if(!wrap||!trig||!opts)return;
+  trig.addEventListener('click',e=>{e.stopPropagation();wrap.classList.toggle('open');});
+  opts.addEventListener('click',e=>{
+    const b=e.target.closest('.key-drop-opt');if(!b)return;
+    wrap.classList.remove('open');_setRoot(b.dataset.root);
+  });
+  document.addEventListener('click',()=>wrap.classList.remove('open'));
+})();
 
 // ── Jazz toggle ──
 document.getElementById('jazzBtn').addEventListener('click',()=>{
