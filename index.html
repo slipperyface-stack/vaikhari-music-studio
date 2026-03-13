@@ -398,11 +398,11 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .song-play-btn.playing{background:var(--lapis);color:#fff;border-color:var(--lapis);}
 /* Tempo chip */
 .song-tempo-chip{display:flex;flex-direction:column;align-items:center;min-width:100px;}
-.song-tempo-ctrl{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.song-tempo-ctrl{display:flex;align-items:center;gap:clamp(3px,1vw,5px);margin-bottom:2px;flex-wrap:nowrap;}
 
-.song-tempo-btn{width:22px;height:22px;border-radius:5px;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .12s;}
+.song-tempo-btn{width:clamp(18px,5vw,22px);height:clamp(18px,5vw,22px);border-radius:5px;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);font-size:clamp(12px,3vw,14px);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .12s;flex-shrink:0;}
 .song-tempo-btn:hover{border-color:var(--lapis);color:var(--lapis);}
-.song-bpm-slider{width:90px;-webkit-appearance:none;height:3px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;margin-top:2px;}
+.song-bpm-slider{width:min(90px,100%);max-width:100%;-webkit-appearance:none;height:3px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;margin-top:2px;}
 .song-bpm-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--lapis);border:2px solid var(--surface);cursor:pointer;}
 .song-bpm-slider::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--lapis);border:2px solid var(--surface);cursor:pointer;}
 /* Section play / loop buttons */
@@ -478,13 +478,13 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .melody-hint strong{color:var(--saffron);letter-spacing:.3px}
 
 /* Tempo / form info */
-.song-meta-bar{display:flex;align-items:center;gap:0;margin-top:16px;margin-bottom:12px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;}
-.smb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(8px,1.5vw,10px) clamp(12px,2.5vw,20px);gap:2px;flex:1;}
-.smb-item.smb-tempo{flex:2;padding:clamp(7px,1.2vw,8px) clamp(10px,2vw,16px);}
-.smb-val{font-family:var(--f-mono);font-size:clamp(17px,3.5vw,22px);font-weight:700;color:var(--ink);line-height:1;white-space:nowrap;}
-.smb-lbl{font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);}
+.song-meta-bar{display:flex;align-items:stretch;gap:0;margin-top:16px;margin-bottom:12px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;}
+.smb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(8px,1.5vw,10px) clamp(8px,2vw,16px);gap:2px;flex:1;min-width:0;}
+.smb-item.smb-tempo{flex:1.8;padding:clamp(7px,1.2vw,8px) clamp(8px,1.5vw,14px);min-width:0;}
+.smb-val{font-family:var(--f-mono);font-size:clamp(11px,3vw,20px);font-weight:700;color:var(--ink);line-height:1.2;white-space:normal;word-break:break-word;text-align:center;}
+.smb-lbl{font-family:var(--f-mono);font-size:clamp(7px,1.5vw,9px);letter-spacing:1px;text-transform:uppercase;color:var(--ink4);}
 .smb-divider{width:1.5px;background:var(--border2);align-self:stretch;flex-shrink:0;}
-.song-bpm-display{font-family:var(--f-mono);font-size:22px;font-weight:700;color:var(--ink);min-width:44px;text-align:center;line-height:1;}
+.song-bpm-display{font-family:var(--f-mono);font-size:clamp(16px,4vw,22px);font-weight:700;color:var(--ink);min-width:clamp(34px,8vw,44px);text-align:center;line-height:1;}
 
 
 /* Song error */
@@ -566,6 +566,11 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
   .ss-body{padding:10px 12px}
   .chord-sym-name{font-size:22px}
   .bar-group{min-width:70px}
+  .smb-val{font-size:clamp(10px,3.5vw,14px)}
+  .smb-item{padding:8px 6px}
+  .smb-item.smb-tempo{padding:7px 8px}
+  .song-bpm-display{font-size:clamp(14px,4vw,18px);min-width:28px}
+  .song-bpm-slider{width:100%}
 
   /* genre selector */
   .gdr-trigger{padding:6px 10px}
