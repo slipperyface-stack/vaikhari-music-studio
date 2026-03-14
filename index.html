@@ -8,6 +8,49 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 window._supabaseCreateClient = createClient;
 window.dispatchEvent(new Event("supabase-ready"));
+
+// ── PWA Install Prompt ──
+(()=>{
+  const DISMISSED_KEY = 'vk_pwa_dismissed';
+  if(sessionStorage.getItem(DISMISSED_KEY)) return;
+
+  let deferredPrompt = null;
+
+  // Android / Chrome — beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show after 3s delay so page loads first
+    setTimeout(()=>{ document.getElementById('pwaInstallBanner').style.display='block'; }, 3000);
+  });
+
+  document.getElementById('pwaInstallBtn')?.addEventListener('click', async ()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const {outcome} = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('pwaInstallBanner').style.display='none';
+    if(outcome==='accepted') sessionStorage.setItem(DISMISSED_KEY,'1');
+  });
+
+  document.getElementById('pwaDismissBtn')?.addEventListener('click', ()=>{
+    document.getElementById('pwaInstallBanner').style.display='none';
+    sessionStorage.setItem(DISMISSED_KEY,'1');
+  });
+
+  // iOS Safari — check if not already installed
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if(isIos && !isStandalone){
+    setTimeout(()=>{ document.getElementById('pwaIosHint').style.display='block'; }, 3000);
+  }
+
+  document.getElementById('pwaIosDismissBtn')?.addEventListener('click', ()=>{
+    document.getElementById('pwaIosHint').style.display='none';
+    sessionStorage.setItem(DISMISSED_KEY,'1');
+  });
+})();
+
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1036,6 +1079,27 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 /* ── Logo ── */
 .vk-logo{height:64px;width:auto;object-fit:contain;display:block;}
 
+
+/* ── PWA Install Banner ── */
+#pwaInstallBanner, #pwaIosHint{
+  position:fixed;bottom:0;left:0;right:0;z-index:9000;
+  padding:10px 14px 14px;
+  background:var(--surface);
+  border-top:1.5px solid var(--border2);
+  box-shadow:0 -4px 24px rgba(0,0,0,.12);
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pwa-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:var(--card-w);margin:0 auto;}
+.pwa-banner-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
+.pwa-banner-icon{font-size:28px;width:44px;height:44px;border-radius:10px;background:var(--jade);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:serif;}
+.pwa-banner-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);line-height:1.2;}
+.pwa-banner-sub{font-family:var(--f-mono);font-size:11px;color:var(--ink4);margin-top:2px;}
+.pwa-banner-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pwa-install-btn{padding:8px 18px;border-radius:20px;border:none;background:var(--jade);color:#fff;font-family:var(--f-mono);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.5px;transition:opacity .15s;}
+.pwa-install-btn:hover{opacity:.85}
+.pwa-dismiss-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;color:var(--ink4);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;}
+.pwa-dismiss-btn:hover{border-color:var(--ink3);color:var(--ink);}
 </style>
 </head>
 <body>
@@ -4769,6 +4833,14 @@ function wireXlinks(container){
 function indianBlock(thaat,ivs,rootNote){
   if(!INDIAN||!thaat||!THAATS[thaat])return'';
   const td=THAATS[thaat];
+  // Check if mode ivs are identical to thaat ivs
+  const thaatIvs=td.iv;
+  const isSame=ivs.length===thaatIvs.length&&ivs.every((v,i)=>v===thaatIvs[i]);
+  if(isSame){
+    // Same notes — just reference thaat, don't repeat the swara map
+    return`<div class="info-saffron" style="margin-bottom:10px"><span style="font-size:12px">🪔</span> Same notes as <strong>${xlinkHTML(thaat,'xlink-saffron','thaat',thaat)}</strong> — ${linkifyText(td.desc)}</div>`;
+  }
+  // Different notes (e.g. modal scale) — show the swara map
   const pills=ivs.map(iv=>`<div class="sw-pill"><span class="syl">${SW_SHORT[iv]}</span><span>${na(rootNote,iv)}</span></div>`).join('');
   return`<div class="swara-block"><div class="swara-block-lbl">🪔 ${rootNote} ${thaat} Thaat — Swara Map</div><div class="swara-row">${pills}</div></div><div class="info-saffron"><strong>${xlinkHTML(thaat,'xlink-saffron','thaat',thaat)}</strong> — ${linkifyText(td.desc)}</div>`;
 }
@@ -5655,8 +5727,8 @@ function renderMode(){
     <div class="scale-hero-name">${mr} ${m.n}</div>
     <div class="scale-hero-vibe">${m.v} · <em style="font-style:italic;color:var(--ink4)">${m.g}</em></div>
     <div class="scale-desc">${m.d}<br><span style="font-size:12px;color:var(--ink4)">Degree ${OPEN_MODE+1} of ${ROOT} Major · modal root ${mr}</span></div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <div class="note-row">${notes}</div>
+    <div class="note-row">${notes}</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:4px">
       <button class="play-scale-btn" data-seq="${_modeSeqIdx}" onclick="playRegScale(+this.dataset.seq,this)">♪ Play Scale</button>
     </div>
     <div class="steps">${steps}</div>
@@ -5705,13 +5777,14 @@ function renderThaat(){
     </div>
     ${td.note?`<div class="info-jade"><strong>For Western musicians:</strong> ${td.note}</div>`:''}
     ${secLbl('Swara → Chord Map  (Sa = '+ROOT+')')}
-    <table class="thaat-chord-table"><thead><tr><th>Swara</th><th>Note</th><th>Chord</th><th>Degree</th><th>Tones</th><th>Interval</th></tr></thead><tbody>${chordTableRows}</tbody></table>
+    ${chordGridHTML(thaatChords)}
     <div class="divider"></div>
     ${secLbl('Ragas of '+OPEN_THAAT)}
     <div class="raga-grid">${tiles}</div>`;
 
   injectFavBtn(con, ROOT+'|'+OPEN_THAAT+' Thaat', ROOT+' '+OPEN_THAAT);
   wireXlinks(con);
+  wireChordGridDL(con, thaatChords, ROOT+'_'+OPEN_THAAT);
   setTimeout(()=>attachAllTips(con), 0);
   con.querySelectorAll('.raga-tile[data-raga]').forEach(t=>t.addEventListener('click',()=>renderRaga(t.dataset.raga)));
   // Wire thaat chord table download buttons
@@ -5770,6 +5843,7 @@ function renderRaga(ragaName){
       <div class="tala-grid">${talaCardsHTML(r.talas)}</div>
     </div>`;
   wireXlinks(con);
+  wireChordGridDL(con, thaatChords, ROOT+'_'+OPEN_THAAT);
   setTimeout(()=>attachAllTips(con), 0);
 }
 
@@ -8076,5 +8150,37 @@ function injectFavBtn(container, scaleKey, labelText){
 // ── Init ──
 setView('scale');showEmpty('Choose a category above, then select from the dropdown');
 </script>
+
+<!-- PWA Install Banner -->
+<div id="pwaInstallBanner" style="display:none">
+  <div class="pwa-banner">
+    <div class="pwa-banner-left">
+      <div class="pwa-banner-icon">𝄞</div>
+      <div class="pwa-banner-text">
+        <div class="pwa-banner-title">Add to Home Screen</div>
+        <div class="pwa-banner-sub">Open Vaikhari like an app</div>
+      </div>
+    </div>
+    <div class="pwa-banner-actions">
+      <button class="pwa-install-btn" id="pwaInstallBtn">Add</button>
+      <button class="pwa-dismiss-btn" id="pwaDismissBtn">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- iOS Install Hint (shown separately since iOS can't use beforeinstallprompt) -->
+<div id="pwaIosHint" style="display:none">
+  <div class="pwa-banner pwa-ios">
+    <div class="pwa-banner-left">
+      <div class="pwa-banner-icon">𝄞</div>
+      <div class="pwa-banner-text">
+        <div class="pwa-banner-title">Add to Home Screen</div>
+        <div class="pwa-banner-sub">Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></div>
+      </div>
+    </div>
+    <button class="pwa-dismiss-btn" id="pwaIosDismissBtn">✕</button>
+  </div>
+</div>
+
 </body>
 </html>
