@@ -8361,7 +8361,7 @@ function renderAiStrip(){
 function _buildAiPrompt(){
   const genre=getEffectiveGenre();
   const scaleIvs=getCurrentScaleIvs();
-  const scaleRoot=getCurrentScaleRoot();
+  const scaleRoot=ROOT;
   const scaleName=getCurrentScaleName();
   const chords=diatonicChords(scaleRoot,scaleIvs,JAZZ);
   const chordList=chords.map((ch,i)=>`${['I','ii','iii','IV','V','vi','vii°'][i]} = ${ch.sym}`).join(', ');
@@ -8420,7 +8420,7 @@ function _aiToSong(ai){
   if(!ai||!ai.sections)return null;
   const genre=getEffectiveGenre();
   const scaleIvs=getCurrentScaleIvs();
-  const scaleRoot=getCurrentScaleRoot();
+  const scaleRoot=ROOT;
   const scaleName=getCurrentScaleName();
   const resolvedSections=ai.sections.map(sec=>{
     const resolved=(sec.progression||[]).map(rom=>resolveChord(upgradeRoman(rom,primaryGenre()),scaleRoot,scaleIvs,primaryGenre(),JAZZ)).filter(Boolean);
