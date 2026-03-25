@@ -8363,34 +8363,53 @@ function _buildAiPrompt(){
   const scaleIvs=getCurrentScaleIvs();
   const scaleRoot=ROOT;
   const scaleName=getCurrentScaleName();
+  const isMin=isMinorish(scaleIvs);
   const chords=diatonicChords(scaleRoot,scaleIvs,JAZZ);
-  const chordList=chords.map((ch,i)=>`${['I','ii','iii','IV','V','vi','vii°'][i]} = ${ch.sym}`).join(', ');
+  const ROMS=['I','ii','iii','IV','V','vi','vii°'];
+  const chordMap=chords.map((ch,i)=>ROMS[i]+'='+ch.sym).join(' | ');
+  const validRomans=ROMS.slice(0,chords.length).join(', ');
   const CHR2=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   const rootIdx=CHR2.indexOf(scaleRoot);
-  const scaleNotes=scaleIvs.map(iv=>CHR2[(rootIdx+iv)%12]).join(', ');
+  const scaleNotes=scaleIvs.map(iv=>CHR2[(rootIdx+iv)%12]).join(' ');
   const form=genre?.signatureForm||genre?.forms?.[0]||'Verse-Chorus';
-  const thaatCtx=OPEN_THAAT?`\nThaat: ${OPEN_THAAT}`:'';
-  const modeCtx=(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE])?`\nMode: ${MODES[OPEN_MODE].n}`:'';
   const genres=[...SELECTED_GENRES].join(' + ');
-  return`You are a professional music composer. Generate a complete song structure.
-
-CONTEXT:
-- Root: ${scaleRoot} | Scale: ${scaleName} | Notes: ${scaleNotes}
-- Diatonic chords ONLY: ${chordList}
-- Genre: ${genres} | Form: ${form} | Complexity: ${SONG_COMPLEXITY}${thaatCtx}${modeCtx}${JAZZ?'\n- Jazz+ ON: use 7ths and extensions':''}
-
-RULES: Use ONLY the diatonic chords listed. Different progression per section. Chorus resolves stronger than verse. Bridge contrasts. Final section ends on I/i. No consecutive tonic chords more than twice.
-
-Respond with valid JSON only — no markdown, no explanation:
-{
-  "title": "evocative title",
-  "subtitle": "one mood line",
-  "styleNote": "harmonic approach",
-  "sections": [{"label":"Verse","role":"verse","progression":["I","vi","IV","V"],"bars":4,"melodyHint":"guidance"}],
-  "tempo": "Medium (♩=120)",
-  "evaluation": {"harmVariation":8,"knownProgs":9,"repetitionScore":8,"resolutionScore":10,"overall":9}
-}`;
+  const tonic=isMin?'i':'I';
+  const thaatLine=OPEN_THAAT?'Thaat: '+OPEN_THAAT+'. Use its characteristic melodic phrases.\n':'';
+  const modeLine=(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE])?'Mode: '+MODES[OPEN_MODE].n+'. Exploit its characteristic intervals.\n':'';
+  const jazzLine=JAZZ?'Jazz+ mode ON: prefer 7th/9th chord symbols where available.\n':'';
+  const GENRE_PROGS={
+    jazz:{v:['ii','V',tonic,'vi'],c:[tonic,'IV','ii','V'],b:['iii','VI','ii','V']},
+    blues:{v:[tonic+'7','IV7','V7',tonic+'7'],c:['IV7',tonic+'7','V7','IV7'],b:['II7','V7',tonic+'7',tonic+'7']},
+    pop:{v:[tonic,'V','vi','IV'],c:[tonic,'IV','V',tonic],b:['vi','IV',tonic,'V']},
+    rock:{v:[tonic,'IV','V',tonic],c:[tonic,'IV','V','V'],b:['vi','IV','I','V']},
+    folk:{v:[tonic,'IV',tonic,'V'],c:[tonic,'V','IV',tonic],b:['vi','ii','V',tonic]},
+    classical:{v:[tonic,'ii','V',tonic],c:[tonic,'IV','V7',tonic],b:['IV','ii','V7',tonic]},
+  };
+  const gkey=genres.split('+')[0].trim().toLowerCase();
+  const ex=GENRE_PROGS[gkey]||GENRE_PROGS.pop;
+  const vEx=ex.v.join('-'), cEx=ex.c.join('-'), bEx=ex.b.join('-');
+  return 'You are an expert music composer. Generate a harmonically varied song in '+genres+' style.\n\n'+
+  'SCALE: '+scaleName+' | Root: '+scaleRoot+' | Notes: '+scaleNotes+'\n'+
+  'CHORD MAP: '+chordMap+'\n'+
+  'VALID ROMAN NUMERALS (use ONLY these): '+validRomans+'\n'+
+  'FORM: '+form+' | COMPLEXITY: '+SONG_COMPLEXITY+'\n'+
+  thaatLine+modeLine+jazzLine+'\n'+
+  'CRITICAL RULES:\n'+
+  '1. Every chord MUST be one of: '+validRomans+'\n'+
+  '2. NEVER use only the tonic ('+tonic+') — vary between chords\n'+
+  '3. Each section MUST have a DIFFERENT progression from every other section\n'+
+  '4. Use minimum 3 DIFFERENT chords per section\n'+
+  '5. Verse: build tension. Chorus: strong resolution. Bridge: maximum harmonic contrast.\n'+
+  '6. Final section last chord MUST be '+tonic+'\n'+
+  '7. Good '+genres+' examples — Verse: '+vEx+' | Chorus: '+cEx+' | Bridge: '+bEx+'\n\n'+
+  'OUTPUT: valid JSON only, no markdown:\n'+
+  '{"title":"evocative title","subtitle":"one mood line","styleNote":"harmonic approach",'+
+  '"sections":[{"label":"Verse","role":"verse","progression":["'+ex.v[0]+'","'+ex.v[1]+'","'+ex.v[2]+'","'+ex.v[3]+'"],"bars":4,"melodyHint":"guidance"},'+
+  '{"label":"Chorus","role":"chorus","progression":["'+ex.c[0]+'","'+ex.c[1]+'","'+ex.c[2]+'","'+ex.c[3]+'"],"bars":4,"melodyHint":"guidance"}],'+
+  '"tempo":"Medium (\\u266a=120)",'+
+  '"evaluation":{"harmVariation":8,"knownProgs":9,"repetitionScore":8,"resolutionScore":9,"overall":8}}';
 }
+
 
 async function generateSongAI(){
   const key=_getAiKey();if(!key){alert('No API key saved.');return;}
