@@ -6007,7 +6007,7 @@ function _setRoot(note){
   if(VIEW==='scale'&&OPEN_SCALE)renderScale();
   else if(VIEW==='mode'&&OPEN_MODE>=0)renderMode();
   else if(VIEW==='thaat'&&OPEN_THAAT){OPEN_RAGA?renderRaga(OPEN_RAGA):renderThaat();}
-  else if(VIEW==='song'){CURRENT_SONG=null;renderSongView();}
+  else if(VIEW==='song'){ if(CURRENT_SONG){ transposeSong(CURRENT_SONG,note); } else { renderSongView(); } }
   else if(VIEW==='arp'){renderArpView();}
 }
 document.getElementById('keyRow').addEventListener('click',e=>{
@@ -6033,8 +6033,9 @@ document.getElementById('jazzBtn').addEventListener('click',()=>{
   if(VIEW==='scale'&&OPEN_SCALE)renderScale();
   else if(VIEW==='mode'&&OPEN_MODE>=0)renderMode();
   else if(VIEW==='thaat'){if(OPEN_RAGA)renderRaga(OPEN_RAGA);else if(OPEN_THAAT)renderThaat();}
-  else if(VIEW==='song'){CURRENT_SONG=null;renderSongView();}
-});
+  else if(VIEW==='song'){ if(CURRENT_SONG){displaySong(CURRENT_SONG);}else{renderSongView();} }
+})
+;
 
 // ── Indian toggle ──
 
@@ -8094,7 +8095,12 @@ async function initSupabase(){
     _user = session?.user || null;
     _sessionChecked = true;
     updateAuthUI();
-    if(_user){ _favData=[]; _savedSongsCache=null; await loadAllUserData(); } // clear cache on new session
+    if(_user){
+      _favData=[]; _savedSongsCache=null;
+      await loadAllUserData();
+      // Restore song display after login (don't wipe it)
+      if(CURRENT_SONG && VIEW==='song') setTimeout(()=>displaySong(CURRENT_SONG), 100);
+    }
     else { _favScales.clear(); _favData=[]; _savedSongsCache=null; }
   });
 }
@@ -8391,7 +8397,7 @@ async function generateSongAI(){
   if(AI_GENERATING||AI_MODEL==='none')return;
   const btn=document.getElementById('aiGenerateBtn');
   AI_GENERATING=true;btn?.classList.add('loading');if(btn)btn.disabled=true;
-  const modelId=AI_MODEL==='sonnet'?'claude-sonnet-4-5-20251001':'claude-haiku-3-5-20251001';
+  const modelId=AI_MODEL==='sonnet'?'claude-sonnet-4-6':'claude-haiku-4-5-20251001';
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -8430,6 +8436,26 @@ function _aiToSong(ai){
     complexity:SONG_COMPLEXITY,useJazz:JAZZ,evaluation:ai.evaluation||null,
     aiModel:AI_MODEL,thaatCtx:null,
   };
+}
+
+
+// ── Transpose current song to a new root without regenerating ──
+function transposeSong(song, newRoot){
+  if(!song) return;
+  const oldRoot = song.scaleName?.split(' ')[0] || ROOT;
+  // Re-resolve all chords with new root, keeping same roman numerals
+  const newSections = song.sections.map(sec => ({
+    ...sec,
+    resolvedChords: (sec.prog || sec.resolvedChords.map(ch=>ch.rom||'I')).map(rom =>
+      resolveChord(upgradeRoman(rom, primaryGenre()), newRoot, song.scaleIvs, primaryGenre(), song.useJazz||JAZZ)
+    ).filter(Boolean)
+  }));
+  // Update song root references
+  const newScaleName = song.scaleName ? song.scaleName.replace(/^[A-G][#b]?/, newRoot) : newRoot;
+  CURRENT_SONG = {...song, sections: newSections, scaleName: newScaleName,
+    title: song.title  // keep title
+  };
+  displaySong(CURRENT_SONG);
 }
 
 </script>
