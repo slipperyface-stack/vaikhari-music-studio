@@ -6541,7 +6541,7 @@ async function submitFeedback(payload){
       missing_features: payload.missing_features || '',
       priorities:       JSON.stringify(Array.isArray(payload.priorities)?payload.priorities:[]),
       other_notes:      payload.other_notes || '',
-      app_version:      'v3.4',
+      app_version:      'v3.5',
       created_at:       new Date().toISOString(),
     };
     const { error } = await sb.from('feedback').insert(row);
@@ -8397,7 +8397,7 @@ async function generateSongAI(){
   if(AI_GENERATING||AI_MODEL==='none')return;
   const btn=document.getElementById('aiGenerateBtn');
   AI_GENERATING=true;btn?.classList.add('loading');if(btn)btn.disabled=true;
-  const modelId=AI_MODEL==='sonnet'?'claude-sonnet-4-5':'claude-haiku-3-5-20241022';
+  const modelId=AI_MODEL==='sonnet'?'claude-sonnet-4-6':'claude-haiku-3-5-20251001';
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
