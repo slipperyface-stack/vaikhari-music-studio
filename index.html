@@ -1157,7 +1157,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
   <div class="v-wordmark">
     <span class="v-name">Vaikhari</span>
     <span class="v-sep">·</span>
-    <span class="v-tagline">Unified Music Theory Portal</span>
+    <span class="v-tagline">Unified Music Theory Portal · v3.5</span>
   </div>
   <div class="v-ctrls">
     <div class="csel" id="instDrop" style="min-width:130px">
@@ -1236,7 +1236,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 
 <div class="card">
   <div class="card-bar">
-    <span class="card-bar-left">Theory Reference</span>
+    <span class="card-bar-left">Theory Reference <span style="font-weight:400;opacity:.55">v3.5</span>
     <span class="card-bar-right" id="statusLbl">Select a category</span>
   </div>
 
@@ -4213,7 +4213,7 @@ function renderSongView(){
   }));
     // Wire form alts
   v.querySelectorAll('.form-alt-pill[data-form]').forEach(p=>p.addEventListener('click',()=>{
-    CURRENT_SONG=generateSong(p.dataset.form);displaySong(CURRENT_SONG);
+    CURRENT_SONG=generateSong(p.dataset.form);displaySong(CURRENT_SONG);_saveToHistory(CURRENT_SONG);
     v.querySelectorAll('.form-alt-pill').forEach(x=>x.classList.toggle('on',x===p));
   }));
   // Wire complexity
@@ -4222,10 +4222,10 @@ function renderSongView(){
   }));
   // Wire buttons
   v.querySelector('#generateSongBtn')?.addEventListener('click',()=>{
-    CURRENT_SONG=generateSong(SELECTED_FORM||null);displaySong(CURRENT_SONG);
+    CURRENT_SONG=generateSong(SELECTED_FORM||null);displaySong(CURRENT_SONG);_saveToHistory(CURRENT_SONG);
   });
   v.querySelector('#shuffleSongBtn')?.addEventListener('click',()=>{
-    CURRENT_SONG=generateSong(CURRENT_SONG?.form||null);displaySong(CURRENT_SONG);
+    CURRENT_SONG=generateSong(CURRENT_SONG?.form||null);displaySong(CURRENT_SONG);_saveToHistory(CURRENT_SONG);
   });
   v.querySelector('#copySongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)copySongToClipboard(CURRENT_SONG);});
   v.querySelector('#midiSongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)downloadMidi(CURRENT_SONG);});
@@ -8301,13 +8301,7 @@ function _renderHistList(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape')_closeHistoryPanel();});
 })();
 
-// Intercept generate calls to auto-save
-const _origGenerateSong = generateSong;
-function generateSong(formOverride){
-  const song = _origGenerateSong(formOverride);
-  if(song) _saveToHistory(song);
-  return song;
-}
+// History auto-save wired at call sites below
 
 // ════════════════════════════════════════════════════
 // ── AI SONG GENERATOR ────────────────────────────────
@@ -8397,7 +8391,7 @@ async function generateSongAI(){
   if(AI_GENERATING||AI_MODEL==='none')return;
   const btn=document.getElementById('aiGenerateBtn');
   AI_GENERATING=true;btn?.classList.add('loading');if(btn)btn.disabled=true;
-  const modelId=AI_MODEL==='sonnet'?'claude-sonnet-4-6':'claude-haiku-3-5-20251001';
+  const modelId=AI_MODEL==='sonnet'?'claude-sonnet-4-5-20251001':'claude-haiku-3-5-20251001';
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
