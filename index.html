@@ -1100,6 +1100,55 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .pwa-install-btn:hover{opacity:.85}
 .pwa-dismiss-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;color:var(--ink4);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;}
 .pwa-dismiss-btn:hover{border-color:var(--ink3);color:var(--ink);}
+
+/* ── Song History ── */
+.hist-btn{padding:6px 13px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:10px;color:var(--ink3);cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:5px;position:relative;}
+.hist-btn:hover{border-color:var(--lapis);color:var(--lapis);background:var(--lapis4);}
+.hist-badge{position:absolute;top:-6px;right:-6px;background:var(--lapis);color:#fff;border-radius:10px;font-size:8px;font-weight:700;padding:1px 5px;font-family:var(--f-mono);min-width:16px;text-align:center;line-height:14px;}
+#songHistoryPanel{display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);align-items:flex-end;justify-content:center;}
+#songHistoryPanel.open{display:flex;animation:fadeIn .18s ease;}
+.hist-sheet{width:100%;max-width:600px;background:var(--surface);border-radius:20px 20px 0 0;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.22);animation:sheetUp .22s cubic-bezier(.4,0,.2,1);}
+.hist-sheet-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid var(--border2);flex-shrink:0;}
+.hist-sheet-title{font-family:var(--f-serif);font-size:18px;font-weight:700;color:var(--ink);}
+.hist-sheet-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:2px;}
+.hist-close-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;color:var(--ink4);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+.hist-close-btn:hover{border-color:var(--ink3);color:var(--ink);}
+.hist-list{overflow-y:auto;flex:1;padding:10px 12px 20px;}
+.hist-empty{text-align:center;padding:40px 20px;font-family:var(--f-mono);font-size:12px;color:var(--ink4);}
+.hist-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);margin-bottom:8px;cursor:pointer;transition:all .13s;}
+.hist-item:hover{border-color:var(--jade);background:var(--surface);}
+.hist-item-main{flex:1;min-width:0;}
+.hist-item-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-item-meta{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:3px;display:flex;flex-wrap:wrap;gap:6px;}
+.hist-item-tag{background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;color:var(--ink3);}
+.hist-item-time{font-family:var(--f-mono);font-size:9px;color:var(--ink4);flex-shrink:0;padding-top:2px;white-space:nowrap;}
+.hist-actions-row{display:flex;gap:6px;margin-top:6px;}
+.hist-action-btn{padding:3px 9px;border-radius:5px;border:1px solid var(--border2);background:transparent;font-family:var(--f-mono);font-size:9px;color:var(--ink4);cursor:pointer;transition:all .12s;}
+.hist-action-btn:hover{border-color:var(--jade);color:var(--jade);}
+.hist-action-btn.danger:hover{border-color:rgba(180,40,40,.4);color:rgba(180,40,40,.9);}
+.hist-clear-btn{padding:8px 16px;border-radius:8px;border:1.5px solid rgba(180,40,40,.3);background:transparent;font-family:var(--f-mono);font-size:11px;color:rgba(180,40,40,.7);cursor:pointer;transition:all .13s;margin:8px 12px 4px;flex-shrink:0;}
+.hist-clear-btn:hover{background:rgba(180,40,40,.06);border-color:rgba(180,40,40,.5);}
+
+/* ── AI Song Strip ── */
+.ai-strip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,var(--lapis4),rgba(24,37,102,.08));border:1.5px solid var(--lapis3);margin-bottom:12px;}
+.ai-strip-label{font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--lapis);flex-shrink:0;}
+.ai-model-sel{padding:5px 24px 5px 10px;border-radius:7px;border:1.5px solid var(--lapis3);background:var(--surface2);font-family:var(--f-mono);font-size:11px;color:var(--ink2);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a6040' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.ai-model-sel:focus{border-color:var(--lapis);}
+.ai-generate-btn{padding:7px 16px;border-radius:8px;background:linear-gradient(135deg,var(--lapis),var(--lapis2));border:none;color:#fff;font-family:var(--f-mono);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.ai-generate-btn:hover{opacity:.9;transform:translateY(-1px);}
+.ai-generate-btn:disabled{opacity:.45;cursor:default;transform:none;}
+.ai-spinner{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.ai-generate-btn.loading .ai-spinner{display:block;}
+.ai-generate-btn.loading .ai-btn-text{opacity:.6;}
+.ai-locked{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:10px;color:var(--ink4);}
+.ai-locked a{color:var(--lapis);text-decoration:none;}
+.ai-locked a:hover{text-decoration:underline;}
+.ai-key-input{flex:1;padding:5px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:11px;color:var(--ink);outline:none;min-width:0;}
+.ai-key-input:focus{border-color:var(--lapis);}
+.ai-key-btn{padding:5px 11px;border-radius:7px;border:1.5px solid var(--lapis3);background:var(--lapis4);color:var(--lapis);font-family:var(--f-mono);font-size:10px;cursor:pointer;white-space:nowrap;transition:all .13s;}
+.ai-key-btn:hover{background:var(--lapis);color:#fff;}
+.ai-song-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:5px;background:var(--lapis4);border:1px solid var(--lapis3);font-family:var(--f-mono);font-size:9px;color:var(--lapis);margin-left:8px;vertical-align:middle;}
+
 </style>
 </head>
 <body>
@@ -4104,7 +4153,9 @@ function renderSongView(){
       <button class="btn-copy" id="copySongBtn">⎘ Copy</button>
       <button class="btn-midi" id="midiSongBtn">⬇ MIDI</button>
       <button class="btn-save-song" id="saveSongBtn">☁ Save</button>
+      <button class="hist-btn" id="songHistoryBtn">⏱ History<span class="hist-badge" id="histBadge" style="display:none">0</span></button>
     </div>
+    <div id="aiStripWrap"></div>
     <div id="songOutput"></div>`;
 
   // ── Wire genre dropdowns + sub-chips ──
@@ -4178,6 +4229,8 @@ function renderSongView(){
   });
   v.querySelector('#copySongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)copySongToClipboard(CURRENT_SONG);});
   v.querySelector('#midiSongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)downloadMidi(CURRENT_SONG);});
+  v.querySelector('#songHistoryBtn')?.addEventListener('click',()=>_openHistoryPanel());
+  renderAiStrip();
   v.querySelector('#saveSongBtn')?.addEventListener('click',async()=>{
     const btn=v.querySelector('#saveSongBtn'); if(!CURRENT_SONG) return;
     btn.textContent='Saving…'; btn.disabled=true;
@@ -4428,6 +4481,17 @@ const GENRE_ARP_RECS = {
 };
 
 let ACTIVE_ARP='ascending';
+
+// ── Song History ──
+let _songHistory=[];
+const SONG_HISTORY_MAX=50;
+
+// ── AI Song Generation ──
+const _AI_OWNER='nitu.rathee@gmail.com';
+const AI_WHITELIST=['nitu.rathee@gmail.com'];
+let AI_MODEL='none';
+let AI_GENERATING=false;
+let _aiApiKey=null;
 
 function getArpNotes(scaleIvs, rootNote, patternKey){
   const pat=ARP_PATTERNS[patternKey];
@@ -6316,6 +6380,7 @@ async function getSession(){
 }
 
 function updateAuthUI(){
+  if(VIEW==='song') setTimeout(renderAiStrip, 50);
   const btn = document.getElementById('authBtn');
   const iconEl = document.getElementById('authBtnIcon');
   const labelEl = document.getElementById('authBtnLabel');
@@ -8149,6 +8214,230 @@ function injectFavBtn(container, scaleKey, labelText){
 
 // ── Init ──
 setView('scale');showEmpty('Choose a category above, then select from the dropdown');
+
+// ════════════════════════════════════════════════════
+// ── SONG HISTORY ─────────────────────────────────────
+// ════════════════════════════════════════════════════
+
+function _saveToHistory(song){
+  if(!song||!song.title) return;
+  _songHistory.unshift({song:JSON.parse(JSON.stringify(song)),timestamp:Date.now(),id:Date.now()+Math.random().toString(36).slice(2,7)});
+  if(_songHistory.length>SONG_HISTORY_MAX) _songHistory.pop();
+  _updateHistBadge();
+  try{localStorage.setItem('vk_song_history',JSON.stringify(_songHistory.slice(0,20)));}catch(e){}
+}
+function _loadHistoryFromStorage(){
+  try{const s=localStorage.getItem('vk_song_history');if(s){_songHistory=JSON.parse(s);_updateHistBadge();}}catch(e){}
+}
+function _updateHistBadge(){
+  const b=document.getElementById('histBadge');if(!b)return;
+  b.textContent=_songHistory.length;b.style.display=_songHistory.length?'block':'none';
+}
+function _formatHistTime(ts){
+  const d=Date.now()-ts;
+  if(d<60000)return'just now';if(d<3600000)return Math.round(d/60000)+'m ago';
+  if(d<86400000)return Math.round(d/3600000)+'h ago';return new Date(ts).toLocaleDateString();
+}
+function _openHistoryPanel(){
+  const p=document.getElementById('songHistoryPanel');if(!p)return;
+  _renderHistList();p.classList.add('open');
+}
+function _closeHistoryPanel(){
+  const p=document.getElementById('songHistoryPanel');if(p)p.classList.remove('open');
+}
+function _renderHistList(){
+  const list=document.getElementById('histList');
+  const sub=document.getElementById('histSheetSub');
+  if(!list)return;
+  if(sub)sub.textContent=_songHistory.length+' song'+(_songHistory.length!==1?'s':'')+' this session';
+  if(!_songHistory.length){
+    list.innerHTML='<div class="hist-empty">♬ No songs yet — hit Generate Song to start.</div>';return;
+  }
+  list.innerHTML=_songHistory.map((entry,i)=>{
+    const s=entry.song;
+    const tags=[
+      s.genre?`<span class="hist-item-tag">${s.genreIcon||'♬'} ${s.genre}</span>`:'',
+      s.scaleName?`<span class="hist-item-tag">♩ ${s.scaleName}</span>`:'',
+      s.form?`<span class="hist-item-tag">${s.form}</span>`:'',
+      s.totalBars?`<span class="hist-item-tag">${s.totalBars} bars</span>`:'',
+    ].filter(Boolean).join('');
+    return`<div class="hist-item" data-hist-idx="${i}">
+      <div class="hist-item-main">
+        <div class="hist-item-title">${s.title||'Untitled'}</div>
+        ${s.subtitle?`<div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:1px;font-style:italic">${s.subtitle}</div>`:''}
+        <div class="hist-item-meta">${tags}</div>
+        <div class="hist-actions-row">
+          <button class="hist-action-btn" data-hist-load="${i}">▶ Load</button>
+          <button class="hist-action-btn" data-hist-midi="${i}">⬇ MIDI</button>
+          <button class="hist-action-btn danger" data-hist-del="${i}">✕ Remove</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <span class="hist-item-time">${_formatHistTime(entry.timestamp)}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-hist-load]').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();const entry=_songHistory[+btn.dataset.histLoad];if(!entry)return;CURRENT_SONG=entry.song;displaySong(CURRENT_SONG);_closeHistoryPanel();if(VIEW!=='song')setView('song');});
+  });
+  list.querySelectorAll('[data-hist-midi]').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();const entry=_songHistory[+btn.dataset.histMidi];if(entry&&entry.song)downloadMidi(entry.song);});
+  });
+  list.querySelectorAll('[data-hist-del]').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();_songHistory.splice(+btn.dataset.histDel,1);try{localStorage.setItem('vk_song_history',JSON.stringify(_songHistory.slice(0,20)));}catch(ex){}_updateHistBadge();_renderHistList();});
+  });
+  list.querySelectorAll('.hist-item[data-hist-idx]').forEach(row=>{
+    row.addEventListener('click',()=>{const entry=_songHistory[+row.dataset.histIdx];if(!entry)return;CURRENT_SONG=entry.song;displaySong(CURRENT_SONG);_closeHistoryPanel();if(VIEW!=='song')setView('song');});
+  });
+}
+
+// Init history panel
+(()=>{
+  _loadHistoryFromStorage();
+  document.getElementById('histCloseBtn')?.addEventListener('click',_closeHistoryPanel);
+  document.getElementById('songHistoryPanel')?.addEventListener('click',e=>{if(e.target===document.getElementById('songHistoryPanel'))_closeHistoryPanel();});
+  document.getElementById('histClearBtn')?.addEventListener('click',()=>{_songHistory=[];try{localStorage.removeItem('vk_song_history');}catch(e){}_updateHistBadge();_renderHistList();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')_closeHistoryPanel();});
+})();
+
+// Intercept generate calls to auto-save
+const _origGenerateSong = generateSong;
+function generateSong(formOverride){
+  const song = _origGenerateSong(formOverride);
+  if(song) _saveToHistory(song);
+  return song;
+}
+
+// ════════════════════════════════════════════════════
+// ── AI SONG GENERATOR ────────────────────────────────
+// ════════════════════════════════════════════════════
+
+function _isAiWhitelisted(){
+  return _user && AI_WHITELIST.includes((_user.email||'').toLowerCase().trim());
+}
+function _getAiKey(){
+  if(_aiApiKey) return _aiApiKey;
+  try{_aiApiKey=localStorage.getItem('vk_ai_key')||null;}catch(e){}
+  return _aiApiKey;
+}
+function _saveAiKey(key){_aiApiKey=key;try{localStorage.setItem('vk_ai_key',key);}catch(e){}}
+function _clearAiKey(){_aiApiKey=null;try{localStorage.removeItem('vk_ai_key');}catch(e){}}
+
+function renderAiStrip(){
+  const wrap=document.getElementById('aiStripWrap');if(!wrap)return;
+  const isWhitelisted=_isAiWhitelisted();
+  if(!isWhitelisted){
+    wrap.innerHTML=`<div class="ai-strip"><span class="ai-strip-label">✦ AI Generate</span><div class="ai-locked">${_user?'<span>Request AI access — write to <a href="mailto:nitu.rathee@gmail.com">nitu.rathee@gmail.com</a></span>':'<span>Sign in to request AI access</span>'}</div></div>`;
+    return;
+  }
+  if(!_getAiKey()){
+    wrap.innerHTML=`<div class="ai-strip"><span class="ai-strip-label">✦ AI Generate</span><input class="ai-key-input" id="aiKeyInput" type="password" placeholder="Paste Anthropic API key (sk-ant-…)" autocomplete="off"><button class="ai-key-btn" id="aiKeySaveBtn">Save Key</button></div>`;
+    document.getElementById('aiKeySaveBtn')?.addEventListener('click',()=>{
+      const val=document.getElementById('aiKeyInput')?.value?.trim();
+      if(val&&val.startsWith('sk-ant-')){_saveAiKey(val);renderAiStrip();}
+      else alert('Key must start with sk-ant-');
+    });
+    document.getElementById('aiKeyInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('aiKeySaveBtn')?.click();});
+    return;
+  }
+  wrap.innerHTML=`<div class="ai-strip">
+    <span class="ai-strip-label">✦ AI Generate</span>
+    <select class="ai-model-sel" id="aiModelSel">
+      <option value="none">Off — use algorithm</option>
+      <option value="haiku" ${AI_MODEL==='haiku'?'selected':''}>Haiku 3.5 — fast</option>
+      <option value="sonnet" ${AI_MODEL==='sonnet'?'selected':''}>Sonnet 4.5 — best</option>
+    </select>
+    <button class="ai-generate-btn" id="aiGenerateBtn" ${AI_MODEL==='none'?'disabled':''}>
+      <div class="ai-spinner"></div><span class="ai-btn-text">✦ AI Song</span>
+    </button>
+    <button class="ai-key-btn" id="aiKeyClearBtn" style="opacity:.5;font-size:9px">✕ Key</button>
+  </div>`;
+  document.getElementById('aiModelSel')?.addEventListener('change',e=>{AI_MODEL=e.target.value;document.getElementById('aiGenerateBtn').disabled=(AI_MODEL==='none');});
+  document.getElementById('aiGenerateBtn')?.addEventListener('click',generateSongAI);
+  document.getElementById('aiKeyClearBtn')?.addEventListener('click',()=>{if(confirm('Remove saved API key?')){_clearAiKey();renderAiStrip();}});
+}
+
+function _buildAiPrompt(){
+  const genre=getEffectiveGenre();
+  const scaleIvs=getCurrentScaleIvs();
+  const scaleRoot=getCurrentScaleRoot();
+  const scaleName=getCurrentScaleName();
+  const chords=diatonicChords(scaleRoot,scaleIvs,JAZZ);
+  const chordList=chords.map((ch,i)=>`${['I','ii','iii','IV','V','vi','vii°'][i]} = ${ch.sym}`).join(', ');
+  const CHR2=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const rootIdx=CHR2.indexOf(scaleRoot);
+  const scaleNotes=scaleIvs.map(iv=>CHR2[(rootIdx+iv)%12]).join(', ');
+  const form=genre?.signatureForm||genre?.forms?.[0]||'Verse-Chorus';
+  const thaatCtx=OPEN_THAAT?`\nThaat: ${OPEN_THAAT}`:'';
+  const modeCtx=(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE])?`\nMode: ${MODES[OPEN_MODE].n}`:'';
+  const genres=[...SELECTED_GENRES].join(' + ');
+  return`You are a professional music composer. Generate a complete song structure.
+
+CONTEXT:
+- Root: ${scaleRoot} | Scale: ${scaleName} | Notes: ${scaleNotes}
+- Diatonic chords ONLY: ${chordList}
+- Genre: ${genres} | Form: ${form} | Complexity: ${SONG_COMPLEXITY}${thaatCtx}${modeCtx}${JAZZ?'\n- Jazz+ ON: use 7ths and extensions':''}
+
+RULES: Use ONLY the diatonic chords listed. Different progression per section. Chorus resolves stronger than verse. Bridge contrasts. Final section ends on I/i. No consecutive tonic chords more than twice.
+
+Respond with valid JSON only — no markdown, no explanation:
+{
+  "title": "evocative title",
+  "subtitle": "one mood line",
+  "styleNote": "harmonic approach",
+  "sections": [{"label":"Verse","role":"verse","progression":["I","vi","IV","V"],"bars":4,"melodyHint":"guidance"}],
+  "tempo": "Medium (♩=120)",
+  "evaluation": {"harmVariation":8,"knownProgs":9,"repetitionScore":8,"resolutionScore":10,"overall":9}
+}`;
+}
+
+async function generateSongAI(){
+  const key=_getAiKey();if(!key){alert('No API key saved.');return;}
+  if(AI_GENERATING||AI_MODEL==='none')return;
+  const btn=document.getElementById('aiGenerateBtn');
+  AI_GENERATING=true;btn?.classList.add('loading');if(btn)btn.disabled=true;
+  const modelId=AI_MODEL==='sonnet'?'claude-sonnet-4-5':'claude-haiku-3-5-20241022';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:modelId,max_tokens:2000,messages:[{role:'user',content:_buildAiPrompt()}]})
+    });
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error?.message||`API error ${res.status}`);}
+    const data=await res.json();
+    const raw=data.content?.[0]?.text||'';
+    const ai=JSON.parse(raw.replace(/^```json\s*/i,'').replace(/```$/,'').trim());
+    const song=_aiToSong(ai);
+    if(song){CURRENT_SONG=song;displaySong(CURRENT_SONG);_saveToHistory(CURRENT_SONG);}
+  }catch(e){
+    const msg=e.message?.includes('401')?'Invalid API key.':e.message?.includes('429')?'Rate limit — wait and retry.':e.message?.includes('JSON')?'AI returned unexpected format — try again.':`Error: ${e.message}`;
+    alert(msg);
+  }finally{AI_GENERATING=false;btn?.classList.remove('loading');if(btn)btn.disabled=(AI_MODEL==='none');}
+}
+
+function _aiToSong(ai){
+  if(!ai||!ai.sections)return null;
+  const genre=getEffectiveGenre();
+  const scaleIvs=getCurrentScaleIvs();
+  const scaleRoot=getCurrentScaleRoot();
+  const scaleName=getCurrentScaleName();
+  const resolvedSections=ai.sections.map(sec=>{
+    const resolved=(sec.progression||[]).map(rom=>resolveChord(upgradeRoman(rom,primaryGenre()),scaleRoot,scaleIvs,primaryGenre(),JAZZ)).filter(Boolean);
+    return{label:sec.label||'Section',prog:sec.progression||[],resolvedChords:resolved,bars:sec.bars||resolved.length,midiReps:sec.role==='chorus'?2:1,melodyHint:sec.melodyHint||'',aiGenerated:true};
+  }).filter(s=>s.resolvedChords.length>0);
+  return{
+    title:ai.title||'Untitled',subtitle:ai.subtitle||'',
+    genre:genre?.label||'',genreIcon:genre?.icon||'♬',
+    form:ai.sections.map(s=>s.label).join('–'),tempo:ai.tempo||'Medium (♩=120)',
+    scaleName,scaleIvs,isMin:isMinorish(scaleIvs),
+    fusionLabel:getFusionLabel(),styleNote:ai.styleNote||genre?.styleNote||'',
+    sections:resolvedSections,totalBars:resolvedSections.reduce((s,sec)=>s+(sec.bars||0),0),
+    complexity:SONG_COMPLEXITY,useJazz:JAZZ,evaluation:ai.evaluation||null,
+    aiModel:AI_MODEL,thaatCtx:null,
+  };
+}
+
 </script>
 
 <!-- PWA Install Banner -->
@@ -8179,6 +8468,22 @@ setView('scale');showEmpty('Choose a category above, then select from the dropdo
       </div>
     </div>
     <button class="pwa-dismiss-btn" id="pwaIosDismissBtn">✕</button>
+  </div>
+</div>
+
+
+<!-- Song History Panel -->
+<div id="songHistoryPanel">
+  <div class="hist-sheet">
+    <div class="hist-sheet-header">
+      <div>
+        <div class="hist-sheet-title">⏱ Song History</div>
+        <div class="hist-sheet-sub" id="histSheetSub">Your generated songs</div>
+      </div>
+      <button class="hist-close-btn" id="histCloseBtn">✕</button>
+    </div>
+    <div class="hist-list" id="histList"></div>
+    <button class="hist-clear-btn" id="histClearBtn">✕ Clear History</button>
   </div>
 </div>
 
