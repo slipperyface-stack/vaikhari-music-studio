@@ -8,747 +8,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 window._supabaseCreateClient = createClient;
 window.dispatchEvent(new Event("supabase-ready"));
-
-
-
-
-// ── Song History ──────────────────────────────────
-function _saveToHistory(song){
-  if(!song||!song.title) return;
-  const entry={
-    song: JSON.parse(JSON.stringify(song)), // deep clone
-    timestamp: Date.now(),
-    id: Date.now()+Math.random().toString(36).slice(2,7)
-  };
-  _songHistory.unshift(entry);
-  if(_songHistory.length>SONG_HISTORY_MAX) _songHistory.pop();
-  _updateHistBadge();
-  // Persist to localStorage
-  try{ localStorage.setItem('vk_song_history', JSON.stringify(_songHistory.slice(0,20))); }catch(e){}
-}
-
-function _loadHistoryFromStorage(){
-  try{
-    const stored=localStorage.getItem('vk_song_history');
-    if(stored){ _songHistory=JSON.parse(stored); _updateHistBadge(); }
-  }catch(e){}
-}
-
-function _updateHistBadge(){
-  const badge=document.getElementById('histBadge');
-  if(!badge) return;
-  if(_songHistory.length>0){
-    badge.textContent=_songHistory.length;
-    badge.style.display='block';
-  } else {
-    badge.style.display='none';
-  }
-}
-
-function _formatTime(ts){
-  const diff=Date.now()-ts;
-  if(diff<60000) return 'just now';
-  if(diff<3600000) return Math.round(diff/60000)+'m ago';
-  if(diff<86400000) return Math.round(diff/3600000)+'h ago';
-  return new Date(ts).toLocaleDateString();
-}
-
-function _openHistoryPanel(){
-  const panel=document.getElementById('songHistoryPanel');
-  if(!panel) return;
-  _renderHistList();
-  panel.classList.add('open');
-}
-
-function _closeHistoryPanel(){
-  const panel=document.getElementById('songHistoryPanel');
-  if(panel) panel.classList.remove('open');
-}
-
-function _renderHistList(){
-  const list=document.getElementById('histList');
-  const sub=document.getElementById('histSheetSub');
-  if(!list) return;
-  if(sub) sub.textContent=_songHistory.length+' song'+(  _songHistory.length!==1?'s':'')+' this session';
-  if(!_songHistory.length){
-    list.innerHTML='<div class="hist-empty">♬ No songs generated yet.<br>Hit Generate Song to start.</div>';
-    return;
-  }
-  list.innerHTML=_songHistory.map((entry,i)=>{
-    const s=entry.song;
-    const score=s.evaluation?`<span class="hist-item-score">${s.evaluation.overall}/10</span>`:'';
-    const tags=[
-      s.genre?`<span class="hist-item-tag">${s.genreIcon||'♬'} ${s.genre}</span>`:'',
-      s.scaleName?`<span class="hist-item-tag">♩ ${s.scaleName}</span>`:'',
-      s.form?`<span class="hist-item-tag">${s.form}</span>`:'',
-      s.totalBars?`<span class="hist-item-tag">${s.totalBars} bars</span>`:'',
-    ].filter(Boolean).join('');
-    return`<div class="hist-item" data-hist-idx="${i}">
-      <div class="hist-item-main">
-        <div class="hist-item-title">${s.title||'Untitled'}</div>
-        ${s.subtitle?`<div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:1px;font-style:italic">${s.subtitle}</div>`:''}
-        <div class="hist-item-meta">${tags}</div>
-        <div class="hist-actions-row">
-          <button class="hist-action-btn" data-hist-load="${i}">▶ Load</button>
-          <button class="hist-action-btn" data-hist-midi="${i}">⬇ MIDI</button>
-          <button class="hist-action-btn danger" data-hist-del="${i}">✕ Remove</button>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-        ${score}
-        <span class="hist-item-time">${_formatTime(entry.timestamp)}</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Wire load buttons
-  list.querySelectorAll('[data-hist-load]').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const idx=+btn.dataset.histLoad;
-      const entry=_songHistory[idx];
-      if(!entry) return;
-      CURRENT_SONG=entry.song;
-      displaySong(CURRENT_SONG);
-      _closeHistoryPanel();
-      if(VIEW!=='song') setView('song');
-    });
-  });
-
-  // Wire MIDI buttons
-  list.querySelectorAll('[data-hist-midi]').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const idx=+btn.dataset.histMidi;
-      const entry=_songHistory[idx];
-      if(!entry||!entry.song) return;
-      // Trigger MIDI export for this song
-      const s=entry.song;
-      const ev=new CustomEvent('vk-midi-export',{detail:{song:s}});
-      document.dispatchEvent(ev);
-    });
-  });
-
-  // Wire delete buttons
-  list.querySelectorAll('[data-hist-del]').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const idx=+btn.dataset.histDel;
-      _songHistory.splice(idx,1);
-      try{ localStorage.setItem('vk_song_history',JSON.stringify(_songHistory.slice(0,20))); }catch(ex){}
-      _updateHistBadge();
-      _renderHistList();
-    });
-  });
-
-  // Wire whole row click → load
-  list.querySelectorAll('.hist-item[data-hist-idx]').forEach(row=>{
-    row.addEventListener('click',()=>{
-      const idx=+row.dataset.histIdx;
-      const entry=_songHistory[idx];
-      if(!entry) return;
-      CURRENT_SONG=entry.song;
-      displaySong(CURRENT_SONG);
-      _closeHistoryPanel();
-      if(VIEW!=='song') setView('song');
-    });
-  });
-}
-
-// Init history panel wiring
-(()=>{
-  _loadHistoryFromStorage();
-
-  document.getElementById('histCloseBtn')?.addEventListener('click',_closeHistoryPanel);
-  document.getElementById('songHistoryPanel')?.addEventListener('click',e=>{
-    if(e.target===document.getElementById('songHistoryPanel')) _closeHistoryPanel();
-  });
-  document.getElementById('histClearBtn')?.addEventListener('click',()=>{
-    if(!_songHistory.length) return;
-    _songHistory=[];
-    try{ localStorage.removeItem('vk_song_history'); }catch(e){}
-    _updateHistBadge();
-    _renderHistList();
-  });
-
-  // Keyboard: Escape closes panel
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape') _closeHistoryPanel(); });
-})();
-
-
-// ════════════════════════════════════════════════════════
-// ── AI SONG GENERATOR ───────────────────────────────────
-// ════════════════════════════════════════════════════════
-
-function _isAiWhitelisted(){
-  return _user && AI_WHITELIST.includes((_user.email||'').toLowerCase().trim());
-}
-
-function _getAiKey(){
-  if(_aiApiKey) return _aiApiKey;
-  try{ _aiApiKey = localStorage.getItem('vk_ai_key')||null; }catch(e){}
-  return _aiApiKey;
-}
-
-function _saveAiKey(key){
-  _aiApiKey = key;
-  try{ localStorage.setItem('vk_ai_key', key); }catch(e){}
-}
-
-function _clearAiKey(){
-  _aiApiKey = null;
-  try{ localStorage.removeItem('vk_ai_key'); }catch(e){}
-}
-
-// ── Render the AI strip into #aiStripWrap ──
-function renderAiStrip(){
-  const wrap = document.getElementById('aiStripWrap');
-  if(!wrap) return;
-
-  const isWhitelisted = _isAiWhitelisted();
-  const hasKey = !!_getAiKey();
-
-  if(!isWhitelisted){
-    // Not signed in or not whitelisted — show locked state
-    const signedIn = !!_user;
-    wrap.innerHTML = `
-      <div class="ai-strip">
-        <span class="ai-strip-label">✦ AI Generate</span>
-        <div class="ai-locked">
-          ${signedIn
-            ? `<span>Request AI access — write to <a href="mailto:nitu.rathee@gmail.com">nitu.rathee@gmail.com</a></span>`
-            : `<span>Sign in to request AI access</span>`}
-        </div>
-      </div>`;
-    return;
-  }
-
-  // Whitelisted — show full AI strip
-  if(!hasKey){
-    // Need API key
-    wrap.innerHTML = `
-      <div class="ai-strip">
-        <span class="ai-strip-label">✦ AI Generate</span>
-        <input class="ai-key-input" id="aiKeyInput" type="password" placeholder="Paste Anthropic API key…" autocomplete="off">
-        <button class="ai-key-btn" id="aiKeySaveBtn">Save Key</button>
-      </div>`;
-    document.getElementById('aiKeySaveBtn')?.addEventListener('click',()=>{
-      const val = document.getElementById('aiKeyInput')?.value?.trim();
-      if(val && val.startsWith('sk-ant-')){ _saveAiKey(val); renderAiStrip(); }
-      else alert('Invalid key — must start with sk-ant-');
-    });
-    document.getElementById('aiKeyInput')?.addEventListener('keydown',e=>{
-      if(e.key==='Enter') document.getElementById('aiKeySaveBtn')?.click();
-    });
-    return;
-  }
-
-  // Has key + whitelisted — show model selector + generate button
-  wrap.innerHTML = `
-    <div class="ai-strip">
-      <span class="ai-strip-label">✦ AI Generate</span>
-      <select class="ai-model-sel" id="aiModelSel">
-        <option value="none">Off — use algorithm</option>
-        <option value="haiku" ${AI_MODEL==='haiku'?'selected':''}>Haiku 3.5 — fast</option>
-        <option value="sonnet" ${AI_MODEL==='sonnet'?'selected':''}>Sonnet 4.5 — best</option>
-      </select>
-      <button class="ai-generate-btn" id="aiGenerateBtn" ${AI_MODEL==='none'?'disabled':''}>
-        <div class="ai-spinner"></div>
-        <span class="ai-btn-text">✦ AI Song</span>
-      </button>
-      <button class="ai-key-btn" id="aiKeyClearBtn" style="opacity:.5;font-size:9px">✕ Key</button>
-    </div>`;
-
-  document.getElementById('aiModelSel')?.addEventListener('change', e=>{
-    AI_MODEL = e.target.value;
-    document.getElementById('aiGenerateBtn').disabled = (AI_MODEL==='none');
-  });
-
-  document.getElementById('aiGenerateBtn')?.addEventListener('click', generateSongAI);
-
-  document.getElementById('aiKeyClearBtn')?.addEventListener('click',()=>{
-    if(confirm('Remove saved API key?')){ _clearAiKey(); renderAiStrip(); }
-  });
-}
-
-// ── Build the prompt ──
-function _buildSongPrompt(){
-  const genre = getEffectiveGenre();
-  const scaleIvs = getCurrentScaleIvs();
-  const scaleRoot = getCurrentScaleRoot();
-  const scaleName = getCurrentScaleName();
-  const isMin = isMinorish(scaleIvs);
-  const chords = diatonicChords(scaleRoot, scaleIvs, JAZZ);
-  const form = genre?.signatureForm || genre?.forms?.[0] || 'Verse-Chorus';
-
-  const chordList = chords.map((ch,i)=>`${['I','ii','iii','IV','V','vi','vii°'][i]} = ${ch.sym}`).join(', ');
-  const noteNames = scaleIvs.map(iv=>({C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11}[scaleRoot]!==undefined?['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][(([...Array(12)].map((_,i)=>i).indexOf(([...Array(12)].map((_,i)=>i))[0])+iv)%12]:'?')).join(', ');
-
-  // Simpler note computation
-  const CHR2=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  const rootIdx2 = CHR2.indexOf(scaleRoot);
-  const scaleNotes2 = scaleIvs.map(iv=>CHR2[(rootIdx2+iv)%12]).join(', ');
-
-  const thaatCtx = OPEN_THAAT ? `\nThaat context: ${OPEN_THAAT} (${THAATS[OPEN_THAAT]?.western||''})` : '';
-  const modeCtx = OPEN_MODE>=0&&MODES[OPEN_MODE] ? `\nMode: ${MODES[OPEN_MODE].n} — ${MODES[OPEN_MODE].v}` : '';
-  const jazzNote = JAZZ ? '\nJazz+ mode is ON — use 7ths and extensions.' : '';
-  const genres = [...SELECTED_GENRES].join(' + ');
-  const complexity = SONG_COMPLEXITY;
-
-  return `You are a professional music composer and arranger. Generate a complete song structure with chord progressions.
-
-CONTEXT:
-- Key / Root: ${scaleRoot}
-- Scale: ${scaleName} (${isMin?'minor':'major'} quality)
-- Scale notes: ${scaleNotes2}
-- Available diatonic chords ONLY: ${chordList}
-- Genre: ${genres}
-- Form: ${form}
-- Complexity: ${complexity}${thaatCtx}${modeCtx}${jazzNote}
-
-RULES (strictly follow every one):
-1. Use ONLY the diatonic chords listed above — no others. Every chord must be from this list.
-2. Use Roman numeral degree notation (I, ii, iii, IV, V, vi, vii°).
-3. Each section MUST use a different chord progression. Never repeat the same progression in adjacent sections.
-4. Chorus must feel stronger / more resolved than Verse.
-5. Bridge must introduce harmonic contrast — move away from tonic.
-6. The final section must end on the tonic chord (I or i).
-7. Avoid using the tonic chord more than twice consecutively.
-8. Use common, recognisable progressions for the genre.
-
-OUTPUT FORMAT — respond with valid JSON only, no markdown, no explanation:
-{
-  "title": "evocative song title",
-  "subtitle": "one evocative line describing the mood",
-  "styleNote": "brief description of harmonic approach for this genre",
-  "sections": [
-    {
-      "label": "Verse",
-      "role": "verse",
-      "progression": ["I", "vi", "IV", "V"],
-      "bars": 4,
-      "melodyHint": "specific melodic guidance for this progression"
-    }
-  ],
-  "tempo": "Medium (♩=120)",
-  "evaluation": {
-    "harmVariation": 8,
-    "knownProgs": 9,
-    "repetitionScore": 8,
-    "resolutionScore": 10,
-    "overall": 9
-  }
-}`;
-}
-
-// ── Call the API and parse ──
-async function generateSongAI(){
-  const key = _getAiKey();
-  if(!key){ alert('No API key saved.'); return; }
-  if(AI_GENERATING) return;
-  if(AI_MODEL==='none') return;
-
-  const btn = document.getElementById('aiGenerateBtn');
-  AI_GENERATING = true;
-  btn?.classList.add('loading');
-  if(btn) btn.disabled = true;
-
-  const modelId = AI_MODEL==='sonnet'
-    ? 'claude-sonnet-4-5'
-    : 'claude-haiku-3-5-20241022';
-
-  try{
-    const prompt = _buildSongPrompt();
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': key,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true',
-      },
-      body: JSON.stringify({
-        model: modelId,
-        max_tokens: 2000,
-        messages:[{role:'user', content: prompt}]
-      })
-    });
-
-    if(!res.ok){
-      const err = await res.json().catch(()=>({}));
-      throw new Error(err.error?.message || `API error ${res.status}`);
-    }
-
-    const data = await res.json();
-    const raw = data.content?.[0]?.text || '';
-
-    // Parse JSON from response
-    const jsonStr = raw.replace(/^```json\s*/i,'').replace(/```$/,'').trim();
-    const aiResult = JSON.parse(jsonStr);
-
-    // Convert AI result into Vaikhari song object
-    const song = _aiResultToSong(aiResult);
-    if(song){
-      CURRENT_SONG = song;
-      displaySong(CURRENT_SONG);
-      _saveToHistory(CURRENT_SONG);
-    }
-
-  } catch(e){
-    console.error('AI generation error:', e);
-    const msg = e.message?.includes('401') ? 'Invalid API key — check your key and try again.'
-               : e.message?.includes('429') ? 'Rate limit hit — wait a moment and retry.'
-               : e.message?.includes('JSON') ? 'AI returned unexpected format — try again.'
-               : `Error: ${e.message}`;
-    alert(msg);
-  } finally{
-    AI_GENERATING = false;
-    btn?.classList.remove('loading');
-    if(btn) btn.disabled = false;
-  }
-}
-
-// ── Convert AI JSON response to Vaikhari song object ──
-function _aiResultToSong(ai){
-  if(!ai||!ai.sections) return null;
-  const genre = getEffectiveGenre();
-  const scaleIvs = getCurrentScaleIvs();
-  const scaleRoot = getCurrentScaleRoot();
-  const scaleName = getCurrentScaleName();
-  const isMin = isMinorish(scaleIvs);
-
-  const resolvedSections = ai.sections.map(sec=>{
-    const resolved = (sec.progression||[]).map(rom=>
-      resolveChord(upgradeRoman(rom, primaryGenre()), scaleRoot, scaleIvs, primaryGenre(), JAZZ)
-    ).filter(Boolean);
-    return {
-      label: sec.label||'Section',
-      prog: sec.progression||[],
-      resolvedChords: resolved,
-      bars: sec.bars || resolved.length,
-      midiReps: sec.role==='chorus'?2:1,
-      melodyHint: sec.melodyHint||'',
-      aiGenerated: true,
-    };
-  }).filter(s=>s.resolvedChords.length>0);
-
-  const titles = {title: ai.title||'Untitled', subtitle: ai.subtitle||''};
-
-  return {
-    title: titles.title,
-    subtitle: titles.subtitle,
-    genre: genre?.label||'',
-    genreIcon: genre?.icon||'♬',
-    form: ai.sections.map(s=>s.label).join('–'),
-    tempo: ai.tempo||'Medium (♩=120)',
-    scaleName, scaleIvs, isMin,
-    fusionLabel: getFusionLabel(),
-    styleNote: ai.styleNote || genre?.styleNote||'',
-    sections: resolvedSections,
-    totalBars: resolvedSections.reduce((s,sec)=>s+(sec.bars||0),0),
-    complexity: SONG_COMPLEXITY,
-    useJazz: JAZZ,
-    evaluation: ai.evaluation||null,
-    aiModel: AI_MODEL,
-    thaatCtx: null,
-  };
-}
-
-
-// ══════════════════════════════════════════════════════════════
-// ── AI SONG GENERATION ENGINE ─────────────────────────────────
-// Access: nitu.rathee@gmail.com = unlimited
-//         Other approved emails stored in _aiAllowedEmails
-// ══════════════════════════════════════════════════════════════
-
-const _AI_OWNER   = 'nitu.rathee@gmail.com';
-let   _aiModel    = 'haiku';   // 'off' | 'haiku' | 'sonnet'
-let   _aiAllowedEmails = new Set([_AI_OWNER]);  // expandable
-let   _aiApiKey   = null;      // set via _aiSetKey()
-let   _aiGenerating = false;
-
-// ── Access check ──
-function _aiHasAccess(){
-  if(!_user || !_user.email) return false;
-  return _aiAllowedEmails.has(_user.email.toLowerCase().trim());
-}
-
-function _aiIsOwner(){
-  return _user?.email?.toLowerCase().trim() === _AI_OWNER;
-}
-
-// ── API key management (stored in localStorage, never in code) ──
-function _aiSetKey(key){ _aiApiKey=key; try{localStorage.setItem('vk_ai_key',key);}catch(e){} }
-function _aiLoadKey(){ try{_aiApiKey=localStorage.getItem('vk_ai_key');}catch(e){} }
-function _aiClearKey(){ _aiApiKey=null; try{localStorage.removeItem('vk_ai_key');}catch(e){} }
-
-// ── Build prompt for Claude ──
-function _aiBuildPrompt(context){
-  const {root, scaleName, scaleNotes, chords, isMin, genre, form, complexity, modesName, thaatName} = context;
-
-  const chordList = chords.map((ch,i)=>`${i+1}. ${ch.sym} (${ch.rom}) — notes: ${ch.notes.join(', ')}`).join('\n');
-
-  return `You are a professional music composer and arranger. Generate a complete song structure.
-
-## Musical Context
-- Root key: ${root}
-- Scale: ${scaleName}${modesName?' / '+modesName:''}${thaatName?' / '+thaatName+' Thaat':''}
-- Scale notes: ${scaleNotes.join(', ')}
-- Mode: ${isMin?'Minor/Modal':'Major'}
-- Genre: ${genre}
-- Form: ${form}
-- Complexity: ${complexity}
-
-## Available Diatonic Chords (USE ONLY THESE)
-${chordList}
-
-## Rules
-1. Use ONLY the ${chords.length} chords listed above — no exceptions
-2. Reference chords by their Roman numeral (e.g. I, ii, IV, V, vi)
-3. Each section MUST use a different chord progression
-4. Chorus must feel stronger/more resolved than verse
-5. Bridge must introduce new harmonic movement
-6. Final section must end on the root chord (${chords[0].sym})
-7. Use progressions typical for ${genre}
-8. Minimum 3 unique chords used across the whole song
-
-## Required JSON Response
-Return ONLY valid JSON, no markdown, no explanation:
-{
-  "title": "evocative song title",
-  "subtitle": "one evocative line (mood/imagery, not description)",
-  "styleNote": "brief performance/production note for ${genre}",
-  "sections": [
-    {
-      "label": "Verse",
-      "role": "verse",
-      "progression": ["I", "vi", "IV", "V"],
-      "bars": 4,
-      "midiReps": 2,
-      "melodyHint": "specific melodic guidance for this section referencing the actual scale notes"
-    }
-  ],
-  "tempoSuggestion": "e.g. Medium Swing ♩=120",
-  "productionNote": "2-sentence arrangement/production tip specific to ${genre} and ${scaleName}"
-}`;
-}
-
-// ── Call Claude API ──
-async function _aiCallClaude(prompt, model){
-  const modelId = model==='sonnet'
-    ? 'claude-sonnet-4-5'
-    : 'claude-haiku-3-5';
-
-  const resp = await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key': _aiApiKey,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body: JSON.stringify({
-      model: modelId,
-      max_tokens: 1800,
-      messages:[{role:'user', content: prompt}]
-    })
-  });
-
-  if(!resp.ok){
-    const err = await resp.json().catch(()=>({}));
-    throw new Error(err?.error?.message || `API error ${resp.status}`);
-  }
-
-  const data = await resp.json();
-  const text = data.content?.[0]?.text || '';
-  // Strip any accidental markdown fences
-  const clean = text.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim();
-  return JSON.parse(clean);
-}
-
-// ── Resolve AI sections into full song object ──
-function _aiResolveSections(aiData, context){
-  const {root, scaleIvs, scaleName, isMin, genre, form, chords} = context;
-  const genreObj = getEffectiveGenre();
-
-  const ROMAN_TO_DEG = {
-    'I':0,'ii':1,'iii':2,'IV':3,'V':4,'vi':5,'vii°':6,'vii':6,
-    'i':0,'ii°':1,'III':2,'iv':3,'v':4,'VI':5,'VII':6,
-    'I7':0,'IV7':3,'V7':4,'ii7':1,'iii7':2,'vi7':5,
-  };
-
-  function resolveRoman(rom){
-    const deg = ROMAN_TO_DEG[rom] ?? ROMAN_TO_DEG[rom.replace(/[°7maj9]+$/,'')] ?? 0;
-    return chords[Math.min(deg, chords.length-1)];
-  }
-
-  const sections = (aiData.sections||[]).map(sec=>({
-    label: sec.label||'Section',
-    role:  sec.role||'verse',
-    prog:  sec.progression||[],
-    resolvedChords: (sec.progression||[]).map(resolveRoman),
-    bars:     sec.bars||4,
-    midiReps: sec.midiReps||2,
-    melodyHint: sec.melodyHint||'',
-    aiGenerated: true,
-  })).filter(s=>s.resolvedChords.length>0);
-
-  const evaluation = evaluateSong(sections, isMin);
-
-  const titles = aiData.title
-    ? {title: aiData.title, subtitle: aiData.subtitle||''}
-    : genSongTitle(primaryGenre(), scaleName, isMin);
-
-  const thaatCtx = SONG_THAAT&&THAAT_SONG[SONG_THAAT]?{
-    name:SONG_THAAT, western:THAAT_SONG[SONG_THAAT].western,
-    mood:THAAT_SONG[SONG_THAAT].mood, swaras:THAAT_SONG[SONG_THAAT].swaras,
-    colorNote:THAAT_SONG[SONG_THAAT].colorNote,
-  }:null;
-
-  return {
-    title: titles.title,
-    subtitle: titles.subtitle,
-    genre: genreObj?.label||genre,
-    genreIcon: genreObj?.icon||'♬',
-    form, scaleName, scaleIvs, isMin,
-    fusionLabel: getFusionLabel(),
-    styleNote: aiData.styleNote || genreObj?.styleNote||'',
-    productionNote: aiData.productionNote||'',
-    tempo: aiData.tempoSuggestion || (genreObj?.tempos?pick(genreObj.tempos):'♩=120'),
-    sections,
-    totalBars: sections.reduce((s,sec)=>s+(sec.bars||sec.resolvedChords.length),0),
-    complexity: SONG_COMPLEXITY,
-    useJazz: JAZZ,
-    thaatCtx,
-    evaluation,
-    aiModel: _aiModel,
-    aiGenerated: true,
-  };
-}
-
-// ── Main AI generate entry point ──
-async function generateSongAI(formOverride){
-  if(!_aiHasAccess()){
-    alert('AI generation is not enabled for your account.\nContact nitu.rathee@gmail.com to request access.');
-    return null;
-  }
-
-  if(!_aiApiKey){
-    const key = prompt('Enter your Anthropic API key (saved locally, never sent to our servers):');
-    if(!key||!key.startsWith('sk-')) { alert('Invalid API key format. Should start with sk-'); return null; }
-    _aiSetKey(key);
-  }
-
-  if(_aiGenerating) return null;
-
-  const genre     = getEffectiveGenre();
-  const scaleIvs  = getCurrentScaleIvs();
-  const scaleName = getCurrentScaleName();
-  const scaleRoot = getCurrentScaleRoot();
-  const isMin     = isMinorish(scaleIvs);
-  const chords    = diatonicChords(scaleRoot, scaleIvs, JAZZ);
-  const form      = formOverride || (genre?.signatureForm||genre?.forms?.[0]||'Verse-Chorus');
-  const modesName = (OPEN_MODE!=null&&OPEN_MODE>=0) ? MODES[OPEN_MODE]?.n : null;
-  const thaatName = OPEN_THAAT||null;
-
-  const context = {
-    root:scaleRoot, scaleName, scaleNotes:scaleIvs.map(iv=>na(scaleRoot,iv)),
-    chords, isMin, genre:genre?.label||'Pop', form,
-    complexity:SONG_COMPLEXITY, modesName, thaatName, scaleIvs
-  };
-
-  const prompt = _aiBuildPrompt(context);
-
-  // Show generating state
-  _aiGenerating = true;
-  const out = document.getElementById('songOutput');
-  if(out) out.innerHTML = `
-    <div class="ai-generating">
-      <div class="ai-spinner"></div>
-      <div>
-        <div style="font-weight:600;margin-bottom:3px">✦ ${_aiModel==='sonnet'?'Sonnet 4.5':'Haiku 3.5'} is composing…</div>
-        <div style="opacity:.7;font-size:10px">${scaleName} in ${scaleRoot} · ${genre?.label} · ${form}</div>
-      </div>
-    </div>`;
-
-  try {
-    const aiData = await _aiCallClaude(prompt, _aiModel);
-    const song   = _aiResolveSections(aiData, context);
-    _aiGenerating = false;
-    return song;
-  } catch(err) {
-    _aiGenerating = false;
-    console.error('AI generation error:', err);
-
-    // Key error — clear it so user can re-enter
-    if(err.message.includes('401')||err.message.includes('authentication')){
-      _aiClearKey();
-      alert('API key rejected. Please re-enter a valid Anthropic API key.');
-    } else {
-      alert('AI generation failed: '+err.message+'\n\nFalling back to algorithmic generation.');
-    }
-    return null;
-  }
-}
-
-// ── Wire AI model dropdown & show/hide bar ──
-function _initAiBar(v){
-  _aiLoadKey();
-
-  // Show AI bar only for users with access
-  const bar = v.querySelector('#aiModelBar');
-  if(!bar) return;
-
-  if(_aiHasAccess()){
-    bar.style.display='flex';
-    const hint = v.querySelector('#aiBarHint');
-    if(hint){
-      if(_aiIsOwner()) hint.textContent='Owner account — unlimited access';
-      else hint.textContent='AI access enabled';
-    }
-  } else {
-    bar.style.display='none';
-  }
-
-  // Wire dropdown
-  const drop = v.querySelector('#aiModelDrop');
-  const trig = v.querySelector('#aiModelTrigger');
-  const opts = v.querySelector('#aiModelOpts');
-  const main = v.querySelector('#aiModelMain');
-
-  if(!drop||!trig||!opts) return;
-
-  trig.addEventListener('click', e=>{
-    e.stopPropagation();
-    drop.classList.toggle('open');
-  });
-
-  opts.querySelectorAll('.opt').forEach(opt=>{
-    opt.addEventListener('click', ()=>{
-      _aiModel = opt.dataset.val;
-      opts.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o===opt));
-      const labels={'off':'Off — Algorithmic','haiku':'Haiku 3.5 · Fast','sonnet':'Sonnet 4.5 · Rich'};
-      if(main) main.textContent = labels[_aiModel]||_aiModel;
-      drop.classList.remove('open');
-      // Update generate button label
-      const genBtn = v.querySelector('#generateSongBtn');
-      if(genBtn) genBtn.textContent = _aiModel==='off' ? '♬ Generate Song' : '✦ AI Generate';
-    });
-  });
-
-  document.addEventListener('click', ()=>drop?.classList.remove('open'));
-}
-
-// ── Expose globally for access management (owner only) ──
-window._vkAI = {
-  grantAccess: email=>{ _aiAllowedEmails.add(email.toLowerCase().trim()); console.log('Access granted to',email); },
-  revokeAccess: email=>{ if(email!==_AI_OWNER) _aiAllowedEmails.delete(email.toLowerCase().trim()); },
-  listAccess: ()=>[..._aiAllowedEmails],
-  setKey: key=>_aiSetKey(key),
-  clearKey: ()=>_aiClearKey(),
-  model: m=>{ if(m) _aiModel=m; return _aiModel; },
-};
-
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1944,20 +1203,1467 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 
 
 /* ── AI Model Bar ── */
-.ai-model-bar{
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  padding:8px 12px;border-radius:10px;
-  background:linear-gradient(135deg,var(--lapis4),rgba(24,37,102,.03));
-  border:1.5px solid var(--lapis3);margin-bottom:14px;
+
+
+
+.ai-generating{
+  display:flex;align-items:center;gap:10px;padding:20px;
+  border:1.5px solid var(--lapis3);border-radius:12px;
+  background:var(--lapis4);margin-bottom:16px;
+  font-family:var(--f-mono);font-size:12px;color:var(--lapis);
 }
-.ai-bar-label{
-  font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;
-  text-transform:uppercase;color:var(--lapis);font-weight:600;white-space:nowrap;
+.ai-spinner{
+  width:18px;height:18px;border:2px solid var(--lapis3);
+  border-top-color:var(--lapis);border-radius:50%;
+  animation:spin .7s linear infinite;flex-shrink:0;
 }
-.ai-bar-hint{
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:5px;
+  background:var(--lapis4);border:1px solid var(--lapis3);
+  font-family:var(--f-mono);font-size:9px;color:var(--lapis);
+  font-weight:600;letter-spacing:.5px;vertical-align:middle;margin-left:6px;
+}
+
+
+/* ── AI Song Generator ── */
+.ai-strip{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 14px;border-radius:10px;
+  background:linear-gradient(135deg,var(--lapis4),rgba(24,37,102,.08));
+  border:1.5px solid var(--lapis3);margin-bottom:12px;
+}
+.ai-strip-label{font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--lapis);flex-shrink:0;}
+.ai-model-sel{
+  padding:5px 10px;border-radius:7px;border:1.5px solid var(--lapis3);
+  background:var(--surface2);font-family:var(--f-mono);font-size:11px;
+  color:var(--ink2);cursor:pointer;outline:none;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a6040' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;
+}
+.ai-model-sel:focus{border-color:var(--lapis);}
+.ai-generate-btn{
+  padding:7px 16px;border-radius:8px;
+  background:linear-gradient(135deg,var(--lapis),var(--lapis2));
+  border:none;color:#fff;font-family:var(--f-mono);font-size:11px;
+  font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.5px;
+  display:flex;align-items:center;gap:6px;
+}
+.ai-generate-btn:hover{opacity:.9;transform:translateY(-1px);}
+.ai-generate-btn:disabled{opacity:.45;cursor:default;transform:none;}
+.ai-generate-btn .ai-spinner{
+  width:12px;height:12px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite;display:none;
+}
+.ai-generate-btn.loading .ai-spinner{display:block;}
+.ai-generate-btn.loading .ai-btn-text{opacity:.6;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-locked{
+  display:flex;align-items:center;gap:8px;
   font-family:var(--f-mono);font-size:10px;color:var(--ink4);
-  font-style:italic;flex:1;
 }
+.ai-locked a{color:var(--lapis);text-decoration:none;}
+.ai-locked a:hover{text-decoration:underline;}
+.ai-key-input{
+  flex:1;padding:5px 10px;border-radius:7px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  font-family:var(--f-mono);font-size:11px;color:var(--ink);outline:none;
+  min-width:0;
+}
+.ai-key-input:focus{border-color:var(--lapis);}
+.ai-key-btn{
+  padding:5px 11px;border-radius:7px;border:1.5px solid var(--lapis3);
+  background:var(--lapis4);color:var(--lapis);font-family:var(--f-mono);
+  font-size:10px;cursor:pointer;white-space:nowrap;transition:all .13s;
+}
+.ai-key-btn:hover{background:var(--lapis);color:#fff;}
+.ai-song-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:5px;
+  background:var(--lapis4);border:1px solid var(--lapis3);
+  font-family:var(--f-mono);font-size:9px;color:var(--lapis);
+  margin-left:8px;vertical-align:middle;
+}
+
+</style>
+</head>
+<body>
+
+<div class="v-header">
+  <div class="v-wordmark">
+    <span class="v-name">Vaikhari</span>
+    <span class="v-sep">·</span>
+    <span class="v-tagline">Unified Music Theory Portal</span>
+  </div>
+  <div class="v-ctrls">
+    <div class="csel" id="instDrop" style="min-width:130px">
+      <div class="csel-trigger" id="instTrigger">
+        <div class="csel-left">
+          <span class="csel-main has-val" id="instSelMain">Guitar</span>
+        </div>
+        <svg class="csel-chev" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,4 7,10 12,4"/></svg>
+      </div>
+      <div class="csel-opts" id="instOpts" style="min-width:130px">
+        <div class="opt sel" data-val="guitar">Guitar</div>
+        <div class="opt" data-val="ukulele">Ukulele</div>
+        <div class="opt" data-val="keyboard">Keyboard</div>
+        <div class="opt-none" data-val="none">Off</div>
+      </div>
+    </div>
+        <button class="v-btn" id="darkToggle">◑ Dark</button>
+    <div class="user-menu" id="userMenu">
+      <button class="auth-btn" id="authBtn" title="Sign in with Google">
+        <span id="authBtnIcon">☁</span>
+        <span id="authBtnLabel">Sign In</span>
+      </button>
+      <div class="user-dropdown" id="userDropdown" style="display:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border2)">
+          <div id="userDropName" style="font-family:var(--f-serif);font-size:14px;font-weight:700;color:var(--ink)"></div>
+          <div id="userDropEmail" style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:2px"></div>
+        </div>
+        <button class="user-dropdown-item" id="ddSavedSongs">♬ Saved Songs</button>
+        <button class="user-dropdown-item" id="ddFavScales">★ Favourite Scales</button>
+        <button class="user-dropdown-item" id="ddFeedback">✎ Leave Feedback</button>
+        <button class="user-dropdown-item danger" id="ddSignOut">↩ Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="key-strip">
+  <span class="key-lbl">Root / Sa</span>
+  <!-- Dropdown for narrow screens -->
+  <div class="key-dropdown" id="keyDropdown">
+    <button class="key-drop-trigger" id="keyDropTrigger">
+      <span id="keyDropVal">C</span>
+      <svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg>
+    </button>
+    <div class="key-drop-opts" id="keyDropOpts">
+      <button class="key-drop-opt on" data-root="C">C</button>
+      <button class="key-drop-opt" data-root="C#">C#</button>
+      <button class="key-drop-opt" data-root="D">D</button>
+      <button class="key-drop-opt" data-root="D#">D#</button>
+      <button class="key-drop-opt" data-root="E">E</button>
+      <button class="key-drop-opt" data-root="F">F</button>
+      <button class="key-drop-opt" data-root="F#">F#</button>
+      <button class="key-drop-opt" data-root="G">G</button>
+      <button class="key-drop-opt" data-root="G#">G#</button>
+      <button class="key-drop-opt" data-root="A">A</button>
+      <button class="key-drop-opt" data-root="A#">A#</button>
+      <button class="key-drop-opt" data-root="B">B</button>
+    </div>
+  </div>
+  <!-- Button row for wide screens -->
+  <div class="key-row" id="keyRow">
+    <button class="k on" data-root="C">C</button>
+    <button class="k" data-root="C#">C#</button>
+    <button class="k" data-root="D">D</button>
+    <button class="k" data-root="D#">D#</button>
+    <button class="k" data-root="E">E</button>
+    <button class="k" data-root="F">F</button>
+    <button class="k" data-root="F#">F#</button>
+    <button class="k" data-root="G">G</button>
+    <button class="k" data-root="G#">G#</button>
+    <button class="k" data-root="A">A</button>
+    <button class="k" data-root="A#">A#</button>
+    <button class="k" data-root="B">B</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-bar">
+    <span class="card-bar-left">Theory Reference</span>
+    <span class="card-bar-right" id="statusLbl">Select a category</span>
+  </div>
+
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab on" data-tab="scale"><span class="nav-tab-icon">♩</span><span class="nav-tab-lbl">Scales</span></button>
+    <button class="nav-tab" data-tab="mode"><span class="nav-tab-icon">〰</span><span class="nav-tab-lbl">Modes</span></button>
+    <button class="nav-tab" data-tab="thaat" id="thaatTab"><span class="nav-tab-icon">🪔</span><span class="nav-tab-lbl">Thaats</span></button>
+    <div class="nav-tabs-spacer"></div>
+    <button class="nav-tab" data-tab="song" id="songNavTab"><span class="nav-tab-icon">♬</span><span class="nav-tab-lbl">Song</span></button>
+    <button class="nav-tab" data-tab="arp" id="arpNavTab"><span class="nav-tab-icon">〜</span><span class="nav-tab-lbl">Arpeggio</span></button>
+    <button class="jazz-toggle" id="jazzBtn">◦ Jazz+</button>
+  </div>
+
+  <div class="sel-area" id="selArea">
+    <div class="sel-wrap" id="scaleSel">
+      <div class="csel" id="scaleDropEl">
+        <div class="csel-trigger"><div class="csel-left"><span class="csel-main" id="scaleSelMain">Choose a scale</span><span class="csel-sub" id="scaleSelSub">Select to see notes, steps &amp; chords</span></div><svg class="csel-chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+        <div class="csel-opts" id="scaleOpts">
+          <div class="opt-none" data-val="">— None —</div>
+          <div class="opt" data-val="Major" data-vibe="Bright · Resolved">Major</div>
+          <div class="opt" data-val="Natural Minor" data-vibe="Dark · Emotional">Natural Minor</div>
+          <div class="opt" data-val="Harmonic Minor" data-vibe="Exotic · Dramatic">Harmonic Minor</div>
+          <div class="opt" data-val="Melodic Minor" data-vibe="Smooth · Jazz minor">Melodic Minor</div>
+          <div class="opt" data-val="Dorian" data-vibe="Cool · Jazzy">Dorian</div>
+          <div class="opt" data-val="Mixolydian" data-vibe="Bluesy · Dominant">Mixolydian</div>
+          <div class="opt" data-val="Phrygian" data-vibe="Dark · Spanish">Phrygian</div>
+          <div class="opt" data-val="Lydian" data-vibe="Dreamy · Floating">Lydian</div>
+          <div class="opt" data-val="Pentatonic Maj" data-vibe="Open · Universal">Pentatonic Maj</div>
+          <div class="opt" data-val="Pentatonic Min" data-vibe="Gritty · Soulful">Pentatonic Min</div>
+          <div class="opt" data-val="Blues" data-vibe="Soulful · Gritty">Blues</div>
+          <div class="opt" data-val="Whole Tone" data-vibe="Dreamy · Impressionistic">Whole Tone</div>
+          <div class="opt" data-val="Diminished" data-vibe="Tense · Symmetric">Diminished</div>
+        </div>
+      </div>
+    </div>
+    <div class="sel-wrap" id="modeSel" style="display:none">
+      <div class="csel" id="modeDropEl">
+        <div class="csel-trigger"><div class="csel-left"><span class="csel-main" id="modeSelMain">Choose a mode</span><span class="csel-sub" id="modeSelSub">7 Greek modes of the major scale</span></div><svg class="csel-chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+        <div class="csel-opts" id="modeOpts">
+          <div class="opt-none" data-val="">— None —</div>
+          <div class="opt" data-val="Ionian" data-vibe="Bright · Happy">Ionian (I)</div>
+          <div class="opt" data-val="Dorian" data-vibe="Cool · Jazzy">Dorian (II)</div>
+          <div class="opt" data-val="Phrygian" data-vibe="Dark · Spanish">Phrygian (III)</div>
+          <div class="opt" data-val="Lydian" data-vibe="Dreamy · Cinematic">Lydian (IV)</div>
+          <div class="opt" data-val="Mixolydian" data-vibe="Bluesy · Rock">Mixolydian (V)</div>
+          <div class="opt" data-val="Aeolian" data-vibe="Sad · Emotional">Aeolian (VI)</div>
+          <div class="opt" data-val="Locrian" data-vibe="Tense · Unstable">Locrian (VII)</div>
+        </div>
+      </div>
+    </div>
+    <div class="sel-wrap" id="thaatSel" style="display:none">
+      <div class="csel" id="thaatDropEl">
+        <div class="csel-trigger indian"><div class="csel-left"><span class="csel-main" id="thaatSelMain">Choose a thaat</span><span class="csel-sub" id="thaatSelSub">10 parent scales of Hindustani classical music</span></div><svg class="csel-chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+        <div class="csel-opts indian" id="thaatOpts">
+          <div class="opt-none" data-val="">— None —</div>
+          <div class="opt" data-val="Bilawal" data-vibe="Pure · Radiant · Dawn">Bilawal</div>
+          <div class="opt" data-val="Kalyan" data-vibe="Ethereal · Romantic · Dusk">Kalyan</div>
+          <div class="opt" data-val="Khamaj" data-vibe="Playful · Festive · Night">Khamaj</div>
+          <div class="opt" data-val="Kafi" data-vibe="Wistful · Seasonal · Folk">Kafi</div>
+          <div class="opt" data-val="Asavari" data-vibe="Sorrowful · Peaceful · Morning">Asavari</div>
+          <div class="opt" data-val="Bhairavi" data-vibe="Tender · Farewell · All-hours">Bhairavi</div>
+          <div class="opt" data-val="Bhairav" data-vibe="Majestic · Devotional · Dawn">Bhairav</div>
+          <div class="opt" data-val="Purvi" data-vibe="Intense · Yearning · Sunset">Purvi</div>
+          <div class="opt" data-val="Marwa" data-vibe="Mysterious · Restless · Dusk">Marwa</div>
+          <div class="opt" data-val="Todi" data-vibe="Profound · Complex · Morning">Todi</div>
+        </div>
+      </div>
+    </div>
+    <div class="sel-wrap" id="songSel" style="display:none">
+      <div class="song-sel-bar">
+        <span class="song-sel-lbl" id="songSelLbl">♬ Song Generator</span>
+        <span class="song-sel-sub">Compose using the active scale · mode · thaat &amp; key</span>
+      </div>
+    </div>
+    <div class="sel-wrap" id="arpSel" style="display:none">
+      <div class="song-sel-bar">
+        <span class="song-sel-lbl">〜 Arpeggio Explorer</span>
+        <span class="song-sel-sub">Patterns &amp; MIDI export from the active scale · mode · thaat</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content" id="mainContent">
+    <div id="scaleView" class="pad"></div>
+    <div id="modeView" class="pad" style="display:none"></div>
+    <div id="thaatView" class="pad" style="display:none"><div id="thaatDisp"></div></div>
+    <div id="songView" class="pad" style="display:none"></div>
+    <div id="arpView" class="pad" style="display:none"></div>
+  </div>
+</div>
+
+link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5efe2;--surface:#fdf8f0;--surface2:#eee5ce;--surface3:#e4d9be;
+  --border:rgba(60,35,10,.22);--border2:rgba(60,35,10,.12);
+  --ink:#1a0f04;--ink2:#2d1a08;--ink3:#5a3a18;--ink4:#8a6040;
+  --saffron:#bf5c00;--saffron2:#e07000;--saffron3:rgba(191,92,0,.12);--saffron4:rgba(191,92,0,.06);
+  --jade:#0a3d20;--jade2:#0f5a2e;--jade3:rgba(10,61,32,.10);--jade4:rgba(10,61,32,.05);
+  --lapis:#182566;--lapis2:#243888;--lapis3:rgba(24,37,102,.10);--lapis4:rgba(24,37,102,.05);
+  --lotus:#8b2252;--turmeric:#9a7208;
+  --f-serif:'Cormorant Garamond',Georgia,serif;
+  --f-mono:'DM Mono',monospace;
+  --f-sans:'Outfit',sans-serif;
+  --r:12px;--r-sm:8px;--r-lg:16px;
+  --shadow:0 4px 24px rgba(40,20,0,.10);--shadow-lg:0 12px 48px rgba(40,20,0,.14);
+  --card-w:min(98vw,860px);
+}
+body.dark{
+  --bg:#13100c;--surface:#1b1813;--surface2:#252119;--surface3:#302c22;
+  --border:rgba(220,195,155,.28);--border2:rgba(220,195,155,.14);
+  --ink:#f2e8d8;--ink2:#ddd0b8;--ink3:#b89e7a;--ink4:#7a6448;
+  --saffron:#e8952a;--saffron2:#f0b050;--saffron3:rgba(232,149,42,.18);--saffron4:rgba(232,149,42,.09);
+  --jade:#2ab870;--jade2:#40d488;--jade3:rgba(42,184,112,.16);--jade4:rgba(42,184,112,.08);
+  --lapis:#5d8fe0;--lapis2:#7aaaff;--lapis3:rgba(93,143,224,.16);--lapis4:rgba(93,143,224,.08);
+  --lotus:#c8608c;--turmeric:#c8a020;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);font-family:var(--f-sans);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:clamp(10px,2vw,20px) 0 60px;transition:background .3s,color .3s}
+
+.v-header{width:100%;max-width:var(--card-w);display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:nowrap;padding:0 clamp(14px,3vw,22px);box-sizing:border-box;}
+.v-wordmark{display:flex;align-items:baseline;gap:6px;flex:1;min-width:0;overflow:hidden;}
+.v-name{font-family:var(--f-serif);font-size:clamp(22px,5vw,28px);font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1;white-space:nowrap;flex-shrink:0;}
+.v-tagline{font-family:var(--f-mono);font-size:clamp(8px,.9vw,10px);color:var(--ink4);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}.v-sep{color:var(--ink4);font-family:var(--f-mono);font-size:12px;flex-shrink:0;}
+.v-ctrls{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.v-btn{padding:5px 11px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-family:var(--f-mono);font-size:11px;color:var(--ink3);cursor:pointer;transition:all .18s;white-space:nowrap;letter-spacing:.5px}
+.v-btn:hover{border-color:var(--ink3);color:var(--ink2)}
+.v-btn.indian.on,.v-btn.indian:hover{border-color:var(--saffron);color:var(--saffron);background:var(--saffron4)}
+.v-btn.jazz.on,.v-btn.jazz:hover{border-color:var(--lapis);color:var(--lapis);background:var(--lapis4)}
+
+/* Song Generator Button — prominent */
+.song-gen-btn{
+  padding:8px 20px;border-radius:20px;
+  border:2px solid var(--jade);
+  background:var(--jade4);
+  font-family:var(--f-mono);font-size:11px;
+  color:var(--jade);cursor:pointer;
+  transition:all .18s;white-space:nowrap;letter-spacing:.5px;
+  font-weight:600;
+}
+.song-gen-btn:hover{background:var(--jade3);border-color:var(--jade2);box-shadow:0 0 0 3px var(--jade4)}
+
+/* Complexity pills */
+.cx-pill{
+  padding:5px 14px;border-radius:20px;border:1.5px solid var(--border2);
+  background:var(--surface2);font-family:var(--f-mono);font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .14s;letter-spacing:.5px;
+}
+.cx-pill:hover{border-color:var(--turmeric);color:var(--turmeric);}
+.cx-pill.on{background:var(--turmeric);color:#fff;border-color:var(--turmeric);}
+body.dark .v-tagline{color:#a89070;}
+body.dark .cx-pill.on{background:var(--turmeric);color:var(--bg);}
+
+/* Form alternatives pills */
+.form-alt-pill{
+  padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);
+  background:var(--surface2);font-family:var(--f-mono);font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .14s;letter-spacing:.3px;
+}
+.form-alt-pill:hover{border-color:var(--lapis);color:var(--lapis);}
+.form-alt-pill.on{background:var(--lapis);color:#fff;border-color:var(--lapis);}
+body.dark .form-alt-pill.on{background:var(--lapis2);color:var(--bg);}
+
+/* MIDI button */
+.btn-midi{
+  padding:8px 16px;border-radius:8px;border:1.5px solid var(--lapis);
+  background:var(--lapis4);font-family:var(--f-mono);font-size:11px;
+  color:var(--lapis);cursor:pointer;transition:all .15s;letter-spacing:.5px;font-weight:600;
+}
+.btn-midi:hover{background:var(--lapis3);box-shadow:0 0 0 3px var(--lapis4);}
+.btn-midi:disabled{opacity:.5;cursor:default;}
+
+.key-strip{width:100%;max-width:var(--card-w);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:0 clamp(14px,3vw,22px);box-sizing:border-box;}
+.key-lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;color:var(--ink4);font-weight:500;text-transform:uppercase;white-space:nowrap}
+.key-row{display:flex;gap:5px;flex-wrap:wrap}
+.k{padding:6px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .13s;line-height:1}
+.k:hover{border-color:var(--jade);color:var(--jade)}
+.k.on{background:var(--jade);color:#fff;border-color:var(--jade);box-shadow:0 2px 8px rgba(10,61,32,.25)}
+
+.card{width:100%;max-width:var(--card-w);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column}
+.card-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border2);background:var(--surface2)}
+.card-bar-left{font-family:var(--f-mono);font-size:10px;font-weight:500;letter-spacing:2.5px;color:var(--ink3);text-transform:uppercase}
+.card-bar-right{font-family:var(--f-mono);font-size:10px;color:var(--ink4);letter-spacing:.5px}
+
+.nav-tabs{display:flex;align-items:center;gap:4px;padding:10px 16px;border-bottom:1px solid var(--border2);background:var(--surface);flex-wrap:wrap}
+.nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:clamp(6px,1.2vw,8px) clamp(8px,2vw,14px) clamp(7px,1.3vw,9px);border-radius:var(--r-sm);border:1.5px solid transparent;background:transparent;cursor:pointer;transition:all .16s;font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;font-weight:500;color:var(--ink4);white-space:nowrap;text-transform:uppercase}
+.nav-tab-icon{font-size:16px;opacity:.55;transition:opacity .16s}
+.nav-tab:hover{color:var(--ink2);border-color:var(--border);background:var(--surface2)}
+.nav-tab:hover .nav-tab-icon,.nav-tab.on .nav-tab-icon{opacity:1}
+.nav-tab.on{color:var(--jade);border-color:rgba(10,61,32,.22);background:var(--jade4)}
+.nav-tab.on-saffron{color:var(--saffron);border-color:rgba(191,92,0,.22);background:var(--saffron4)}
+.nav-tab.on-lapis{color:var(--lapis);border-color:rgba(24,37,102,.22);background:var(--lapis4)}
+.nav-tab.on-song{color:var(--jade);border-color:rgba(10,61,32,.3);background:var(--jade3)}
+.nav-tab.on-arp{color:var(--turmeric);border-color:rgba(154,114,8,.3);background:rgba(154,114,8,.08)}
+body.dark .nav-tab.on{background:rgba(26,173,80,.09)}
+body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
+.nav-tabs-spacer{flex:1}
+.jazz-toggle{font-family:var(--f-mono);font-size:10px;letter-spacing:1px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--ink4);cursor:pointer;transition:all .14s;white-space:nowrap}
+.jazz-toggle.on{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis)}
+
+.sel-area{padding:14px 18px 0;border-bottom:1px solid var(--border2);background:var(--surface);min-height:68px}
+.sel-wrap{padding-bottom:14px}
+.csel{position:relative;user-select:none}
+.csel-trigger{display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface2);cursor:pointer;transition:all .18s}
+.csel-trigger:hover{border-color:var(--jade);box-shadow:0 0 0 3px var(--jade4);background:var(--surface)}
+.csel-trigger.indian:hover{border-color:var(--saffron);box-shadow:0 0 0 3px var(--saffron4)}
+.csel.open .csel-trigger{border-color:var(--jade);border-radius:10px 10px 0 0;background:var(--surface)}
+.csel.open-indian .csel-trigger{border-color:var(--saffron)}
+.csel-left{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.csel-main{font-family:var(--f-sans);font-size:clamp(15px,1.8vw,20px);font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csel-trigger:not(.has-val) .csel-main{color:var(--ink3);font-weight:400;font-size:clamp(13px,1.5vw,16px)}
+.csel-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic;letter-spacing:.4px}
+.csel-chev{width:14px;height:14px;color:var(--ink4);flex-shrink:0;transition:transform .2s}
+.csel.open .csel-chev,.csel.open-indian .csel-chev{transform:rotate(180deg)}
+.csel-opts{display:none;position:absolute;left:0;right:0;top:100%;z-index:400;background:var(--surface);border:1.5px solid var(--jade);border-top:none;border-radius:0 0 10px 10px;box-shadow:var(--shadow-lg);max-height:300px;overflow-y:auto}
+.csel-opts.indian{border-color:var(--saffron)}
+.csel.open .csel-opts,.csel.open-indian .csel-opts{display:block}
+.opt,.opt-none{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--ink2);cursor:pointer;transition:background .1s,color .1s;gap:12px}
+.opt::after{content:attr(data-vibe);font-size:10px;color:var(--ink4);font-style:italic;font-weight:400;flex-shrink:0;opacity:0;transition:opacity .14s}
+.opt:hover::after{opacity:1}
+.opt:hover{background:var(--jade4);color:var(--jade)}
+.csel-opts.indian .opt:hover{background:var(--saffron4);color:var(--saffron)}
+.opt.sel{color:var(--jade)}
+.csel-opts.indian .opt.sel{color:var(--saffron)}
+.opt-none{color:var(--ink4);font-weight:400;font-style:italic}
+.diatonic-bar{display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:10px;border:1.5px solid var(--lapis3);background:var(--lapis4)}
+.diatonic-key-lbl{font-family:var(--f-serif);font-size:clamp(18px,2.5vw,26px);font-weight:700;color:var(--lapis);flex:1;font-style:italic}
+.diatonic-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic}
+
+/* Song selector */
+.song-sel-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:10px;border:1.5px solid var(--jade3);background:var(--jade4);flex-wrap:wrap}
+.song-sel-lbl{font-family:var(--f-serif);font-size:clamp(16px,2vw,22px);font-weight:700;color:var(--jade);font-style:italic}
+.song-sel-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic}
+
+.content{flex:1;overflow-y:auto;min-height:300px;max-height:clamp(340px,58vh,700px)}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.pad{padding:clamp(14px,2.5vw,20px) clamp(14px,3vw,22px)}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:14px;text-align:center}
+.empty-glyph{font-family:var(--f-serif);font-size:52px;opacity:.12;line-height:1}
+.empty-msg{font-family:var(--f-mono);font-size:11px;color:var(--ink4);letter-spacing:2px;text-transform:uppercase;line-height:1.8;max-width:280px}
+
+.sec{font-family:var(--f-mono);font-size:10px;letter-spacing:2.5px;font-weight:500;color:var(--ink4);text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+.note-row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.np{padding:7px 13px;border-radius:20px;font-family:var(--f-mono);font-size:14px;font-weight:500;border:1.5px solid var(--border2);background:var(--surface2);color:var(--ink2);line-height:1.2;text-align:center;transition:all .13s}
+.np:hover{border-color:var(--jade);color:var(--jade)}
+.np.root{background:var(--jade);color:#fff;border-color:var(--jade)}
+.np .sw{font-size:9px;display:block;font-family:var(--f-mono);color:var(--saffron);margin-top:2px;font-weight:500}
+.np.root .sw{color:rgba(255,255,255,.75)}
+
+.steps{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.step{padding:4px 8px;border-radius:5px;font-family:var(--f-mono);font-size:11px;font-weight:500;background:var(--surface2);border:1px solid var(--border2);color:var(--ink3)}
+.step.h{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis)}
+
+.scale-hero-name{font-family:var(--f-serif);font-size:clamp(24px,4vw,42px);font-weight:700;color:var(--ink);line-height:1.05;margin-bottom:4px}
+.scale-hero-vibe{font-family:var(--f-mono);font-size:11px;font-style:italic;color:var(--ink4);letter-spacing:.5px;margin-bottom:10px}
+.scale-desc{font-size:14px;color:var(--ink3);line-height:1.75;margin-bottom:14px}
+
+.chord-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px}
+.chord-card{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:12px 8px;text-align:center;cursor:default;transition:all .14s;position:relative}
+.chord-card:hover{border-color:var(--lapis);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.09)}
+.cc-deg{font-size:10px;color:var(--ink4);font-family:var(--f-mono);margin-bottom:5px;letter-spacing:.5px}
+.cc-name{font-family:var(--f-serif);font-size:22px;font-weight:700;color:var(--lapis);line-height:1}
+.cc-type{font-size:11px;color:var(--ink3);font-family:var(--f-mono);margin-top:4px;font-weight:500}
+.cc-notes{font-size:10px;color:var(--ink4);margin-top:5px;font-family:var(--f-mono);line-height:1.6}
+
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dc{background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;padding:12px 4px;cursor:pointer;transition:all .13s;text-align:center;position:relative;overflow:hidden}
+.dc:hover{border-color:var(--ink3)}.dc.root-card{border-color:var(--jade);background:var(--jade4)}.dc.lit{background:var(--jade3);border-color:var(--jade)}
+.dc .deg{font-size:10px;color:var(--ink3);margin-bottom:4px;font-family:var(--f-mono);font-weight:500}
+.dc .cname{font-family:var(--f-serif);font-size:clamp(14px,2.2vw,22px);font-weight:700;color:var(--jade);line-height:1}
+.dc .ctype{font-size:10px;color:var(--ink2);margin-top:3px;font-family:var(--f-mono);font-weight:500}
+.dc .cnotes{font-size:9px;color:var(--ink3);margin-top:4px;line-height:1.55;font-family:var(--f-mono)}
+.dc .hover-info{display:none;position:absolute;inset:0;background:var(--surface);padding:8px 6px;text-align:left;border-radius:8px}
+.dc:hover .hover-info{display:flex;flex-direction:column;justify-content:center}
+.hi-rom{font-family:var(--f-serif);font-size:13px;color:var(--jade);font-weight:700}
+.hi-func{font-size:10px;color:var(--ink2);font-family:var(--f-mono);margin-top:2px}
+.hi-mood{font-size:9px;color:var(--ink3);line-height:1.5;margin-top:3px}
+
+.swara-block{margin:12px 0;padding:12px 16px;background:var(--surface2);border:1.5px dashed var(--border2);border-radius:10px}
+.swara-block-lbl{font-family:var(--f-mono);font-size:10px;color:var(--ink4);letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase}
+.swara-row{display:flex;gap:6px;flex-wrap:wrap}
+.sw-pill{padding:6px 10px;border:1.5px solid var(--border2);border-radius:7px;font-size:12px;font-family:var(--f-mono);color:var(--ink2);display:flex;flex-direction:column;align-items:center;gap:2px}
+.sw-pill .syl{font-size:9px;color:var(--saffron);font-weight:500}
+
+.thaat-hero-name{font-family:var(--f-serif);font-size:clamp(26px,4.5vw,46px);font-weight:700;color:var(--saffron);line-height:1;margin-bottom:4px}
+.thaat-hero-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.thaat-swaras{font-family:var(--f-mono);font-size:13px;color:var(--saffron2);font-weight:500}
+.thaat-vibe{font-family:var(--f-mono);font-size:10px;font-style:italic;color:var(--ink4);margin-left:auto}
+.thaat-desc-box{padding:14px 18px;background:var(--saffron4);border-left:3px solid var(--saffron);border-radius:0 10px 10px 0;font-size:14px;color:var(--ink2);line-height:1.8;margin-bottom:16px}
+.thaat-desc-box em{color:var(--saffron);font-style:italic;font-weight:600}
+.thaat-western{font-size:13px;color:var(--ink3);margin-top:8px}
+.thaat-western strong{color:var(--jade)}
+.thaat-note{display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border:1.5px solid var(--border2);border-radius:8px;font-size:15px;font-family:var(--f-serif);font-weight:600;color:var(--ink2);background:var(--surface)}
+.thaat-note .tn-sw{font-size:9px;font-family:var(--f-mono);color:var(--saffron);font-weight:500;margin-top:2px}
+.thaat-note.sa{border-color:var(--saffron);color:var(--saffron);background:var(--saffron4)}
+.thaat-note.komal{border-color:var(--turmeric);color:var(--turmeric)}
+.thaat-note.tivra{border-color:var(--lotus);color:var(--lotus)}
+.thaat-notes-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+
+.thaat-chord-table{width:100%;border-collapse:collapse;margin:10px 0 16px;font-family:var(--f-sans)}
+.thaat-chord-table th{font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);padding:7px 10px;border-bottom:2px solid var(--border2);text-align:left;font-weight:500;background:var(--surface2)}
+.thaat-chord-table th:first-child{border-radius:8px 0 0 0}
+.thaat-chord-table th:last-child{border-radius:0 8px 0 0}
+.thaat-chord-table td{padding:9px 10px;border-bottom:1px solid var(--border2);font-size:13px;vertical-align:middle}
+.thaat-chord-table tr:last-child td{border-bottom:none}
+.thaat-chord-table tr:hover td{background:var(--surface2)}
+.tct-swara{font-family:var(--f-mono);font-size:11px;font-weight:600;color:var(--saffron);background:var(--saffron4);border:1px solid var(--saffron3);border-radius:5px;padding:3px 8px;display:inline-block;min-width:34px;text-align:center}
+.tct-swara.sa-col{color:var(--jade);background:var(--jade4);border-color:var(--jade3)}
+.tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,.10);border-color:rgba(200,160,32,.22)}
+.tct-swara.tivra-col{color:var(--lotus);background:rgba(139,34,82,.08);border-color:rgba(139,34,82,.18)}
+body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,.12);border-color:rgba(200,160,32,.28)}
+.tct-note{font-family:var(--f-serif);font-size:18px;font-weight:700;color:var(--ink);min-width:28px;display:inline-block}
+.tct-chord{font-family:var(--f-serif);font-size:20px;font-weight:700;color:var(--lapis);line-height:1}
+.tct-type{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:2px}
+.tct-roman{font-family:var(--f-mono);font-size:11px;color:var(--ink3);font-weight:500}
+.tct-tones{font-family:var(--f-mono);font-size:10px;color:var(--ink4);line-height:1.6}
+.tct-fn{font-size:11px;color:var(--ink3);font-family:var(--f-mono)}
+
+.raga-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(160px,28%,220px),1fr));gap:10px;margin-top:8px}
+.raga-tile{background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;padding:16px 16px 14px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
+.raga-tile::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--saffron3) 0%,transparent 60%);opacity:0;transition:opacity .18s}
+.raga-tile:hover{border-color:var(--saffron);transform:translateY(-2px);box-shadow:0 8px 24px rgba(191,92,0,.12)}
+.raga-tile:hover::before{opacity:1}
+.rt-name{font-family:var(--f-serif);font-size:clamp(15px,2vw,20px);font-weight:700;color:var(--saffron);line-height:1.2;position:relative}
+.rt-mood{font-size:12px;color:var(--ink3);font-style:italic;line-height:1.45;position:relative;margin-top:2px}
+.rt-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;position:relative}
+.rt-time{font-family:var(--f-mono);font-size:10px;color:var(--ink4);background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;display:inline-block}
+.rt-tag{font-family:var(--f-mono);font-size:9px;color:var(--saffron);opacity:.7;margin-top:auto;padding-top:10px;position:relative;letter-spacing:.5px}
+.raga-tile:hover .rt-tag{opacity:1}
+
+.back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:11px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .16s;margin-bottom:18px;letter-spacing:.5px}
+.back-btn:hover{border-color:var(--saffron);color:var(--saffron);background:var(--saffron4)}
+.back-btn svg{width:13px;height:13px;flex-shrink:0}
+
+.raga-detail{animation:slideUp .22s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.rd-hero{margin-bottom:16px}
+.rd-name-row{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.rd-name{font-family:var(--f-serif);font-size:clamp(26px,4.5vw,46px);font-weight:700;color:var(--saffron);line-height:1;font-style:italic}
+.rd-badge{font-family:var(--f-mono);font-size:10px;color:var(--saffron);background:var(--saffron4);border:1px solid var(--saffron3);border-radius:20px;padding:4px 12px;align-self:center;white-space:nowrap;letter-spacing:.5px;cursor:pointer;transition:all .14s}
+.rd-badge:hover{background:var(--saffron3);border-color:var(--saffron)}
+.rd-vibe{font-family:var(--f-mono);font-size:11px;font-style:italic;color:var(--ink4);margin-top:5px;letter-spacing:.3px}
+.rd-desc{padding:14px 18px;background:var(--saffron4);border-left:3px solid var(--saffron);border-radius:0 10px 10px 0;font-size:14px;color:var(--ink2);line-height:1.8;margin-bottom:16px}
+.rd-desc em{color:var(--saffron);font-style:italic;font-weight:600}
+
+.aa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+
+.aa-box{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:14px}
+.aa-lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:500}
+.aa-box.aroh .aa-lbl{color:var(--jade)}
+.aa-box.avroh .aa-lbl{color:var(--lapis)}
+.note-seq{display:flex;flex-wrap:wrap;gap:5px}
+.ns{padding:7px 9px;border-radius:7px;font-family:var(--f-mono);font-size:13px;font-weight:500;background:var(--surface);border:1.5px solid var(--border2);color:var(--ink2);text-align:center;min-width:38px;transition:all .12s;cursor:default}
+.ns:hover{transform:scale(1.06)}
+.ns.sa{background:var(--jade);color:#fff;border-color:var(--jade)}
+.ns.komal{border-color:var(--turmeric);color:var(--turmeric);background:rgba(154,114,8,.07)}
+.ns.tivra{border-color:var(--lotus);color:var(--lotus);background:rgba(139,34,82,.07)}
+.ns-sw{font-size:9px;display:block;opacity:.7;margin-top:2px;font-family:var(--f-mono)}
+
+.raga-chord-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px;margin-top:8px}
+.rcc{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:13px 8px;text-align:center;transition:all .13s}
+.rcc:hover{border-color:var(--lapis);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.rcc-fn{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-bottom:5px;letter-spacing:.5px}
+.rcc-name{font-family:var(--f-serif);font-size:24px;font-weight:700;color:var(--lapis);line-height:1}
+.rcc-type{font-family:var(--f-mono);font-size:11px;color:var(--ink3);margin-top:4px;font-weight:500}
+.rcc-notes{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:5px;line-height:1.6}
+.rcc-jazz{font-family:var(--f-mono);font-size:8px;color:var(--lapis);background:var(--lapis4);border:1px solid var(--lapis3);border-radius:3px;padding:1px 5px;display:inline-block;margin-bottom:4px;letter-spacing:.5px;font-weight:500}
+
+.info-jade{padding:13px 17px;background:var(--jade4);border-left:3px solid var(--jade);border-radius:0 10px 10px 0;font-size:13px;color:var(--ink2);line-height:1.8;margin:12px 0}
+.info-jade strong{color:var(--jade)}
+.info-lapis{padding:13px 17px;background:var(--lapis4);border-left:3px solid var(--lapis);border-radius:0 10px 10px 0;font-size:13px;color:var(--ink2);line-height:1.8;margin:12px 0}
+.info-lapis strong{color:var(--lapis)}
+.info-saffron{padding:13px 17px;background:var(--saffron4);border-left:3px solid var(--saffron);border-radius:0 10px 10px 0;font-size:13px;color:var(--ink2);line-height:1.8;margin:12px 0}
+.info-saffron strong{color:var(--saffron)}
+
+.tala-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(160px,30%,240px),1fr));gap:8px;margin-top:8px}
+.tala-card{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:14px;transition:border-color .14s}
+.tala-card:hover{border-color:var(--saffron)}
+.tc-name{font-family:var(--f-sans);font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:4px}
+.tc-beats{font-family:var(--f-serif);font-size:36px;font-weight:700;color:var(--saffron);line-height:1}
+.tc-beats-lbl{font-family:var(--f-mono);font-size:9px;color:var(--saffron2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.tc-pattern{font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.7;background:var(--surface);border-radius:6px;padding:6px 10px;margin-top:6px;word-break:break-word}
+.tc-desc{font-size:11px;color:var(--ink4);margin-top:7px;line-height:1.6}
+.tc-groups{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
+.tc-group{padding:2px 8px;border-radius:4px;background:var(--saffron3);font-family:var(--f-mono);font-size:10px;color:var(--saffron);font-weight:500}
+
+.xlink{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-family:var(--f-mono);font-size:10px;font-weight:500;cursor:pointer;border:1px solid;transition:all .13s;text-decoration:none;white-space:nowrap}
+.xlink-jade{color:var(--jade);border-color:rgba(10,61,32,.25);background:var(--jade4)}
+.xlink-jade:hover{background:var(--jade3)}
+.xlink-saffron{color:var(--saffron);border-color:rgba(191,92,0,.25);background:var(--saffron4)}
+.xlink-saffron:hover{background:var(--saffron3)}
+.xlink-lapis{color:var(--lapis);border-color:rgba(24,37,102,.25);background:var(--lapis4)}
+.xlink-lapis:hover{background:var(--lapis3)}
+.xlinks-row{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+
+.divider{height:1px;background:var(--border2);margin:16px 0}
+
+/* ══════════════════════════════════════
+   SONG GENERATOR STYLES
+══════════════════════════════════════ */
+
+/* Genre picker row */
+.genre-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.genre-pill{
+  padding:7px 16px;border-radius:20px;
+  border:1.5px solid var(--border2);
+  background:var(--surface2);
+  font-family:var(--f-mono);font-size:11px;font-weight:500;
+  color:var(--ink3);cursor:pointer;transition:all .15s;
+  letter-spacing:.5px;user-select:none;
+}
+.genre-pill:hover{border-color:var(--jade);color:var(--jade);background:var(--jade4)}
+.genre-pill.on{background:var(--jade);color:#fff;border-color:var(--jade);box-shadow:0 2px 8px rgba(10,61,32,.25)}
+.genre-pill.on-lapis{background:var(--lapis);color:#fff;border-color:var(--lapis)}
+.genre-pill.on-saffron{background:var(--saffron);color:#fff;border-color:var(--saffron)}
+
+/* Song action buttons */
+.song-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.btn-generate{
+  padding:10px 24px;border-radius:10px;
+  border:2px solid var(--jade);
+  background:var(--jade);
+  font-family:var(--f-mono);font-size:12px;font-weight:600;
+  color:#fff;cursor:pointer;transition:all .16s;letter-spacing:.5px;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-generate:hover{background:var(--jade2);border-color:var(--jade2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(10,61,32,.25)}
+.btn-generate:active{transform:translateY(0)}
+.btn-shuffle{
+  padding:10px 20px;border-radius:10px;
+  border:1.5px solid var(--lapis);
+  background:var(--lapis4);
+  font-family:var(--f-mono);font-size:12px;font-weight:500;
+  color:var(--lapis);cursor:pointer;transition:all .16s;letter-spacing:.5px;
+  display:flex;align-items:center;gap:7px;
+}
+.btn-shuffle:hover{background:var(--lapis3);transform:translateY(-1px);box-shadow:0 4px 12px rgba(24,37,102,.18)}
+.btn-copy{
+  padding:10px 18px;border-radius:10px;
+  border:1.5px solid var(--border);
+  background:transparent;
+  font-family:var(--f-mono);font-size:11px;
+  color:var(--ink3);cursor:pointer;transition:all .16s;letter-spacing:.5px;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-copy:hover{border-color:var(--ink2);color:var(--ink2)}
+.btn-copy.copied{border-color:var(--jade);color:var(--jade)}
+
+/* Song loading spinner */
+.song-loading{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;gap:16px;
+}
+.spin-ring{
+  width:40px;height:40px;border-radius:50%;
+  border:3px solid var(--border2);
+  border-top-color:var(--jade);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-lbl{font-family:var(--f-mono);font-size:11px;color:var(--ink4);letter-spacing:2px;text-transform:uppercase}
+
+/* Song output display */
+.song-output{animation:songIn .3s ease}
+@keyframes songIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.song-header{margin-bottom:20px}
+/* Song title row with play button */
+.song-title-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px;}
+.song-title{font-family:var(--f-serif);font-size:clamp(22px,3.5vw,36px);font-weight:700;color:var(--ink);line-height:1.1;font-style:italic;flex:1;}
+.song-play-btn{flex-shrink:0;margin-top:4px;width:32px;height:32px;border-radius:50%;border:2px solid var(--lapis);background:var(--surface);color:var(--lapis);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.song-play-btn:hover{background:var(--lapis);color:#fff;}
+.song-play-btn.playing{background:var(--lapis);color:#fff;border-color:var(--lapis);}
+/* Tempo chip */
+.song-tempo-chip{display:flex;flex-direction:column;align-items:center;min-width:100px;}
+.song-tempo-ctrl{display:flex;align-items:center;gap:clamp(3px,1vw,5px);margin-bottom:2px;flex-wrap:nowrap;}
+
+.song-tempo-btn{width:clamp(18px,5vw,22px);height:clamp(18px,5vw,22px);border-radius:5px;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);font-size:clamp(12px,3vw,14px);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .12s;flex-shrink:0;}
+.song-tempo-btn:hover{border-color:var(--lapis);color:var(--lapis);}
+.song-bpm-slider{width:min(90px,100%);max-width:100%;-webkit-appearance:none;height:3px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;margin-top:2px;}
+.song-bpm-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--lapis);border:2px solid var(--surface);cursor:pointer;}
+.song-bpm-slider::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--lapis);border:2px solid var(--surface);cursor:pointer;}
+/* Section play / loop buttons */
+.ss-play-btn,.ss-loop-btn{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface);color:var(--ink3);font-size:22px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0;}
+.ss-play-btn:hover{border-color:var(--lapis);color:var(--lapis);}
+.ss-play-btn.playing{background:var(--lapis);color:#fff;border-color:var(--lapis);}
+.ss-loop-btn:hover{border-color:var(--jade,#2d8b5a);color:var(--jade,#2d8b5a);}
+.ss-loop-btn.on{background:var(--jade,#2d8b5a);color:#fff;border-color:var(--jade,#2d8b5a);}
+.song-meta-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.song-tag{font-family:var(--f-mono);font-size:10px;padding:3px 10px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--ink4);letter-spacing:.5px}
+.song-tag.jazz-tag{color:var(--lapis);border-color:var(--lapis3);background:var(--lapis4)}
+.song-tag.key-tag{color:var(--jade);border-color:var(--jade3);background:var(--jade4)}
+.song-tag.genre-tag{color:var(--saffron);border-color:var(--saffron3);background:var(--saffron4)}
+.song-scale-info{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic}
+
+/* Song sections */
+.song-sections{display:flex;flex-direction:column;gap:20px}
+.song-section{background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;transition:border-color .14s}
+.song-section:hover{border-color:var(--lapis3)}
+.ss-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:var(--surface3);border-bottom:1px solid var(--border2);
+}
+.ss-label{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink3)}
+.ss-bars{font-family:var(--f-mono);font-size:9px;color:var(--ink4);letter-spacing:.5px}
+
+/* Chord progression row — jazz lead sheet style */
+.ss-body{padding:14px 16px}
+
+/* Lead sheet chord line */
+.chord-progression{display:flex;flex-wrap:wrap;gap:0;margin-bottom:10px;width:100%}
+.bar-group{display:flex;align-items:flex-start;gap:0;position:relative;flex:1 1 0;min-width:clamp(72px,18vw,100px);}
+.bar-group::before{
+  content:'|';font-family:var(--f-mono);font-size:18px;color:var(--border);
+  padding-right:10px;line-height:1;margin-top:4px;flex-shrink:0;
+}
+.bar-group:last-child::after{
+  content:'||';font-family:var(--f-mono);font-size:18px;color:var(--border);
+  padding-left:8px;line-height:1;margin-top:4px;align-self:flex-start;flex-shrink:0;
+}
+.bar-chords{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;flex:1}
+.chord-sym{
+  display:flex;flex-direction:column;align-items:flex-start;
+  cursor:default;position:relative;
+}
+.chord-sym-name{
+  font-family:var(--f-serif);font-size:clamp(20px,4vw,28px);font-weight:700;
+  color:var(--lapis);line-height:1;
+  letter-spacing:-.5px;
+}
+.chord-sym-name sup{font-size:14px;vertical-align:super;font-family:var(--f-mono);font-weight:500}
+.chord-sym-name .chord-root{color:var(--ink)}
+.chord-sym-name .chord-qual{color:var(--lapis)}
+.chord-sym-beat{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:2px;letter-spacing:.3px}
+.chord-sym-notes{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:1px;line-height:1.4}
+.chord-sym:hover .chord-sym-name{color:var(--jade2)}
+.chord-sym.jazz-chord .chord-sym-name .chord-qual{color:var(--lapis2)}
+
+/* Roman numeral row */
+.roman-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)}
+.roman-chip{
+  font-family:var(--f-mono);font-size:10px;color:var(--ink4);
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:4px;padding:2px 8px;
+}
+
+/* Melody hint */
+.melody-hint{
+  margin-top:10px;padding:10px 14px;
+  background:var(--saffron4);border-left:2px solid var(--saffron2);border-radius:0 8px 8px 0;
+  font-family:var(--f-mono);font-size:10px;color:var(--ink3);line-height:1.7;
+}
+.melody-hint strong{color:var(--saffron);letter-spacing:.3px}
+
+/* Tempo / form info */
+.song-meta-bar{display:flex;align-items:stretch;gap:0;margin-top:16px;margin-bottom:12px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;}
+.smb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(8px,1.5vw,10px) clamp(8px,2vw,16px);gap:2px;flex:1;min-width:0;}
+.smb-item.smb-tempo{flex:1.8;padding:clamp(7px,1.2vw,8px) clamp(8px,1.5vw,14px);min-width:0;}
+.smb-val{font-family:var(--f-mono);font-size:clamp(11px,3vw,20px);font-weight:700;color:var(--ink);line-height:1.2;white-space:normal;word-break:break-word;text-align:center;}
+.smb-lbl{font-family:var(--f-mono);font-size:clamp(7px,1.5vw,9px);letter-spacing:1px;text-transform:uppercase;color:var(--ink4);}
+.smb-divider{width:1.5px;background:var(--border2);align-self:stretch;flex-shrink:0;}
+.song-bpm-display{font-family:var(--f-mono);font-size:clamp(16px,4vw,22px);font-weight:700;color:var(--ink);min-width:clamp(34px,8vw,44px);text-align:center;line-height:1;}
+
+
+/* Song error */
+.song-error{padding:20px;text-align:center;font-family:var(--f-mono);font-size:12px;color:var(--saffron);background:var(--saffron4);border-radius:10px;margin:20px 0}
+
+/* ── Responsive breakpoints ──────────────────────────────── */
+
+/* ── Key dropdown (narrow screens) ── */
+.key-dropdown{display:none;position:relative;}
+.key-drop-trigger{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 14px;border-radius:22px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  font-family:var(--f-mono);font-size:14px;font-weight:600;
+  color:var(--ink);cursor:pointer;transition:all .15s;
+  min-width:72px;justify-content:space-between;
+}
+.key-drop-trigger:hover{border-color:var(--jade);color:var(--jade);}
+.key-drop-opts{
+  display:none;
+  position:absolute;top:calc(100% + 5px);left:0;
+  background:var(--surface);border:1.5px solid var(--jade);
+  border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);
+  z-index:600;overflow:hidden;
+  grid-template-columns:repeat(4,1fr);min-width:200px;
+}
+.key-dropdown.open .key-drop-opts{display:grid;}
+.key-drop-opt{
+  padding:10px 6px;font-family:var(--f-mono);font-size:13px;font-weight:500;
+  color:var(--ink3);cursor:pointer;text-align:center;
+  border:none;background:none;transition:background .1s;
+}
+.key-drop-opt:hover{background:var(--jade4);color:var(--jade);}
+.key-drop-opt.on{background:var(--jade);color:#fff;font-weight:700;}
+
+/* ── Responsive ──────────────────────────── */
+
+/* phone portrait  ≤ 599px */
+@media(max-width:599px){
+  :root{--card-w:100vw}
+  body{padding:12px 0 56px}
+  .key-strip{padding:0 14px;margin-bottom:8px}
+  .key-dropdown{display:block}
+  .key-row{display:none}
+
+  /* header: single tight row, no clipping */
+  .v-header{padding:0 14px;margin-bottom:8px;gap:6px;flex-wrap:nowrap}
+  .v-wordmark{flex:1;min-width:0;overflow:hidden}
+  .v-name{font-size:22px}
+  .v-sep,.v-tagline{display:none}
+  .v-ctrls{flex-shrink:0;gap:5px;flex-wrap:nowrap}
+  .v-btn{padding:5px 10px;font-size:10px;letter-spacing:0}
+  .auth-btn{padding:5px 9px}
+  #authBtnLabel{display:none}
+  #instDrop{min-width:0!important}
+  .csel-trigger{padding:7px 10px;gap:6px}
+  .csel-main{font-size:11px}
+
+  /* card bleeds edge to edge */
+  .card{border-radius:0;border-left:none;border-right:none}
+
+  /* nav */
+  .nav-tab{padding:6px 6px 7px}
+  .nav-tab-lbl{font-size:7.5px;letter-spacing:.3px}
+  .nav-tab-icon{font-size:14px}
+
+  /* content */
+  .pad{padding:12px 14px}
+  .dgrid{grid-template-columns:repeat(4,1fr)}
+
+  /* song meta bar */
+  .smb-item{padding:8px 10px}
+  .smb-val{font-size:18px}
+  .smb-lbl{font-size:8px}
+  .song-bpm-display{font-size:18px}
+
+  /* sections */
+  .ss-header{padding:8px 12px}
+  .ss-body{padding:10px 12px}
+  .chord-sym-name{font-size:22px}
+  .bar-group{min-width:70px}
+  .smb-val{font-size:clamp(10px,3.5vw,14px)}
+  .smb-item{padding:8px 6px}
+  .smb-item.smb-tempo{padding:7px 8px}
+  .song-bpm-display{font-size:clamp(14px,4vw,18px);min-width:28px}
+  .song-bpm-slider{width:100%}
+
+  /* genre selector */
+  .gdr-trigger{padding:6px 10px}
+  .gdr-label{font-size:11px}
+  .sub-chip{padding:5px 10px;font-size:10px}
+
+  /* actions */
+  .btn-generate{padding:9px 16px;font-size:11px}
+  .song-actions{gap:6px}
+}
+
+/* phone landscape / small tablet  600–819px */
+@media(min-width:600px) and (max-width:819px){
+  :root{--card-w:min(96vw,680px)}
+  body{padding:14px 8px 60px}
+  .v-tagline{display:none}
+  .v-sep{display:none}
+  .nav-tab{padding:7px 10px 8px}
+  .pad{padding:14px 18px}
+  .smb-val{font-size:20px}
+  .chord-sym-name{font-size:25px}
+  .bar-group{min-width:84px}
+}
+
+/* tablet  820–1099px */
+@media(min-width:820px) and (max-width:1099px){
+  :root{--card-w:min(92vw,820px)}
+}
+
+/* desktop  1100–1399px */
+@media(min-width:1100px) and (max-width:1399px){
+  :root{--card-w:min(88vw,920px)}
+}
+
+/* wide desktop  1400px+ */
+@media(min-width:1400px){
+  :root{--card-w:min(80vw,1040px)}
+}
+
+/* tall screens */
+@media(min-height:900px){.content{max-height:clamp(480px,65vh,900px)}}
+
+/* arpeggio grid narrow */
+/* header: hide tagline on cramped widths via container query fallback */
+
+
+
+/* ── Chord card download button ── */
+.chord-card{position:relative}
+.chord-card .cc-dl{
+  position:absolute;top:5px;right:5px;
+  width:20px;height:20px;border-radius:5px;
+  border:1px solid var(--border2);background:var(--surface);
+  color:var(--ink4);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:11px;opacity:0;transition:opacity .15s,background .15s;
+  z-index:2;
+}
+.chord-card:hover .cc-dl{opacity:1}
+.chord-card .cc-dl:hover{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis);}
+
+/* Thaat chord table download */
+.tct-dl-btn{
+  background:none;border:1px solid var(--border2);border-radius:5px;
+  color:var(--ink4);cursor:pointer;padding:3px 6px;font-size:11px;
+  transition:all .13s;
+}
+.tct-dl-btn:hover{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis);}
+
+/* Song section download btn */
+.ss-dl-btn{
+  background:none;border:1.5px solid var(--border2);border-radius:6px;
+  color:var(--ink4);cursor:pointer;padding:4px 9px;font-size:11px;
+  transition:all .13s;display:flex;align-items:center;gap:4px;
+}
+.ss-dl-btn:hover{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis);}
+
+/* Arpeggio Panel */
+.arp-panel{
+  margin-top:18px;border:1.5px solid var(--border2);border-radius:12px;
+  background:var(--surface);overflow:hidden;
+}
+.arp-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border2);
+}
+.arp-panel-title{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;color:var(--ink3);text-transform:uppercase;font-weight:600;}
+.arp-panel-body{padding:14px 16px;}
+.arp-pattern-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.arp-pill{
+  padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);
+  background:var(--surface2);font-family:var(--f-mono);font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .14s;
+}
+.arp-pill:hover{border-color:var(--jade);color:var(--jade);}
+.arp-pill.on{background:var(--jade);color:#fff;border-color:var(--jade);}
+.arp-display{
+  font-family:var(--f-mono);font-size:12px;color:var(--ink2);
+  background:var(--surface2);border-radius:8px;padding:12px 14px;
+  margin-bottom:10px;letter-spacing:.5px;line-height:1.9;
+  border:1px solid var(--border2);min-height:54px;
+}
+.arp-note{
+  display:inline-block;padding:2px 8px;margin:2px 3px;border-radius:4px;
+  background:var(--jade4);border:1px solid var(--jade3);color:var(--jade);
+  font-weight:600;font-size:12px;
+}
+.arp-note.root{background:var(--jade3);border-color:var(--jade);font-size:13px;}
+.arp-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.arp-dl-btn{
+  padding:6px 14px;border-radius:7px;border:1.5px solid var(--lapis);
+  background:var(--lapis4);font-family:var(--f-mono);font-size:10px;
+  color:var(--lapis);cursor:pointer;transition:all .14s;
+}
+.arp-dl-btn:hover{background:var(--lapis3);}
+.arp-genre-note{font-family:var(--f-mono);font-size:10px;color:var(--ink4);font-style:italic;margin-top:8px;}
+
+/* Arpeggio tab — pattern cards */
+.arp-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:20px}
+.arp-card{
+  border:1.5px solid var(--border2);border-radius:10px;
+  padding:12px 14px;cursor:pointer;transition:all .15s;
+  background:var(--surface);position:relative;
+}
+.arp-card:hover{border-color:var(--turmeric);background:rgba(154,114,8,.05);transform:translateY(-1px);}
+.arp-card.on{border-color:var(--turmeric);background:rgba(154,114,8,.10);box-shadow:0 0 0 3px rgba(154,114,8,.12);}
+.arp-rec-badge{
+  position:absolute;top:7px;right:8px;
+  font-family:var(--f-mono);font-size:8px;color:var(--turmeric);
+  background:rgba(154,114,8,.12);border:1px solid rgba(154,114,8,.25);
+  padding:1px 5px;border-radius:4px;letter-spacing:.5px;
+}
+.arp-card-name{font-family:var(--f-serif);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.arp-card-short{font-family:var(--f-mono);font-size:9px;color:var(--turmeric);letter-spacing:.5px;margin-bottom:5px;}
+.arp-card-desc{font-family:var(--f-sans);font-size:11px;color:var(--ink3);line-height:1.5;margin-bottom:6px;}
+.arp-card-genres{display:flex;flex-wrap:wrap;gap:3px}
+.arp-genre-tag{font-family:var(--f-mono);font-size:8px;padding:1px 5px;border-radius:3px;background:var(--surface2);border:1px solid var(--border2);color:var(--ink4);letter-spacing:.3px;}
+
+/* Multi-select genre pills */
+.genre-pill.on{background:var(--lapis);color:#fff;border-color:var(--lapis);}
+.genre-multi-pill.on{
+  background:linear-gradient(135deg,var(--jade3),var(--lapis3));
+  border:1.5px solid var(--lapis);color:var(--lapis);font-weight:600;
+}
+/* When 2 genres selected, both pills glow */
+.genre-multi-pill.on + .genre-multi-pill.on,
+.genre-multi-pill.on{
+  box-shadow:0 0 0 2px rgba(93,143,224,.18);
+}
+
+/* ── Auth & User Panel ── */
+.auth-btn{
+  display:flex;align-items:center;gap:7px;padding:6px 14px;
+  border-radius:20px;border:1.5px solid var(--border);
+  background:transparent;font-family:var(--f-mono);font-size:11px;
+  color:var(--ink3);cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.auth-btn:hover{border-color:var(--lapis);color:var(--lapis);background:var(--lapis4);}
+.auth-btn img{width:20px;height:20px;border-radius:50%;object-fit:cover;}
+.auth-btn.signed-in{border-color:var(--jade);color:var(--jade);background:var(--jade4);}
+
+/* User dropdown */
+.user-menu{
+  position:relative;display:inline-block;
+}
+.user-dropdown{
+  position:absolute;right:0;top:calc(100% + 6px);
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:12px;box-shadow:var(--shadow-lg);
+  min-width:200px;z-index:1000;overflow:hidden;
+  animation:dropIn .15s ease;
+}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.user-dropdown-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;font-family:var(--f-mono);font-size:11px;
+  color:var(--ink3);cursor:pointer;border:none;background:none;
+  width:100%;text-align:left;transition:background .12s;
+  border-bottom:1px solid var(--border2);
+}
+.user-dropdown-item:last-child{border-bottom:none;}
+.user-dropdown-item:hover{background:var(--surface2);}
+.user-dropdown-item.danger{color:#c0392b;}
+
+/* Save/fav buttons on songs & scales */
+.btn-save-song{
+  padding:5px 12px;border-radius:7px;
+  border:1.5px solid var(--border2);background:transparent;
+  font-family:var(--f-mono);font-size:10px;color:var(--ink4);
+  cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:5px;
+}
+.btn-save-song:hover,.btn-save-song.saved{
+  border-color:var(--jade);color:var(--jade);background:var(--jade4);
+}
+.fav-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:7px;
+  border:1.5px solid var(--border2);background:transparent;
+  font-size:14px;cursor:pointer;transition:all .13s;
+  flex-shrink:0;
+}
+.fav-btn:hover,.fav-btn.on{
+  border-color:var(--saffron);background:var(--saffron4);
+  transform:scale(1.1);
+}
+
+/* Modal overlay */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:2000;display:flex;align-items:center;justify-content:center;
+  padding:20px;animation:fadeIn .18s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;box-shadow:var(--shadow-lg);
+  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  animation:slideUp .18s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 14px;border-bottom:1px solid var(--border2);
+}
+.modal-title{font-family:var(--f-serif);font-size:20px;font-weight:700;color:var(--ink);}
+.modal-close{
+  width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--ink4);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;
+}
+.modal-close:hover{background:var(--surface2);color:var(--ink);}
+.modal-body{padding:20px;}
+
+/* Feedback form */
+.fb-field{margin-bottom:16px;}
+.fb-label{
+  display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;
+  color:var(--ink4);text-transform:uppercase;margin-bottom:6px;
+}
+.fb-input,.fb-select,.fb-textarea{
+  width:100%;padding:9px 12px;border-radius:8px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  font-family:var(--f-sans);font-size:13px;color:var(--ink);
+  transition:border-color .13s;outline:none;
+}
+.fb-input:focus,.fb-select:focus,.fb-textarea:focus{border-color:var(--lapis);}
+.fb-textarea{min-height:80px;resize:vertical;line-height:1.5;}
+.fb-rating{display:flex;gap:8px;margin-top:4px;}
+.fb-star{
+  font-size:22px;cursor:pointer;transition:transform .1s;
+  filter:grayscale(1);opacity:.4;
+}
+.fb-star.on,.fb-star:hover{filter:none;opacity:1;transform:scale(1.15);}
+.fb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.fb-chip{
+  padding:4px 10px;border-radius:16px;border:1.5px solid var(--border2);
+  background:transparent;font-family:var(--f-mono);font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .12s;
+}
+.fb-chip.on{background:var(--lapis3);border-color:var(--lapis);color:var(--lapis);}
+.fb-submit{
+  width:100%;padding:11px;border-radius:10px;
+  border:none;background:var(--jade);color:#fff;
+  font-family:var(--f-mono);font-size:12px;letter-spacing:1px;
+  cursor:pointer;transition:all .14s;margin-top:8px;
+}
+.fb-submit:hover{background:var(--jade2);}
+.fb-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+/* Saved songs panel */
+.saved-song-card{
+  border:1.5px solid var(--border2);border-radius:10px;
+  padding:12px 14px;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);transition:border-color .13s;cursor:pointer;
+}
+.saved-song-card:hover{border-color:var(--lapis);}
+.ssc-info{flex:1;min-width:0;}
+.ssc-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ssc-meta{font-family:var(--f-mono);font-size:9px;color:var(--ink4);margin-top:2px;letter-spacing:.3px;}
+.ssc-del{
+  padding:4px 8px;border-radius:6px;border:1px solid var(--border2);
+  background:none;color:var(--ink4);cursor:pointer;font-size:11px;
+  transition:all .12s;flex-shrink:0;
+}
+.ssc-del:hover{border-color:#c0392b;color:#c0392b;}
+
+/* Config panel */
+.config-field{margin-bottom:14px;}
+.config-label{font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;color:var(--ink4);text-transform:uppercase;margin-bottom:6px;display:block;}
+.config-input{width:100%;padding:8px 12px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:12px;color:var(--ink);outline:none;transition:border-color .13s;}
+.config-input:focus{border-color:var(--lapis);}
+.config-note{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:4px;line-height:1.6;}
+
+/* ── Instrument tip tooltip ── */
+.inst-tip {
+  position: fixed;
+  z-index: 9999;
+  display: none;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.25);
+  padding: 16px;
+  min-width: 175px;
+  max-width: 250px;
+  pointer-events: auto;
+  /* Fixed dimensions — no reflow when cycling voicings */
+  width: 195px;
+  box-sizing: border-box;
+}
+.inst-tip .tip-diagram-wrap {
+  min-height: 196px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.inst-tip.visible {
+  display: block;
+  animation: tipFadeIn .15s ease;
+}
+@keyframes tipFadeIn {
+  from { opacity:0; transform:translateY(5px) }
+  to   { opacity:1; transform:translateY(0)   }
+}
+.tip-nav-btn {
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font: 500 11px var(--f-mono);
+  cursor: pointer;
+  color: var(--ink3);
+  transition: all .12s;
+  user-select: none;
+}
+.tip-nav-btn:hover {
+  border-color: var(--lapis);
+  color: var(--lapis);
+  background: var(--lapis4);
+}
+/* Make tip-chord elements visually indicate they're interactive */
+[data-tip-chord] { cursor: pointer; }
+[data-tip-chord]:hover { opacity: .88; }
+
+
+/* ── Speaker / Play buttons ── */
+.play-btn{
+  background:none;border:1px solid var(--border2);border-radius:5px;
+  color:var(--ink4);cursor:pointer;padding:0;width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  transition:all .13s;position:absolute;z-index:2;
+}
+.play-btn:hover{background:var(--jade4,#e0f4ea);border-color:var(--jade,#3a7d5c);color:var(--jade,#3a7d5c);}
+.play-btn.playing{background:var(--jade,#3a7d5c);color:#fff;border-color:var(--jade,#3a7d5c);}
+/* chord-card speaker: top-left, send: top-right offset */
+.chord-card .play-btn{top:5px;left:5px;}
+.chord-card .cc-send{top:5px;right:28px;}
+.chord-card .cc-dl{top:5px;right:5px;}
+.chord-card:hover .play-btn,.chord-card:hover .cc-send{opacity:1}
+.chord-card .play-btn,.chord-card .cc-send{opacity:0;transition:opacity .15s;}
+/* send button (arrangement) */
+.cc-send{
+  background:none;border:1px solid var(--border2);border-radius:5px;
+  color:var(--ink4);cursor:pointer;width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+  position:absolute;transition:all .13s;z-index:2;
+}
+.cc-send:hover{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis);}
+/* dc (diatonic cell) speaker/send */
+.dc{position:relative}
+.dc .play-btn{top:4px;left:4px;width:18px;height:18px;font-size:10px;opacity:0;transition:opacity .13s;}
+.dc .dc-send{top:4px;right:4px;width:18px;height:18px;font-size:10px;opacity:0;transition:opacity .13s;
+  background:none;border:1px solid var(--border2);border-radius:4px;
+  color:var(--ink4);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  position:absolute;z-index:2;transition:all .13s;
+}
+.dc:hover .play-btn,.dc:hover .dc-send{opacity:1}
+.dc .play-btn:hover,.dc .dc-send:hover{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis);}
+/* rcc speaker/send */
+.rcc{position:relative}
+.rcc .play-btn{top:5px;right:5px;left:auto;width:26px;height:26px;font-size:13px;opacity:1;border-color:var(--lapis3);color:var(--lapis);background:var(--surface);}
+.rcc:hover .play-btn{background:var(--lapis);color:#fff;border-color:var(--lapis);opacity:1}
+/* chord-sym (song) speaker */
+.chord-sym{position:relative}
+.chord-sym .play-btn{top:2px;left:2px;width:18px;height:18px;font-size:10px;opacity:0;transition:opacity .13s;}
+
+.chord-sym:hover .play-btn,
+
+/* play-scale button */
+.play-scale-btn{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 12px;
+  border-radius:6px;border:1px solid var(--border2);background:var(--surface2);
+  color:var(--ink3);font-family:var(--f-mono);font-size:11px;cursor:pointer;
+  transition:all .13s;margin-left:8px;
+}
+.play-scale-btn:hover{border-color:var(--jade,#3a7d5c);color:var(--jade,#3a7d5c);}
+.play-scale-btn.playing{background:var(--jade,#3a7d5c);color:#fff;border-color:var(--jade,#3a7d5c);}
+
+
+
+
+/* ── Global Tooltip Bubble ── */
+#vk-tooltip{
+  position:fixed;z-index:99999;pointer-events:none;
+  padding:5px 10px;border-radius:7px;
+  background:var(--ink);color:var(--bg);
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.3px;
+  box-shadow:0 3px 12px rgba(0,0,0,.22);
+  opacity:0;transition:opacity .13s;
+  max-width:200px;white-space:normal;text-align:center;line-height:1.4;
+}
+#vk-tooltip.visible{opacity:1;}
+#vk-tooltip::after{
+  content:'';position:absolute;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;
+}
+#vk-tooltip.above::after{top:100%;border-top-color:var(--ink);}
+#vk-tooltip.below::after{bottom:100%;border-bottom-color:var(--ink);}
+
+/* ── Genre Selector ── */
+.genre-selector{margin-bottom:14px;}
+.gs-row{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.gs-fusion-row{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.gs-fusion-label{font-family:var(--f-mono);font-size:10px;color:var(--ink4);padding-top:10px;white-space:nowrap;letter-spacing:.5px;}
+.gs-subchips{display:flex;flex-wrap:wrap;gap:6px;flex:1;}
+
+/* Genre dropdown trigger */
+.gdr-wrap{position:relative;flex-shrink:0;}
+.gdr-trigger{display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:22px;border:1.5px solid var(--border2);background:var(--surface2);cursor:pointer;transition:all .16s;font-family:var(--f-mono);white-space:nowrap;}
+.gdr-trigger:hover{border-color:var(--jade);background:var(--surface);}
+.gdr-trigger.has-val{border-color:var(--lapis3);background:var(--lapis4);color:var(--lapis);}
+.gdr-trigger-sm{padding:6px 11px;}
+.gdr-icon{font-size:14px;line-height:1;}
+.gdr-label{font-size:12px;font-weight:500;color:var(--ink2);}
+.gdr-trigger.has-val .gdr-label{color:var(--lapis);}
+.gdr-chev{width:10px;height:6px;stroke:var(--ink4);flex-shrink:0;transition:transform .14s;}
+.gdr-wrap.open .gdr-chev{transform:rotate(180deg);}
+
+/* Genre dropdown opts */
+.gdr-opts{display:none;position:absolute;top:calc(100% + 5px);left:0;min-width:180px;z-index:500;background:var(--surface);border:1.5px solid var(--jade);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.14);overflow:hidden;}
+.gdr-wrap.open .gdr-opts{display:block;}
+.gdr-opt{padding:9px 14px;font-family:var(--f-mono);font-size:12px;color:var(--ink3);cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:8px;}
+.gdr-opt:hover{background:var(--jade4);color:var(--jade);}
+.gdr-opt.sel{background:var(--jade4);color:var(--jade);font-weight:600;}
+
+/* Sub-genre chips */
+.sub-chip{padding:6px 13px;border-radius:18px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:11px;color:var(--ink3);cursor:pointer;transition:all .14s;letter-spacing:.3px;white-space:nowrap;}
+.sub-chip:hover{border-color:var(--jade);color:var(--jade);}
+.sub-chip.on{border-color:var(--jade);background:var(--jade4);color:var(--jade);font-weight:600;}
+.sub-chip.fusion-chip:hover{border-color:var(--lapis);color:var(--lapis);}
+.sub-chip.fusion-chip.on{border-color:var(--lapis);background:var(--lapis4);color:var(--lapis);font-weight:600;}
+
+/* Fusion badge */
+.fusion-badge{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;background:linear-gradient(135deg,var(--jade4),var(--lapis4));border:1.5px solid var(--lapis3);margin-bottom:4px;flex-wrap:wrap;}
+.fusion-badge.fusion-plain{background:rgba(255,160,0,.06);border-color:rgba(255,160,0,.25);}
+.fusion-icon{font-size:16px;flex-shrink:0;}
+.fusion-name{font-family:var(--f-serif);font-size:14px;font-weight:700;color:var(--lapis);white-space:nowrap;}
+.fusion-badge.fusion-plain .fusion-name{color:rgba(200,130,0,1);}
+.fusion-desc{font-family:var(--f-mono);font-size:9px;color:var(--ink3);flex:1;line-height:1.5;min-width:120px;}
+.fusion-clear{padding:3px 9px;border-radius:5px;border:1px solid var(--border2);background:var(--surface);color:var(--ink4);font-family:var(--f-mono);font-size:9px;cursor:pointer;flex-shrink:0;}
+.fusion-clear:hover{border-color:var(--ink3);color:var(--ink2);}
+
+/* ── Logo ── */
+.vk-logo{height:64px;width:auto;object-fit:contain;display:block;}
+
+
+.install-divider{height:1px;background:var(--border2);margin:14px 0;}
+
+
+/* ── Arp Harmony ── */
+.harm-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;background:var(--lapis4);border:1.5px solid var(--lapis3);border-radius:10px;margin-bottom:12px;}
+.harm-label{font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--lapis);flex-shrink:0;}
+.harm-btn{padding:5px 12px;border-radius:16px;border:1.5px solid var(--lapis3);background:transparent;font-family:var(--f-mono);font-size:11px;color:var(--lapis);cursor:pointer;transition:all .13s;white-space:nowrap;}
+.harm-btn:hover,.harm-btn.on{background:var(--lapis);color:#fff;border-color:var(--lapis);}
+.harm-play-btn{padding:5px 12px;border-radius:16px;border:1.5px solid var(--jade3);background:var(--jade4);font-family:var(--f-mono);font-size:11px;color:var(--jade);cursor:pointer;transition:all .13s;margin-left:auto;}
+.harm-play-btn:hover{background:var(--jade);color:#fff;}
+
+/* ── Piano Roll Editor ── */
+.arp-editor{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.arp-editor-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border2);flex-wrap:wrap;}
+.arp-editor-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);flex:1;}
+.arp-editor-btns{display:flex;gap:6px;align-items:center;}
+.ae-btn{padding:5px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:10px;color:var(--ink3);cursor:pointer;transition:all .13s;white-space:nowrap;}
+.ae-btn:hover{border-color:var(--jade);color:var(--jade);}
+.ae-btn.danger{border-color:rgba(180,40,40,.3);color:rgba(180,40,40,.8);}
+.ae-btn.danger:hover{background:rgba(180,40,40,.1);}
+.ae-btn:disabled{opacity:.35;cursor:default;}
+.ae-btn.active{background:var(--jade);color:#fff;border-color:var(--jade);}
+
+/* Piano roll grid */
+.piano-roll{overflow-x:auto;padding:12px 14px;}
+.pr-grid{display:flex;gap:4px;align-items:flex-end;min-height:100px;position:relative;}
+.pr-note{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  gap:2px;cursor:pointer;position:relative;flex-shrink:0;
+  transition:all .13s;
+}
+.pr-note:hover .pr-bar{filter:brightness(1.15);}
+.pr-bar{
+  width:32px;border-radius:4px 4px 0 0;
+  background:var(--jade);
+  transition:height .15s,background .13s;
+  position:relative;min-height:16px;
+}
+.pr-bar.root{background:var(--saffron);}
+.pr-bar.selected{background:var(--lapis);box-shadow:0 0 0 2px var(--lapis2);}
+.pr-note-name{font-family:var(--f-mono);font-size:9px;color:var(--ink4);white-space:nowrap;margin-top:2px;}
+.pr-note-vel{font-family:var(--f-mono);font-size:8px;color:var(--ink4);position:absolute;top:-14px;left:50%;transform:translateX(-50%);white-space:nowrap;opacity:0;}
+.pr-note:hover .pr-note-vel{opacity:1;}
+.pr-add-btn{
+  width:32px;min-height:32px;border-radius:4px;
+  border:1.5px dashed var(--border2);background:transparent;
+  color:var(--ink4);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .13s;flex-shrink:0;
+}
+.pr-add-btn:hover{border-color:var(--jade);color:var(--jade);}
+.pr-baseline{position:absolute;bottom:20px;left:0;right:0;height:1px;background:var(--border2);pointer-events:none;}
+
+/* Note edit popup */
+.note-edit-pop{
+  position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1.5px solid var(--border);border-radius:8px;
+  padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,.15);
+  z-index:500;min-width:140px;display:none;
+}
+.pr-note.editing .note-edit-pop{display:block;}
+.nep-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-family:var(--f-mono);font-size:10px;color:var(--ink3);}
+.nep-row:last-child{margin-bottom:0;}
+.nep-row input[type=range]{flex:1;height:3px;}
+.nep-del{padding:3px 8px;border-radius:5px;border:1px solid rgba(180,40,40,.3);background:none;color:rgba(180,40,40,.8);font-size:10px;cursor:pointer;font-family:var(--f-mono);}
+
+/* Undo button */
+.arp-undo-btn{padding:5px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:10px;color:var(--ink3);cursor:pointer;transition:all .13s;}
+.arp-undo-btn:hover:not(:disabled){border-color:var(--turmeric);color:var(--turmeric);}
+.arp-undo-btn:disabled{opacity:.3;cursor:default;}
+
+
+/* ── Song Evaluation Bar ── */
+.song-eval-bar{
+  display:flex;align-items:center;
+  background:var(--surface2);border:1.5px solid var(--border2);
+  border-radius:10px;padding:10px 16px;margin-bottom:14px;
+}
+.seb-scores{display:flex;align-items:center;gap:14px;flex-wrap:wrap;width:100%;}
+.seb-score{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:48px;}
+.seb-num{font-family:var(--f-mono);font-size:18px;font-weight:700;color:var(--jade);line-height:1;}
+.seb-lbl{font-family:var(--f-mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--ink4);}
+.seb-overall .seb-num{color:var(--lapis);font-size:20px;}
+.seb-divider{width:1.5px;background:var(--border2);align-self:stretch;flex-shrink:0;}
+
+
+/* ── Song History ── */
+.hist-btn{
+  padding:6px 13px;border-radius:7px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  font-family:var(--f-mono);font-size:10px;color:var(--ink3);
+  cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:5px;
+  position:relative;
+}
+.hist-btn:hover{border-color:var(--lapis);color:var(--lapis);background:var(--lapis4);}
+.hist-badge{
+  position:absolute;top:-6px;right:-6px;
+  background:var(--lapis);color:#fff;
+  border-radius:10px;font-size:8px;font-weight:700;
+  padding:1px 5px;font-family:var(--f-mono);
+  min-width:16px;text-align:center;line-height:14px;
+}
+
+/* History panel overlay */
+#songHistoryPanel{
+  display:none;position:fixed;inset:0;z-index:8000;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(3px);
+  align-items:flex-end;justify-content:center;
+}
+#songHistoryPanel.open{display:flex;animation:fadeIn .18s ease;}
+.hist-sheet{
+  width:100%;max-width:600px;
+  background:var(--surface);
+  border-radius:20px 20px 0 0;
+  max-height:82vh;display:flex;flex-direction:column;
+  box-shadow:0 -8px 40px rgba(0,0,0,.22);
+  animation:sheetUp .22s cubic-bezier(.4,0,.2,1);
+}
+.hist-sheet-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px 12px;border-bottom:1px solid var(--border2);flex-shrink:0;
+}
+.hist-sheet-title{font-family:var(--f-serif);font-size:18px;font-weight:700;color:var(--ink);}
+.hist-sheet-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:2px;}
+.hist-close-btn{
+  width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border2);
+  background:transparent;color:var(--ink4);font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;
+}
+.hist-close-btn:hover{border-color:var(--ink3);color:var(--ink);}
+.hist-list{overflow-y:auto;flex:1;padding:10px 12px 20px;}
+.hist-empty{text-align:center;padding:40px 20px;font-family:var(--f-mono);font-size:12px;color:var(--ink4);}
+.hist-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;border-radius:10px;border:1.5px solid var(--border2);
+  background:var(--surface2);margin-bottom:8px;cursor:pointer;transition:all .13s;
+}
+.hist-item:hover{border-color:var(--jade);background:var(--surface);}
+.hist-item-main{flex:1;min-width:0;}
+.hist-item-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-item-meta{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:3px;display:flex;flex-wrap:wrap;gap:6px;}
+.hist-item-tag{background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;color:var(--ink3);}
+.hist-item-time{font-family:var(--f-mono);font-size:9px;color:var(--ink4);flex-shrink:0;padding-top:2px;white-space:nowrap;}
+.hist-item-score{
+  font-family:var(--f-mono);font-size:11px;font-weight:700;
+  color:var(--jade);background:var(--jade4);
+  border:1px solid var(--jade3);border-radius:5px;
+  padding:3px 7px;flex-shrink:0;align-self:center;
+}
+.hist-actions-row{display:flex;gap:6px;margin-top:6px;}
+.hist-action-btn{
+  padding:3px 9px;border-radius:5px;border:1px solid var(--border2);
+  background:transparent;font-family:var(--f-mono);font-size:9px;
+  color:var(--ink4);cursor:pointer;transition:all .12s;
+}
+.hist-action-btn:hover{border-color:var(--jade);color:var(--jade);}
+.hist-action-btn.danger:hover{border-color:rgba(180,40,40,.4);color:rgba(180,40,40,.9);}
+.hist-clear-btn{
+  padding:8px 16px;border-radius:8px;border:1.5px solid rgba(180,40,40,.3);
+  background:transparent;font-family:var(--f-mono);font-size:11px;
+  color:rgba(180,40,40,.7);cursor:pointer;transition:all .13s;margin:8px 12px 4px;flex-shrink:0;
+}
+.hist-clear-btn:hover{background:rgba(180,40,40,.06);border-color:rgba(180,40,40,.5);}
+
+
+/* ── AI Model Bar ── */
+
+
+
 .ai-generating{
   display:flex;align-items:center;gap:10px;padding:20px;
   border:1.5px solid var(--lapis3);border-radius:12px;
@@ -2220,1030 +2926,451 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 </div>
 
 <script>
-'use strict';
 
-// ── Music helpers ──
-const CHR=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const MAJ_STEPS=[0,2,4,5,7,9,11];
-function na(root,semi){return CHR[(CHR.indexOf(root)+semi+120)%12]}
-function notesOf(root,ivs){return ivs.map(i=>na(root,i))}
 
-const QSYM={maj:'',min:'m',dim:'°',aug:'+',dom7:'7',maj7:'maj7',min7:'m7',m7b5:'m7♭5',sus2:'sus2',sus4:'sus4',dom9:'9',maj9:'maj9',min9:'m9',min11:'m11',dom13:'13',maj13:'maj13',dom7b9:'7♭9',dom7s9:'7♯9',dim7:'dim7',hdim:'ø7',aug7:'aug7',sus4_7:'7sus4'};
-const QNAME={maj:'Major',min:'Minor',dim:'Diminished',aug:'Augmented',dom7:'Dom 7th',maj7:'Maj 7th',min7:'Min 7th',m7b5:'Half-dim',sus2:'Sus 2',sus4:'Sus 4',dom9:'Dom 9th',maj9:'Maj 9th',min9:'Min 9th',min11:'Min 11th',dom13:'Dom 13th',dim7:'Dim 7th',hdim:'Half-dim',dom7b9:'7♭9'};
-const QIVS={
-  maj:[0,4,7],min:[0,3,7],dim:[0,3,6],aug:[0,4,8],
-  dom7:[0,4,7,10],maj7:[0,4,7,11],min7:[0,3,7,10],m7b5:[0,3,6,10],
-  dim7:[0,3,6,9],dom9:[0,4,7,10,14],maj9:[0,4,7,11,14],min9:[0,3,7,10,14],
-  dom7b9:[0,4,7,10,13],sus4_7:[0,5,7,10]
-};
-function chordName(root,q){return root+(QSYM[q]??q)}
-function chordNotes(root,q){return(QIVS[q]||[0,4,7]).map(i=>na(root,i%12))}
 
-// Jazz voicing upgrade
-function jazzUpgrade(q, degree){
-  // Upgrade chords to jazz voicings based on chord quality & degree
-  const map={maj:'maj7',min:'min7',dim:'m7b5'};
-  // Extra color on certain degrees
-  if(JAZZ){
-    if(q==='dom7'||q==='maj'&&degree===4) return 'dom7'; // V stays dom7
-    if(q==='dim') return 'm7b5';
-    return map[q]||q;
-  }
-  return q;
+
+// ── Song History ──────────────────────────────────
+function _saveToHistory(song){
+  if(!song||!song.title) return;
+  const entry={
+    song: JSON.parse(JSON.stringify(song)), // deep clone
+    timestamp: Date.now(),
+    id: Date.now()+Math.random().toString(36).slice(2,7)
+  };
+  _songHistory.unshift(entry);
+  if(_songHistory.length>SONG_HISTORY_MAX) _songHistory.pop();
+  _updateHistBadge();
+  // Persist to localStorage
+  try{ localStorage.setItem('vk_song_history', JSON.stringify(_songHistory.slice(0,20))); }catch(e){}
 }
 
-const DROM=['I','ii','iii','IV','V','vi','vii°'];
-const DROMF=['I — Tonic','ii — Supertonic','iii — Mediant','IV — Subdominant','V — Dominant','vi — Submediant','vii° — Leading Tone'];
-const DFUNC=['Tonic','Supertonic','Mediant','Subdominant','Dominant','Submediant','Leading Tone'];
-const DMOOD=['Home · stable rest · starting point','Soft tension · movement toward IV or V','Colour chord · used for passing motion','Upward lift · second most important chord','Strong tension · always resolves to I','Relative minor · warmth and introspection','Unstable · wants to resolve to I immediately'];
-function diatonicChords(root,ivs,jazz){
-  const arr=[...ivs];while(arr.length<7)arr.push((arr[arr.length-1]+2)%12);
-  return arr.slice(0,7).map((iv,i)=>{
-    const cr=na(root,iv),t3=(arr[(i+2)%7]-iv+12)%12,t5=(arr[(i+4)%7]-iv+12)%12;
-    let q='maj';
-    if(t3===3&&t5===7)q='min';
-    else if(t3===3&&t5===6)q='dim';
-    else if(t3===4&&t5===8)q='aug';
-    if(jazz){const t7=(arr[(i+6)%7]-iv+12)%12;const m={maj:{11:'maj7',10:'dom7'},min:{10:'min7'},dim:{10:'m7b5'}};q=(m[q]&&m[q][t7])||q;}
-    return{root:cr,q,sym:chordName(cr,q),notes:chordNotes(cr,q),rom:DROM[i]||'',degree:i};
-  });
-}
-
-
-// ── Web Audio Engine (instrument-aware, click-free) ──────────
-const NOTE_FREQS={C:261.63,'C#':277.18,D:293.66,'D#':311.13,E:329.63,F:349.23,'F#':369.99,G:392,'G#':415.30,A:440,'A#':466.16,B:493.88};
-let _audioCtx=null;
-let _quickMaster=null;
-let _quickComp=null;
-let _quickActive=[];
-
-function getAudioCtx(){
-  if(!_audioCtx) _audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  if(_audioCtx.state==='suspended') _audioCtx.resume();
-  return _audioCtx;
-}
-
-function noteFreq(name,octave){
-  octave=octave==null?4:octave;
-  return (NOTE_FREQS[name]||440)*Math.pow(2,octave-4);
-}
-
-// Persistent output chain: masterGain → compressor → destination
-// Never recreated — avoids glitches from reconnection
-function getQuickMaster(){
-  const ctx=getAudioCtx();
-  if(_quickMaster && _quickMaster.context===ctx) return _quickMaster;
-  _quickComp=ctx.createDynamicsCompressor();
-  _quickComp.threshold.value=-12;
-  _quickComp.knee.value=8;
-  _quickComp.ratio.value=4;
-  _quickComp.attack.value=0.005;
-  _quickComp.release.value=0.3;
-  _quickComp.connect(ctx.destination);
-  _quickMaster=ctx.createGain();
-  _quickMaster.gain.value=0.55;
-  _quickMaster.connect(_quickComp);
-  return _quickMaster;
-}
-
-// Fade out all active voices cleanly — NO abrupt stops
-function stopQuickPlay(){
-  const ctx=getAudioCtx();
-  const now=ctx.currentTime;
-  const fade=0.05;
-  _quickActive.forEach(v=>{
-    try{
-      // cancelAndHoldAtTime is not available in all browsers; use setTargetAtTime for smooth fade
-      v.gn.gain.cancelScheduledValues(now);
-      v.gn.gain.setValueAtTime(Math.max(v.gn.gain.value,0.0001),now);
-      v.gn.gain.setTargetAtTime(0.0001,now,fade/3); // time constant = fade/3
-      v.osc.stop(now+fade*2);
-    }catch(e){}
-  });
-  _quickActive=[];
-}
-
-// Core voice builder — all audition sounds go through this
-// Uses ONLY sine oscillators (no triangle/sawtooth — those alias and crackle)
-// Harmonic richness comes from additive partials, not wave type
-function _voice(freq, t, dur, gain, partials, master){
-  // partials = [{ratio, amp, phase?}]  e.g. [{ratio:1,amp:1},{ratio:2,amp:0.3}]
-  const ctx=getAudioCtx();
-  const voiceGain=ctx.createGain();
-  voiceGain.connect(master);
-
-  partials.forEach(p=>{
-    const osc=ctx.createOscillator();
-    const og=ctx.createGain();
-    osc.type='sine'; // always sine — no aliasing
-    osc.frequency.value=freq*p.ratio;
-    og.gain.value=gain*p.amp;
-    osc.connect(og); og.connect(voiceGain);
-    osc.start(t);
-    osc.stop(t+dur+0.1);
-    _quickActive.push({osc,gn:og});
-  });
-
-  // Master envelope for this voice — exponential only, no discontinuities
-  const att=0.012, dec=dur*0.6, rel=0.08;
-  voiceGain.gain.setValueAtTime(0.0001,t);
-  voiceGain.gain.exponentialRampToValueAtTime(1.0, t+att);
-  voiceGain.gain.exponentialRampToValueAtTime(0.3, t+att+dec);
-  voiceGain.gain.exponentialRampToValueAtTime(0.0001, t+dur-rel);
-  _quickActive.push({osc:{stop:()=>{}},gn:voiceGain});
-}
-
-// Instrument partials — warm additive tones, no aliasing
-const PARTIALS={
-  guitar:  [{ratio:1,amp:1},{ratio:2,amp:0.5},{ratio:3,amp:0.25},{ratio:4,amp:0.1},{ratio:5,amp:0.04}],
-  ukulele: [{ratio:1,amp:1},{ratio:2,amp:0.6},{ratio:3,amp:0.2},{ratio:4,amp:0.06}],
-  keyboard:[{ratio:1,amp:1},{ratio:2,amp:0.45},{ratio:3,amp:0.15},{ratio:4,amp:0.05}],
-  default: [{ratio:1,amp:1},{ratio:2,amp:0.4},{ratio:3,amp:0.15}],
-};
-
-function getInstProfile(){
-  switch(INSTRUMENT){
-    case 'guitar':  return {partials:PARTIALS.guitar,  strumDelay:0.022,octave:3,gain:0.13,dur:2.0};
-    case 'ukulele': return {partials:PARTIALS.ukulele, strumDelay:0.016,octave:4,gain:0.14,dur:1.5};
-    case 'keyboard':return {partials:PARTIALS.keyboard,strumDelay:0.006,octave:4,gain:0.13,dur:1.8};
-    default:        return {partials:PARTIALS.default, strumDelay:0.018,octave:4,gain:0.14,dur:1.8};
-  }
-}
-
-function playChordAudio(notes,duration,octaveOverride){
-  stopQuickPlay();
-  const ctx=getAudioCtx();
-  const prof=getInstProfile();
-  const master=getQuickMaster();
-  const oct=octaveOverride!=null?octaveOverride:prof.octave;
-  const dur=duration||prof.dur;
-  const now=ctx.currentTime;
-  const gainPerVoice=(prof.gain||0.13)/Math.max(notes.length,1);
-  notes.forEach((n,i)=>{
-    const voiceOct=oct+(i>2?1:0);
-    const freq=noteFreq(n,voiceOct);
-    const t=now+i*prof.strumDelay;
-    _voice(freq, t, dur, gainPerVoice, prof.partials, master);
-  });
-}
-
-function playScaleNotesFromIvs(root,ivs,btnEl){
-  stopQuickPlay();
-  const ctx=getAudioCtx();
-  const prof=getInstProfile();
-  const master=getQuickMaster();
-  const bpm=80;
-  const step=60/bpm;
-  const dur=step*0.85;
-  const notes=ivs.map(iv=>CHR[(CHR.indexOf(root)+iv+120)%12]);
-  const upDown=[...notes,notes[0],...[...notes].reverse().slice(1)];
-  const now=ctx.currentTime;
-  if(btnEl)btnEl.classList.add('playing');
-  upDown.forEach((n,i)=>{
-    const extra=(i>=notes.length)?1:0;
-    const freq=noteFreq(n,prof.octave+extra);
-    _voice(freq, now+i*step, dur, prof.gain, prof.partials, master);
-  });
-  if(btnEl)setTimeout(()=>btnEl.classList.remove('playing'),upDown.length*step*1000+300);
-}
-
-function playNoteAudio(noteName,octave,duration){
-  stopQuickPlay();
-  const ctx=getAudioCtx();
-  const prof=getInstProfile();
-  const master=getQuickMaster();
-  const freq=noteFreq(noteName,octave!=null?octave:prof.octave);
-  _voice(freq, ctx.currentTime, duration||1.2, prof.gain, prof.partials, master);
-}
-
-function playArpAudio(arpNotes,bpm){
-  stopQuickPlay();
-  const ctx=getAudioCtx();
-  const prof=getInstProfile();
-  const master=getQuickMaster();
-  const step=60/(bpm||90)*0.5;
-  const dur=step*0.80;
-  const now=ctx.currentTime;
-  arpNotes.forEach((n,i)=>{
-    const freq=noteFreq(n.name||n,prof.octave+(n.octO||0));
-    _voice(freq, now+i*step, dur, prof.gain, prof.partials, master);
-  });
-}
-
-function playRagaSeq(arr,btnEl){
-  stopQuickPlay();
-  const ctx=getAudioCtx();
-  const prof=getInstProfile();
-  const master=getQuickMaster();
-  const bpm=80;
-  const step=60/bpm;
-  const dur=step*0.85;
-  const now=ctx.currentTime;
-  if(btnEl)btnEl.classList.add('playing');
-  arr.forEach((n,i)=>{
-    const noteName=n.iv!=null?CHR[(CHR.indexOf(ROOT)+n.iv+120)%12]:n.n;
-    const freq=noteFreq(noteName,prof.octave+(n.oct||0));
-    _voice(freq, now+i*step, dur, prof.gain, prof.partials, master);
-  });
-  if(btnEl)setTimeout(()=>btnEl.classList.remove('playing'),arr.length*step*1000+300);
-}
-
-// playTone: used by DAW engine — freq is a number, ctx/masterGain provided externally
-function playTone(freq,startTime,duration,ctx,masterGain,profile){
-  const partials=profile?.partials||PARTIALS.default;
-  const gain=profile?.gain||0.13;
-  partials.forEach(p=>{
-    const osc=ctx.createOscillator();
-    const og=ctx.createGain();
-    osc.type='sine'; osc.frequency.value=freq*p.ratio;
-    og.gain.value=gain*p.amp;
-    osc.connect(og); og.connect(masterGain);
-    osc.start(startTime); osc.stop(startTime+duration+0.1);
-  });
-  const env=ctx.createGain();
-  env.connect(masterGain);
-  const att=0.012, rel=0.08;
-  env.gain.setValueAtTime(0.0001,startTime);
-  env.gain.exponentialRampToValueAtTime(1.0,startTime+att);
-  env.gain.exponentialRampToValueAtTime(0.35,startTime+duration*0.6);
-  env.gain.exponentialRampToValueAtTime(0.0001,startTime+duration-rel);
-}
-
-function ivToNote(root,iv){return CHR[(CHR.indexOf(root)+iv+120)%12];}
-
-function chordNotesFromSym(sym){
+function _loadHistoryFromStorage(){
   try{
-    const norm=typeof normalizeChord==='function'?normalizeChord(sym):sym;
-    const p=parseChordName(norm);
-    if(!p)return chordNotes(sym.replace(/[^A-G#b]/,''),sym.replace(/^[A-G#b]*/,''))||[sym];
-    return (qualIntervals(p.qual)||[0,4,7]).map(iv=>CHR[(CHR.indexOf(p.root)+iv+120)%12]);
-  }catch(e){return[sym];}
+    const stored=localStorage.getItem('vk_song_history');
+    if(stored){ _songHistory=JSON.parse(stored); _updateHistBadge(); }
+  }catch(e){}
 }
 
-
-// ── Global chord/prog registry (avoids JSON.stringify in onclick) ──
-const _CHORD_REG=[];
-function regChord(sym,notes,label){
-  const idx=_CHORD_REG.length;
-  _CHORD_REG.push({sym,notes:notes||chordNotesFromSym(sym),label:label||''});
-  return idx;
-}
-
-function playRegChord(idx){const ch=_CHORD_REG[idx];if(ch)playChordAudio(ch.notes);}
-
-const _PROG_REG=[];
-function regProg(chords,label){const idx=_PROG_REG.length;_PROG_REG.push({chords,label});return idx;}
-
-// ── Song / Section Playback ───────────────────────────────────
-let _songPlayTimer=null;
-let _songPlaying=false;
-let _songLooping=false;
-let _songCurrentBpm=120;
-
-function songStop(){
-  _songPlaying=false;
-  _songLooping=false;
-  if(_songPlayTimer){clearTimeout(_songPlayTimer);_songPlayTimer=null;}
-  stopQuickPlay();
-  const playSvg=`<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>`;
-  document.querySelectorAll('.ss-play-btn,.song-play-btn').forEach(b=>{
-    b.classList.remove('playing');
-    b.innerHTML=playSvg;
-  });
-  document.querySelectorAll('.ss-loop-btn').forEach(b=>{
-    b.classList.remove('on');
-  });
-}
-
-// Play a flat array of {notes} objects sequentially at bpm, then call onDone
-function _playChordSequence(chords, bpm, onDone){
-  stopQuickPlay();
-  const ctx=getAudioCtx();
-  const master=getQuickMaster();
-  const prof=getInstProfile();
-  const barDur=60/bpm*4; // 1 bar = 4 beats
-  const now=ctx.currentTime;
-  chords.forEach((ch,i)=>{
-    const notes=ch.notes||chordNotesFromSym(ch.sym);
-    const t=now+i*barDur;
-    const gainPerVoice=(prof.gain||0.13)/Math.max(notes.length,1);
-    notes.forEach((n,j)=>{
-      const voiceOct=(prof.octave||4)+(j>2?1:0);
-      const freq=noteFreq(n,voiceOct);
-      _voice(freq, t+j*prof.strumDelay, barDur*0.88, gainPerVoice, prof.partials, master);
-    });
-  });
-  const totalMs=chords.length*barDur*1000;
-  _songPlayTimer=setTimeout(()=>{ _songPlayTimer=null; if(onDone) onDone(); }, totalMs+120);
-}
-
-function playSection(secIdx, bpm, loop){
-  songStop();
-  const song=CURRENT_SONG; if(!song) return;
-  const sec=song.sections[secIdx]; if(!sec||!sec.resolvedChords?.length) return;
-  _songPlaying=true;
-  _songLooping=!!loop;
-  _songCurrentBpm=bpm||_songCurrentBpm||120;
-
-  const btn=document.querySelector(`.ss-play-btn[data-sec="${secIdx}"]`);
-  const lbtn=document.querySelector(`.ss-loop-btn[data-sec="${secIdx}"]`);
-  const stopSvg=`<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="12" rx="1"/></svg>`;
-  if(btn){btn.classList.add('playing');btn.innerHTML=stopSvg;}
-
-  function play(){
-    if(!_songPlaying) return;
-    _playChordSequence(sec.resolvedChords, _songCurrentBpm, ()=>{
-      if(_songLooping && _songPlaying) play();
-      else songStop();
-    });
-  }
-  play();
-}
-
-function toggleSectionLoop(secIdx, bpm){
-  if(_songPlaying && _songLooping){
-    songStop();
+function _updateHistBadge(){
+  const badge=document.getElementById('histBadge');
+  if(!badge) return;
+  if(_songHistory.length>0){
+    badge.textContent=_songHistory.length;
+    badge.style.display='block';
   } else {
-    playSection(secIdx, bpm, true);
-    // Add highlight after playSection (which calls songStop first, clearing classes)
-    const btn=document.querySelector(`.ss-loop-btn[data-sec="${secIdx}"]`);
-    if(btn) btn.classList.add('on');
+    badge.style.display='none';
   }
 }
 
-function playSong(bpm){
-  songStop();
-  const song=CURRENT_SONG; if(!song) return;
-  _songPlaying=true;
-  _songCurrentBpm=bpm||_songCurrentBpm||120;
-
-  const btn=document.querySelector('.song-play-btn');
-  const stopSvg=`<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="12" rx="1"/></svg>`;
-  if(btn){btn.classList.add('playing');btn.innerHTML=stopSvg;}
-
-  // Flatten all sections
-  const allChords=song.sections.flatMap(s=>s.resolvedChords||[]);
-  if(!allChords.length){songStop();return;}
-
-  _playChordSequence(allChords, _songCurrentBpm, ()=>songStop());
+function _formatTime(ts){
+  const diff=Date.now()-ts;
+  if(diff<60000) return 'just now';
+  if(diff<3600000) return Math.round(diff/60000)+'m ago';
+  if(diff<86400000) return Math.round(diff/3600000)+'h ago';
+  return new Date(ts).toLocaleDateString();
 }
 
-function setSongBpm(val){
-  _songCurrentBpm=Math.max(40,Math.min(240,parseInt(val)||120));
-  const disp=document.getElementById('songBpmDisplay');
-  if(disp) disp.textContent=_songCurrentBpm;
-  // If song is playing, restart at new tempo
-  if(_songPlaying){
-    if(_songLooping){
-      // Find which section is looping
-      const loopBtn=document.querySelector('.ss-loop-btn.on');
-      const secIdx=loopBtn?parseInt(loopBtn.dataset.sec):-1;
-      if(secIdx>=0) { songStop(); setTimeout(()=>{ playSection(secIdx,_songCurrentBpm,true); const b=document.querySelector(`.ss-loop-btn[data-sec="${secIdx}"]`); if(b)b.classList.add('on'); },20); }
-    } else {
-      songStop();
-      setTimeout(()=>playSong(_songCurrentBpm),20);
+function _openHistoryPanel(){
+  const panel=document.getElementById('songHistoryPanel');
+  if(!panel) return;
+  _renderHistList();
+  panel.classList.add('open');
+}
+
+function _closeHistoryPanel(){
+  const panel=document.getElementById('songHistoryPanel');
+  if(panel) panel.classList.remove('open');
+}
+
+function _renderHistList(){
+  const list=document.getElementById('histList');
+  const sub=document.getElementById('histSheetSub');
+  if(!list) return;
+  if(sub) sub.textContent=_songHistory.length+' song'+(  _songHistory.length!==1?'s':'')+' this session';
+  if(!_songHistory.length){
+    list.innerHTML='<div class="hist-empty">♬ No songs generated yet.<br>Hit Generate Song to start.</div>';
+    return;
+  }
+  list.innerHTML=_songHistory.map((entry,i)=>{
+    const s=entry.song;
+    const score=s.evaluation?`<span class="hist-item-score">${s.evaluation.overall}/10</span>`:'';
+    const tags=[
+      s.genre?`<span class="hist-item-tag">${s.genreIcon||'♬'} ${s.genre}</span>`:'',
+      s.scaleName?`<span class="hist-item-tag">♩ ${s.scaleName}</span>`:'',
+      s.form?`<span class="hist-item-tag">${s.form}</span>`:'',
+      s.totalBars?`<span class="hist-item-tag">${s.totalBars} bars</span>`:'',
+    ].filter(Boolean).join('');
+    return`<div class="hist-item" data-hist-idx="${i}">
+      <div class="hist-item-main">
+        <div class="hist-item-title">${s.title||'Untitled'}</div>
+        ${s.subtitle?`<div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:1px;font-style:italic">${s.subtitle}</div>`:''}
+        <div class="hist-item-meta">${tags}</div>
+        <div class="hist-actions-row">
+          <button class="hist-action-btn" data-hist-load="${i}">▶ Load</button>
+          <button class="hist-action-btn" data-hist-midi="${i}">⬇ MIDI</button>
+          <button class="hist-action-btn danger" data-hist-del="${i}">✕ Remove</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        ${score}
+        <span class="hist-item-time">${_formatTime(entry.timestamp)}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Wire load buttons
+  list.querySelectorAll('[data-hist-load]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const idx=+btn.dataset.histLoad;
+      const entry=_songHistory[idx];
+      if(!entry) return;
+      CURRENT_SONG=entry.song;
+      displaySong(CURRENT_SONG);
+      _closeHistoryPanel();
+      if(VIEW!=='song') setView('song');
+    });
+  });
+
+  // Wire MIDI buttons
+  list.querySelectorAll('[data-hist-midi]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const idx=+btn.dataset.histMidi;
+      const entry=_songHistory[idx];
+      if(!entry||!entry.song) return;
+      // Trigger MIDI export for this song
+      const s=entry.song;
+      const ev=new CustomEvent('vk-midi-export',{detail:{song:s}});
+      document.dispatchEvent(ev);
+    });
+  });
+
+  // Wire delete buttons
+  list.querySelectorAll('[data-hist-del]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const idx=+btn.dataset.histDel;
+      _songHistory.splice(idx,1);
+      try{ localStorage.setItem('vk_song_history',JSON.stringify(_songHistory.slice(0,20))); }catch(ex){}
+      _updateHistBadge();
+      _renderHistList();
+    });
+  });
+
+  // Wire whole row click → load
+  list.querySelectorAll('.hist-item[data-hist-idx]').forEach(row=>{
+    row.addEventListener('click',()=>{
+      const idx=+row.dataset.histIdx;
+      const entry=_songHistory[idx];
+      if(!entry) return;
+      CURRENT_SONG=entry.song;
+      displaySong(CURRENT_SONG);
+      _closeHistoryPanel();
+      if(VIEW!=='song') setView('song');
+    });
+  });
+}
+
+// Init history panel wiring
+(()=>{
+  _loadHistoryFromStorage();
+
+  document.getElementById('histCloseBtn')?.addEventListener('click',_closeHistoryPanel);
+  document.getElementById('songHistoryPanel')?.addEventListener('click',e=>{
+    if(e.target===document.getElementById('songHistoryPanel')) _closeHistoryPanel();
+  });
+  document.getElementById('histClearBtn')?.addEventListener('click',()=>{
+    if(!_songHistory.length) return;
+    _songHistory=[];
+    try{ localStorage.removeItem('vk_song_history'); }catch(e){}
+    _updateHistBadge();
+    _renderHistList();
+  });
+
+  // Keyboard: Escape closes panel
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') _closeHistoryPanel(); });
+})();
+
+
+// ════════════════════════════════════════════════════════
+// ── AI SONG GENERATOR ───────────────────────────────────
+// ════════════════════════════════════════════════════════
+
+function _isAiWhitelisted(){
+  return _user && AI_WHITELIST.includes((_user.email||'').toLowerCase().trim());
+}
+
+function _getAiKey(){
+  if(_aiApiKey) return _aiApiKey;
+  try{ _aiApiKey = localStorage.getItem('vk_ai_key')||null; }catch(e){}
+  return _aiApiKey;
+}
+
+function _saveAiKey(key){
+  _aiApiKey = key;
+  try{ localStorage.setItem('vk_ai_key', key); }catch(e){}
+}
+
+function _clearAiKey(){
+  _aiApiKey = null;
+  try{ localStorage.removeItem('vk_ai_key'); }catch(e){}
+}
+
+// ── Render the AI strip into #aiStripWrap ──
+function renderAiStrip(){
+  const wrap = document.getElementById('aiStripWrap');
+  if(!wrap) return;
+
+  const isWhitelisted = _isAiWhitelisted();
+  const hasKey = !!_getAiKey();
+
+  if(!isWhitelisted){
+    // Not signed in or not whitelisted — show locked state
+    const signedIn = !!_user;
+    wrap.innerHTML = `
+      <div class="ai-strip">
+        <span class="ai-strip-label">✦ AI Generate</span>
+        <div class="ai-locked">
+          ${signedIn
+            ? `<span>Request AI access — write to <a href="mailto:nitu.rathee@gmail.com">nitu.rathee@gmail.com</a></span>`
+            : `<span>Sign in to request AI access</span>`}
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Whitelisted — show full AI strip
+  if(!hasKey){
+    // Need API key
+    wrap.innerHTML = `
+      <div class="ai-strip">
+        <span class="ai-strip-label">✦ AI Generate</span>
+        <input class="ai-key-input" id="aiKeyInput" type="password" placeholder="Paste Anthropic API key…" autocomplete="off">
+        <button class="ai-key-btn" id="aiKeySaveBtn">Save Key</button>
+      </div>`;
+    document.getElementById('aiKeySaveBtn')?.addEventListener('click',()=>{
+      const val = document.getElementById('aiKeyInput')?.value?.trim();
+      if(val && val.startsWith('sk-ant-')){ _saveAiKey(val); renderAiStrip(); }
+      else alert('Invalid key — must start with sk-ant-');
+    });
+    document.getElementById('aiKeyInput')?.addEventListener('keydown',e=>{
+      if(e.key==='Enter') document.getElementById('aiKeySaveBtn')?.click();
+    });
+    return;
+  }
+
+  // Has key + whitelisted — show model selector + generate button
+  wrap.innerHTML = `
+    <div class="ai-strip">
+      <span class="ai-strip-label">✦ AI Generate</span>
+      <select class="ai-model-sel" id="aiModelSel">
+        <option value="none">Off — use algorithm</option>
+        <option value="haiku" ${AI_MODEL==='haiku'?'selected':''}>Haiku 3.5 — fast</option>
+        <option value="sonnet" ${AI_MODEL==='sonnet'?'selected':''}>Sonnet 4.5 — best</option>
+      </select>
+      <button class="ai-generate-btn" id="aiGenerateBtn" ${AI_MODEL==='none'?'disabled':''}>
+        <div class="ai-spinner"></div>
+        <span class="ai-btn-text">✦ AI Song</span>
+      </button>
+      <button class="ai-key-btn" id="aiKeyClearBtn" style="opacity:.5;font-size:9px">✕ Key</button>
+    </div>`;
+
+  document.getElementById('aiModelSel')?.addEventListener('change', e=>{
+    AI_MODEL = e.target.value;
+    document.getElementById('aiGenerateBtn').disabled = (AI_MODEL==='none');
+  });
+
+  document.getElementById('aiGenerateBtn')?.addEventListener('click', generateSongAI);
+
+  document.getElementById('aiKeyClearBtn')?.addEventListener('click',()=>{
+    if(confirm('Remove saved API key?')){ _clearAiKey(); renderAiStrip(); }
+  });
+}
+
+// ── Build the prompt ──
+function _buildSongPrompt(){
+  const genre = getEffectiveGenre();
+  const scaleIvs = getCurrentScaleIvs();
+  const scaleRoot = getCurrentScaleRoot();
+  const scaleName = getCurrentScaleName();
+  const isMin = isMinorish(scaleIvs);
+  const chords = diatonicChords(scaleRoot, scaleIvs, JAZZ);
+  const form = genre?.signatureForm || genre?.forms?.[0] || 'Verse-Chorus';
+
+  const chordList = chords.map((ch,i)=>`${['I','ii','iii','IV','V','vi','vii°'][i]} = ${ch.sym}`).join(', ');
+  const CHR2=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const rootIdx2 = CHR2.indexOf(scaleRoot);
+  const scaleNotes2 = scaleIvs.map(iv=>CHR2[(rootIdx2+iv)%12]).join(', ');
+
+  const thaatCtx = OPEN_THAAT ? `\nThaat context: ${OPEN_THAAT} (${THAATS[OPEN_THAAT]?.western||''})` : '';
+  const modeCtx = OPEN_MODE>=0&&MODES[OPEN_MODE] ? `\nMode: ${MODES[OPEN_MODE].n} — ${MODES[OPEN_MODE].v}` : '';
+  const jazzNote = JAZZ ? '\nJazz+ mode is ON — use 7ths and extensions.' : '';
+  const genres = [...SELECTED_GENRES].join(' + ');
+  const complexity = SONG_COMPLEXITY;
+
+  return `You are a professional music composer and arranger. Generate a complete song structure with chord progressions.
+
+CONTEXT:
+- Key / Root: ${scaleRoot}
+- Scale: ${scaleName} (${isMin?'minor':'major'} quality)
+- Scale notes: ${scaleNotes2}
+- Available diatonic chords ONLY: ${chordList}
+- Genre: ${genres}
+- Form: ${form}
+- Complexity: ${complexity}${thaatCtx}${modeCtx}${jazzNote}
+
+RULES (strictly follow every one):
+1. Use ONLY the diatonic chords listed above — no others. Every chord must be from this list.
+2. Use Roman numeral degree notation (I, ii, iii, IV, V, vi, vii°).
+3. Each section MUST use a different chord progression. Never repeat the same progression in adjacent sections.
+4. Chorus must feel stronger / more resolved than Verse.
+5. Bridge must introduce harmonic contrast — move away from tonic.
+6. The final section must end on the tonic chord (I or i).
+7. Avoid using the tonic chord more than twice consecutively.
+8. Use common, recognisable progressions for the genre.
+
+OUTPUT FORMAT — respond with valid JSON only, no markdown, no explanation:
+{
+  "title": "evocative song title",
+  "subtitle": "one evocative line describing the mood",
+  "styleNote": "brief description of harmonic approach for this genre",
+  "sections": [
+    {
+      "label": "Verse",
+      "role": "verse",
+      "progression": ["I", "vi", "IV", "V"],
+      "bars": 4,
+      "melodyHint": "specific melodic guidance for this progression"
     }
+  ],
+  "tempo": "Medium (♩=120)",
+  "evaluation": {
+    "harmVariation": 8,
+    "knownProgs": 9,
+    "repetitionScore": 8,
+    "resolutionScore": 10,
+    "overall": 9
+  }
+}`;
+}
+
+// ── Call the API and parse ──
+async function generateSongAI(){
+  const key = _getAiKey();
+  if(!key){ alert('No API key saved.'); return; }
+  if(AI_GENERATING) return;
+  if(AI_MODEL==='none') return;
+
+  const btn = document.getElementById('aiGenerateBtn');
+  AI_GENERATING = true;
+  btn?.classList.add('loading');
+  if(btn) btn.disabled = true;
+
+  const modelId = AI_MODEL==='sonnet'
+    ? 'claude-sonnet-4-5'
+    : 'claude-haiku-3-5-20241022';
+
+  try{
+    const prompt = _buildSongPrompt();
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body: JSON.stringify({
+        model: modelId,
+        max_tokens: 2000,
+        messages:[{role:'user', content: prompt}]
+      })
+    });
+
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.error?.message || `API error ${res.status}`);
+    }
+
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '';
+
+    // Parse JSON from response
+    const jsonStr = raw.replace(/^```json\s*/i,'').replace(/```$/,'').trim();
+    const aiResult = JSON.parse(jsonStr);
+
+    // Convert AI result into Vaikhari song object
+    const song = _aiResultToSong(aiResult);
+    if(song){
+      CURRENT_SONG = song;
+      displaySong(CURRENT_SONG);
+      _saveToHistory(CURRENT_SONG);
+    }
+
+  } catch(e){
+    console.error('AI generation error:', e);
+    const msg = e.message?.includes('401') ? 'Invalid API key — check your key and try again.'
+               : e.message?.includes('429') ? 'Rate limit hit — wait a moment and retry.'
+               : e.message?.includes('JSON') ? 'AI returned unexpected format — try again.'
+               : `Error: ${e.message}`;
+    alert(msg);
+  } finally{
+    AI_GENERATING = false;
+    btn?.classList.remove('loading');
+    if(btn) btn.disabled = false;
   }
 }
 
+// ── Convert AI JSON response to Vaikhari song object ──
+function _aiResultToSong(ai){
+  if(!ai||!ai.sections) return null;
+  const genre = getEffectiveGenre();
+  const scaleIvs = getCurrentScaleIvs();
+  const scaleRoot = getCurrentScaleRoot();
+  const scaleName = getCurrentScaleName();
+  const isMin = isMinorish(scaleIvs);
 
-const _ARP_REG=[];
+  const resolvedSections = ai.sections.map(sec=>{
+    const resolved = (sec.progression||[]).map(rom=>
+      resolveChord(upgradeRoman(rom, primaryGenre()), scaleRoot, scaleIvs, primaryGenre(), JAZZ)
+    ).filter(Boolean);
+    return {
+      label: sec.label||'Section',
+      prog: sec.progression||[],
+      resolvedChords: resolved,
+      bars: sec.bars || resolved.length,
+      midiReps: sec.role==='chorus'?2:1,
+      melodyHint: sec.melodyHint||'',
+      aiGenerated: true,
+    };
+  }).filter(s=>s.resolvedChords.length>0);
 
-// ── Scale/Seq registry (avoids JSON.stringify in onclick) ──
-const _SEQ_REG=[];
-function regSeq(root,ivs,label){
-  const idx=_SEQ_REG.length;
-  _SEQ_REG.push({root,ivs,label});
-  return idx;
-}
-function playRegScale(idx,btnEl){
-  const s=_SEQ_REG[idx];if(!s)return;
-  playScaleNotesFromIvs(s.root,s.ivs,btnEl);
-}
-// Raga seq registry
-const _RAGA_SEQ_REG=[];
-function regRagaSeq(arr,label){
-  const idx=_RAGA_SEQ_REG.length;
-  _RAGA_SEQ_REG.push({arr,label});
-  return idx;
-}
-function playRegRagaSeq(idx,btnEl){
-  const s=_RAGA_SEQ_REG[idx];if(!s)return;
-  playRagaSeq(s.arr,btnEl);
-}
+  const titles = {title: ai.title||'Untitled', subtitle: ai.subtitle||''};
 
-function regArp(sym,patKey,notes,label){const idx=_ARP_REG.length;_ARP_REG.push({sym,patKey,notes,label});return idx;}
-
-function playRegArp(idx){const a=_ARP_REG[idx];if(a&&a.notes)playArpAudio(a.notes);}
-
-
-
-// ── State ──
-let ROOT='C',VIEW='scale',JAZZ=false,INDIAN=true,OPEN_SCALE=null,OPEN_MODE=null,OPEN_THAAT=null,OPEN_RAGA=null,INSTRUMENT='guitar';
-let dcLit=new Set();
-let CURRENT_SONG=null;
-let SELECTED_GENRES=new Set(['jazz']); // multi-select set
-// Helper: primary genre (first selected, or 'jazz')
-function primaryGenre(){return [...SELECTED_GENRES][0]||'jazz';}
-// Helper: sorted genre key for fusion lookup
-function fusionKey(){return [...SELECTED_GENRES].sort().join('+');}
-// Legacy compat alias used internally
-Object.defineProperty(window,'SELECTED_GENRE',{get:()=>primaryGenre(),set:(v)=>{SELECTED_GENRES=new Set([v]);}});
-
-
-// ── Swara names ──
-const SWARAS={0:'Sa',1:'re♭',2:'Re',3:'ga♭',4:'Ga',5:'Ma',6:'Ma#',7:'Pa',8:'dha♭',9:'Dha',10:'ni♭',11:'Ni'};
-const SW_SHORT={0:'Sa',1:'re',2:'Re',3:'ga',4:'Ga',5:'Ma',6:'Ma#',7:'Pa',8:'dha',9:'Dha',10:'ni',11:'Ni'};
-
-// ── Scale Data ──
-const SCALES={
-  'Major':        {iv:[0,2,4,5,7,9,11],steps:['W','W','H','W','W','W','H'],vibe:'Bright · Stable · Resolved',desc:'The bedrock of Western music. Seven notes, no tension — bright and fully resolved. Corresponds to Bilawal Thaat in Hindustani music.',thaat:'Bilawal'},
-  'Natural Minor':{iv:[0,2,3,5,7,8,10],steps:['W','H','W','W','H','W','W'],vibe:'Dark · Emotional · Expressive',desc:'The most common minor scale, foundation of classical and popular music. Corresponds to Asavari Thaat. Three flatted degrees (♭3 ♭6 ♭7) give it depth.',thaat:'Asavari'},
-  'Harmonic Minor':{iv:[0,2,3,5,7,8,11],steps:['W','H','W','W','H','A','H'],vibe:'Exotic · Dramatic · Classical',desc:'Natural minor with raised 7th. Creates an augmented 2nd interval (A2) between ♭6 and 7 — the exotic sound of Eastern Europe and the Middle East.',thaat:null},
-  'Melodic Minor': {iv:[0,2,3,5,7,9,11],steps:['W','H','W','W','W','W','H'],vibe:'Smooth · Jazz-minor · Versatile',desc:'Raised 6th and 7th ascending. Used extensively in jazz improvisation (jazz minor). Each mode of this scale has a name used in jazz harmony.',thaat:null},
-  'Dorian':       {iv:[0,2,3,5,7,9,10],steps:['W','H','W','W','W','H','W'],vibe:'Cool · Jazz · Folk',desc:'Minor with a raised 6th — brighter than natural minor. Core of jazz, funk, Celtic folk and blues. Corresponds to Kafi Thaat.',thaat:'Kafi'},
-  'Mixolydian':   {iv:[0,2,4,5,7,9,10],steps:['W','W','H','W','W','H','W'],vibe:'Bluesy · Rock · Dominant',desc:'Major scale with ♭7. The dominant 7th built on the tonic. Backbone of blues, rock and Celtic music. Corresponds to Khamaj Thaat.',thaat:'Khamaj'},
-  'Phrygian':     {iv:[0,1,3,5,7,8,10],steps:['H','W','W','W','H','W','W'],vibe:'Dark · Spanish · Intense',desc:'Minor scale with ♭2. Distinctly exotic and intense — foundational to Flamenco and metal. Corresponds to Bhairavi Thaat.',thaat:'Bhairavi'},
-  'Lydian':       {iv:[0,2,4,6,7,9,11],steps:['W','W','W','H','W','W','H'],vibe:'Dreamy · Floating · Cinematic',desc:'Major with ♯4 (tritone above root). Ethereal and upward-reaching — widely used in film scores and jazz. Corresponds to Kalyan Thaat.',thaat:'Kalyan'},
-  'Pentatonic Maj':{iv:[0,2,4,7,9],   steps:['W','W','A','W','A'],vibe:'Open · Universal · Folk',desc:'Five-note major scale.',thaat:null},
-  'Pentatonic Min':{iv:[0,3,5,7,10],  steps:['A','W','W','A','W'],vibe:'Gritty · Rock · Blues',desc:'Five-note minor scale.',thaat:null},
-  'Blues':        {iv:[0,3,5,6,7,10], steps:['A','W','H','H','A','W'],vibe:'Soulful · Gritty · Expressive',desc:'Pentatonic minor + ♭5 "blue note".',thaat:null},
-  'Whole Tone':   {iv:[0,2,4,6,8,10], steps:['W','W','W','W','W','W'],vibe:'Dreamy · Impressionist · Hovering',desc:'Six equidistant whole tones.',thaat:null},
-  'Diminished':   {iv:[0,2,3,5,6,8,9,11],steps:['W','H','W','H','W','H','W','H'],vibe:'Tense · Symmetric · Octatonic',desc:'Alternating whole and half steps.',thaat:null},
-};
-
-const MODES=[
-  {n:'Ionian',    g:'Natural Major',  iv:[0,2,4,5,7,9,11],steps:['W','W','H','W','W','W','H'],v:'Bright · Happy · Resolved',  d:'The standard major scale.',thaat:'Bilawal'},
-  {n:'Dorian',    g:'Minor + ♮6',     iv:[0,2,3,5,7,9,10],steps:['W','H','W','W','W','H','W'],v:'Cool · Jazzy · Soulful',    d:'Minor with natural 6th.',thaat:'Kafi'},
-  {n:'Phrygian',  g:'Minor + ♭2',     iv:[0,1,3,5,7,8,10],steps:['H','W','W','W','H','W','W'],v:'Dark · Intense · Spanish',  d:'Minor with flat 2nd.',thaat:'Bhairavi'},
-  {n:'Lydian',    g:'Major + ♯4',     iv:[0,2,4,6,7,9,11],steps:['W','W','W','H','W','W','H'],v:'Dreamy · Cinematic · Bright',d:'Major with raised 4th.',thaat:'Kalyan'},
-  {n:'Mixolydian',g:'Major + ♭7',     iv:[0,2,4,5,7,9,10],steps:['W','W','H','W','W','H','W'],v:'Bluesy · Rock · Dominant',  d:'Major with lowered 7th.',thaat:'Khamaj'},
-  {n:'Aeolian',   g:'Natural Minor',  iv:[0,2,3,5,7,8,10],steps:['W','H','W','W','H','W','W'],v:'Sad · Introspective · Dark', d:'The natural minor scale.',thaat:'Asavari'},
-  {n:'Locrian',   g:'Diminished + ♭2',iv:[0,1,3,5,6,8,10],steps:['H','W','H','W','W','W','W'],v:'Tense · Unstable · Rare',   d:'Most dissonant mode.',thaat:null},
-];
-
-const THAATS={
-  Bilawal:{iv:[0,2,4,5,7,9,11],swaras:'Sa Re Ga Ma Pa Dha Ni',vibe:'Pure · Radiant · Serene',desc:'The foundation thaat — all <em>shuddha</em> (natural) swaras.',western:'Major Scale / Ionian mode (C D E F G A B)',ragas:['Alhaiya Bilawal','Bilawal','Bihag','Deshkar','Durga','Hamsadhwani','Shankara','Kukubh Bilawal','Yamani Bilawal','Bihagda'],note:'Bilawal is the only thaat with no altered swaras.'},
-  Kalyan:{iv:[0,2,4,6,7,9,11],swaras:'Sa Re Ga Ma# Pa Dha Ni',vibe:'Ethereal · Expansive · Romantic',desc:'Uses <em>tivra</em> (sharpened) Ma.',western:'Lydian mode (C D E F# G A B)',ragas:['Yaman','Yaman Kalyan','Shuddha Kalyan','Kedar','Bihag','Hamir','Hameer Kalyani','Chhayanat','Kamod','Bhoopali'],note:'The ♯4 (tivra Ma) is the defining difference from Bilawal.'},
-  Khamaj:{iv:[0,2,4,5,7,9,10],swaras:'Sa Re Ga Ma Pa Dha ni',vibe:'Playful · Festive · Folk',desc:'Uses <em>komal</em> (flat) Ni.',western:'Mixolydian mode (C D E F G A B♭)',ragas:['Khamaj','Desh','Tilak Kamod','Jaijaiwanti','Jhinjhoti','Rageshree','Sorath','Khambavati','Gara','Tilang'],note:'Komal Ni (♭7) is the only difference from Major.'},
-  Kafi:{iv:[0,2,3,5,7,9,10],swaras:'Sa Re ga Ma Pa Dha ni',vibe:'Wistful · Seasonal · Folk',desc:'Uses <em>komal</em> Ga and Ni.',western:'Dorian mode (C D E♭ F G A B♭)',ragas:['Kafi','Bageshree','Bhimpalasi','Pilu','Dhani','Patdeep','Zila Kafi','Sindhura','Madhmad Sarang','Chandrakauns'],note:'Two flatted notes (♭3 and ♭7).'},
-  Asavari:{iv:[0,2,3,5,7,8,10],swaras:'Sa Re ga Ma Pa dha ni',vibe:'Sorrowful · Meditative · Morning',desc:'Three <em>komal</em> swaras — Ga, Dha and Ni.',western:'Natural Minor / Aeolian mode (C D E♭ F G A♭ B♭)',ragas:['Asavari','Jaunpuri','Darbari Kanada','Adana','Komal Rishabh Asavari','Dev Gandhar','Gandhari','Shuddha Nat','Kaunsi Kanada'],note:'Three flats (♭3 ♭6 ♭7).'},
-  Bhairavi:{iv:[0,1,3,5,7,8,10],swaras:'Sa re ga Ma Pa dha ni',vibe:'Tender · Devotional · Farewell',desc:'All five movable swaras are <em>komal</em>.',western:'Phrygian mode (C D♭ E♭ F G A♭ B♭)',ragas:['Bhairavi','Malkauns','Bilaskhani Todi','Sindhi Bhairavi','Manjh Khamaj','Jogiya Bhairavi','Mangal Bhairavi'],note:'Four flats (♭2 ♭3 ♭6 ♭7).'},
-  Bhairav:{iv:[0,1,4,5,7,8,11],swaras:'Sa re Ga Ma Pa dha Ni',vibe:'Majestic · Devotional · Dawn',desc:'Uses <em>komal</em> Re and Dha.',western:'Double Harmonic / Byzantine scale',ragas:['Bhairav','Ahir Bhairav','Ramkali','Jogiya','Nat Bhairav','Bairagi Bhairav','Anand Bhairav','Prabhat Bhairav','Shivmat Bhairav'],note:'No direct Western mode equivalent.'},
-  Purvi:{iv:[0,1,4,6,7,8,11],swaras:'Sa re Ga Ma# Pa dha Ni',vibe:'Intense · Yearning · Sunset',desc:'Komal Re and Dha with <em>tivra</em> Ma.',western:'No direct equivalent',ragas:['Poorvi','Puriya Dhanashree','Basant','Shree','Lalit','Gauri','Basant Mukhari'],note:'Uniquely Indian.'},
-  Marwa:{iv:[0,1,4,6,9,11],swaras:'Sa re Ga Ma# (Pa) Dha Ni',vibe:'Mysterious · Restless · Dusk',desc:'Komal Re and <em>tivra</em> Ma — Pa absent.',western:'Lydian ♭2 without perfect 5th',ragas:['Marwa','Puriya','Sohini','Lalit','Bhatiyar','Puriya Kalyan','Bibhas','Jait'],note:'The missing Pa is unusual in any tradition.'},
-  Todi:{iv:[0,1,3,6,7,8,11],swaras:'Sa re ga Ma# Pa dha Ni',vibe:'Profound · Complex · Morning',desc:'The most revered and complex thaat.',western:'Phrygian ♯4 — near unique',ragas:['Miyan ki Todi','Gujari Todi','Multani','Madhuvanti','Bilaskhani Todi','Bahaduri Todi','Gurjari Todi'],note:'No Western scale is a precise match.'},
-};
-
-// ── Song Generator ──
-
-const GENRES={
-  jazz:{
-    label:'Jazz',icon:'🎷',
-    color:'on-lapis',
-    forms:['AABA','ABAC','12-bar','Through-composed','ABA'],
-    tempos:['Ballad (♩=60–80)','Medium Swing (♩=120–140)','Up-tempo (♩=200+)','Bossa (♩=130)'],
-    styleNote:'Rich extensions · ii-V-I motion · tritone subs',
-    progressions:{
-      major:[
-        ['I','IV','V','I'],['I','vi','IV','V'],['I','ii','V','I'],
-        ['I','IV','ii','V'],['I','iii','vi','ii','V','I'],
-        ['iii','vi','ii','V'],['I','IV','I','V'],['I','vi','ii','V'],
-      ],
-      minor:[
-        ['i','iv','V','i'],['i','VI','III','VII'],['i','ii°','V','i'],
-        ['i','iv','VII','III'],['i','VI','VII','i'],
-      ],
-      bridge:[
-        ['IV','V','iii','vi'],['II','V','I'],['vi','ii','V','I'],
-        ['♭VII','IV','I'],['♭II7','V7','I'],
-      ]
-    },
-    jazzMods:{
-      'I':'Imaj7','IV':'IVmaj7','V':'V7','ii':'ii7','iii':'iii7','vi':'vi7',
-      'i':'im7','iv':'iv7','VII':'VII7','VI':'VImaj7','III':'IIImaj7',
-      '♭VII':'♭VIImaj7','♭II7':'♭II7','II':'II7','II7':'II7',
-    }
-  },
-  blues:{
-    label:'Blues',icon:'🎸',
-    color:'on',
-    // Four distinct complexity levels as distinct form variants
-    forms:['12-bar (Delta)','12-bar (Chicago)','12-bar (Blues-Rock)','12-bar (Jazz Blues)','8-bar','16-bar'],
-    signatureForm:'12-bar (Chicago)',
-    formAlts:['12-bar (Chicago)','12-bar (Delta)','12-bar (Blues-Rock)','12-bar (Jazz Blues)','8-bar','16-bar'],
-    tempos:['Slow Blues (♩=54)','Medium Blues (♩=80)','Shuffle (♩=120)','Fast Blues (♩=176)'],
-    styleNote:'All chords dominant 7ths · blue notes · turnarounds · chord-tone targeting',
-    progressions:{
-      // Actual blues uses buildBluesSong() — these are structural fallbacks only
-      major:[['I7','IV7','I7','I7','IV7','IV7','I7','I7','V7','IV7','I7','V7']],
-      minor:[['i7','iv7','i7','i7','iv7','iv7','i7','i7','V7','iv7','i7','V7']],
-      bridge:[['IV7','IV7','I7','I7'],['II7','V7','I7','I7']]
-    },
-    // jazzMods applied by resolveChord for extension upgrades
-    jazzMods:{'I7':'I9','IV7':'IV9','V7':'V9','i7':'i9','iv7':'iv9'}
-  },
-  pop:{
-    label:'Pop',icon:'🎵',
-    color:'on',
-    forms:['Verse-Chorus','ABABCB','AABA'],
-    tempos:['Slow Pop (♩=72)','Medium Pop (♩=100)','Upbeat (♩=120)','Dance (♩=140)'],
-    styleNote:'Triads · clear function · hook-driven',
-    progressions:{
-      major:[
-        ['I','V','vi','IV'],['I','IV','V','IV'],['I','vi','IV','V'],
-        ['I','IV','I','V'],['vi','IV','I','V'],['I','V','IV','I'],
-      ],
-      minor:[
-        ['i','VI','III','VII'],['i','iv','VI','VII'],['i','VII','VI','VII'],
-      ],
-      bridge:[['IV','V','I'],['vi','V','IV'],['II','V','I']]
-    },
-    jazzMods:{}
-  },
-  rock:{
-    label:'Rock',icon:'🎸',
-    color:'on',
-    forms:['Verse-Chorus','12-bar','ABA','Riff-based'],
-    tempos:['Power Ballad (♩=72)','Classic Rock (♩=120)','Hard Rock (♩=150)','Punk (♩=180+)'],
-    styleNote:'Power chords · modal movement · pentatonic feel',
-    progressions:{
-      major:[
-        ['I','IV','V','I'],['I','♭VII','IV','I'],['I','IV','♭VII','IV'],
-        ['I','V','IV','I'],['I','♭III','♭VII','IV'],
-      ],
-      minor:[
-        ['i','VII','VI','VII'],['i','iv','v','i'],['i','♭VI','♭VII','i'],
-        ['i','VII','IV','i'],
-      ],
-      bridge:[['♭VI','♭VII','i'],['IV','V','I'],['♭VII','IV','I']]
-    },
-    jazzMods:{}
-  },
-  classical:{
-    label:'Classical',icon:'🎻',
-    color:'on',
-    forms:['Sonata','Rondo','Theme & Variations','Binary (AB)','Ternary (ABA)'],
-    tempos:['Largo (♩=40–60)','Andante (♩=76–108)','Allegro (♩=120–168)','Presto (♩=168+)'],
-    styleNote:'Voice leading · cadences · functional harmony',
-    progressions:{
-      major:[
-        ['I','IV','V','I'],['I','ii','V','I'],['I','vi','ii','V','I'],
-        ['I','IV','ii','V7','I'],['I','iii','IV','V'],
-      ],
-      minor:[
-        ['i','iv','V','i'],['i','ii°','V','i'],['i','VI','iv','V','i'],
-        ['i','iv','i','V7','i'],
-      ],
-      bridge:[['IV','ii','V7','I'],['vi','ii','V','I'],['iv','V7','i']]
-    },
-    jazzMods:{}
-  },
-  bossa:{
-    label:'Bossa Nova',icon:'🌴',
-    color:'on-lapis',
-    forms:['AABA','16-bar','Through-composed'],
-    tempos:['Slow Bossa (♩=100)','Medium Bossa (♩=130)','Samba (♩=160)'],
-    styleNote:'maj7 · dom9 · ii-V-I · Jobim-style extensions',
-    progressions:{
-      major:[
-        ['Imaj7','IV7','iii7','♭III7'],['Imaj7','VII7','IIImaj7','♭III7'],
-        ['ii7','V7','Imaj7','♭VII7'],['Imaj7','vi7','ii7','V7'],
-        ['I6','♭III°7','ii7','V7'],
-      ],
-      minor:[
-        ['im7','♭VII7','♭VImaj7','V7'],['im9','iv7','V7sus','V7'],
-      ],
-      bridge:[['♭II7','V7','Imaj7'],['IV7','♭IV°7','iii7','♭III7']]
-    },
-    jazzMods:{
-      'Imaj7':'Imaj9','ii7':'ii9','V7':'V9','IV7':'IV7♯11',
-      '♭VII7':'♭VII7','IIImaj7':'IIImaj7','♭III7':'♭III7',
-    }
-  },
-  funk:{
-    label:'Funk',icon:'🔥',
-    color:'on',
-    forms:['Groove-based','ABA','Vamp'],
-    tempos:['Mid Funk (♩=96)','Tight Funk (♩=110)','Fast Funk (♩=126)'],
-    styleNote:'16th-note feel · dominant 7ths · syncopation · one-chord vamps',
-    progressions:{
-      major:[
-        ['I7','IV7'],['I7','♭VII7'],['I7','IV7','I7','V7'],
-        ['I9','♭VII9'],['I7','ii7','I7'],
-      ],
-      minor:[
-        ['i7','♭VII7'],['i7','iv7'],['i9','♭VI7','♭VII7','i9'],
-      ],
-      bridge:[['IV7','V7','I7'],['♭VII7','IV7','I7']]
-    },
-    jazzMods:{
-      'I7':'I9','IV7':'IV9','V7':'V9','♭VII7':'♭VII9','i7':'i9',
-    }
-  },
-  folk:{
-    label:'Folk',icon:'🪕',
-    color:'on',
-    forms:['Verse-Chorus','Ballad (AABB)','Through-composed'],
-    signatureForm:'Verse-Chorus',
-    formAlts:['Verse-Chorus','Ballad (AABB)','Through-composed'],
-    tempos:['Slow Folk (♩=60)','Walking (♩=80)','Upbeat Folk (♩=110)'],
-    styleNote:'Open chords · diatonic · modal feel · no extensions',
-    progressions:{
-      major:[
-        ['I','V','I','IV'],['I','IV','I','V'],['I','ii','V','I'],
-        ['I','V','vi','IV'],['I','IV','V','IV'],
-      ],
-      minor:[
-        ['i','VII','VI','VII'],['i','iv','i','v'],['i','VII','III','VII'],
-      ],
-      bridge:[['IV','V','I'],['vi','IV','I']]
-    },
-    jazzMods:{}
-  },
-  house:{
-    label:'House',icon:'🎛️',
-    color:'on-lapis',
-    forms:['Intro-Drop-Breakdown-Drop-Outro','Build-Drop','ABA'],
-    signatureForm:'Intro-Drop-Breakdown-Drop-Outro',
-    formAlts:['Intro-Drop-Breakdown-Drop-Outro','Build-Drop','ABA'],
-    tempos:['Deep House (♩=120)','Classic House (♩=126)','Acid House (♩=130)','Tech House (♩=132)'],
-    styleNote:'Four-on-the-floor · chord stabs · soulful vocal chops',
-    progressions:{
-      major:[
-        ['Imaj7','IVmaj7','ii7','V7'],['I','IV','vi','V'],
-        ['Imaj7','vi7','IVmaj7','V7'],['I','♭VII','IV','I'],
-      ],
-      minor:[
-        ['i7','iv7','♭VII7','♭III'],['i7','♭VII','♭VI','♭VII'],
-        ['i7','iv7','i7','V7'],['i','♭VI','♭VII','i'],
-      ],
-      bridge:[['IV','V','I'],['♭VII','IV','I'],['ii7','V7','I']]
-    },
-    jazzMods:{
-      'Imaj7':'Imaj9','IVmaj7':'IVmaj9','ii7':'ii9','V7':'V9','vi7':'vi9',
-      'i7':'im9','iv7':'iv9','♭VII7':'♭VII9',
-    }
-  },
-  techno:{
-    label:'Techno',icon:'⚡',
-    color:'on-lapis',
-    forms:['Intro-Build-Drop-Break-Drop-Outro','Hypnotic Loop','Vamp'],
-    signatureForm:'Intro-Build-Drop-Break-Drop-Outro',
-    formAlts:['Intro-Build-Drop-Break-Drop-Outro','Hypnotic Loop','Vamp'],
-    tempos:['Industrial (♩=135)','Peak Techno (♩=140)','Hardgroove (♩=145)','Hard Techno (♩=150)'],
-    styleNote:'Minimalist · atonal tension · driving kick · industrial timbre',
-    progressions:{
-      major:[['I','♭VII'],['I','♭VI'],['i7','♭VII7'],['i','♭VII','♭VI','♭VII']],
-      minor:[
-        ['i','♭VII'],['i','♭VI','♭VII','i'],['i7','♭VI7'],['i','♭II'],
-      ],
-      bridge:[['♭VII','i'],['♭VI','♭VII'],['♭II','i']]
-    },
-    jazzMods:{'i7':'im7','♭VII7':'♭VII7','♭VI7':'♭VI7'}
-  },
-  ambient:{
-    label:'Ambient',icon:'🌊',
-    color:'on',
-    forms:['Through-composed','Drone','ABA'],
-    signatureForm:'Through-composed',
-    formAlts:['Through-composed','Drone','ABA'],
-    tempos:['Floating (♩=60)','Slow Drift (♩=72)','Pulse (♩=80)'],
-    styleNote:'Suspended voicings · long sustain · modal stasis · textural',
-    progressions:{
-      major:[
-        ['Imaj7','IVmaj7'],['Imaj9','iii7','IVmaj7','Imaj7'],
-        ['Imaj7','♭VIImaj7','IVmaj7'],
-      ],
-      minor:[
-        ['im7','♭VImaj7'],['im9','♭VII','♭VI'],['im7','♭VImaj7','♭VIImaj7'],
-      ],
-      bridge:[['IVmaj7','Imaj7'],['♭VImaj7','♭VIImaj7']]
-    },
-    jazzMods:{
-      'Imaj7':'Imaj9','IVmaj7':'IVmaj9','iii7':'iii9','im7':'im9',
-      '♭VImaj7':'♭VImaj9','♭VIImaj7':'♭VIImaj9',
-    }
-  },
-  dnb:{
-    label:'Drum & Bass',icon:'🥁',
-    color:'on',
-    forms:['Intro-Drop-Break-Drop','Liquid','ABA'],
-    signatureForm:'Intro-Drop-Break-Drop',
-    formAlts:['Intro-Drop-Break-Drop','Liquid','ABA'],
-    tempos:['Liquid DnB (♩=170)','Neurofunk (♩=174)','Jump-Up (♩=178)'],
-    styleNote:'Half-time feel · amen break · sub bass · minor-heavy',
-    progressions:{
-      major:[['I','♭VII','IV','I'],['I','IV','♭VII','I']],
-      minor:[
-        ['i','♭VII','♭VI','♭VII'],['i','iv','♭VI','♭VII'],
-        ['i7','♭VII7','♭VI7','♭VII7'],['i','♭VI','♭VII','i'],
-      ],
-      bridge:[['♭VI','♭VII','i'],['iv','♭VII','i']]
-    },
-    jazzMods:{'i7':'im7','♭VII7':'♭VII7','♭VI7':'♭VImaj7'}
-  },
-  lofi:{
-    label:'Lo-fi',icon:'📻',
-    color:'on',
-    forms:['AABA','Verse-Chorus','Loop'],
-    signatureForm:'AABA',
-    formAlts:['AABA','Verse-Chorus','Loop'],
-    tempos:['Chilled (♩=70)','Lazy Beat (♩=80)','Dusty (♩=90)'],
-    styleNote:'maj7 · min7 · vinyl warmth · jazz-influenced · sleepy groove',
-    progressions:{
-      major:[
-        ['Imaj7','vi7','IVmaj7','V7'],['Imaj7','iii7','vi7','ii7'],
-        ['I6','IVmaj7','ii7','V7'],
-      ],
-      minor:[
-        ['im7','♭VImaj7','♭III7','♭VII7'],['im7','iv7','♭VII7','♭III7'],
-        ['im9','♭VImaj7','♭VII7','im9'],
-      ],
-      bridge:[['IVmaj7','V7','Imaj7'],['♭VII7','IV7','Imaj7']]
-    },
-    jazzMods:{
-      'Imaj7':'Imaj9','vi7':'vi9','IVmaj7':'IVmaj9','V7':'V9',
-      'iii7':'iii9','ii7':'ii9','im7':'im9','iv7':'iv9',
-    }
-  },
-  rnb:{label:'R&B / Soul',icon:'🎤',color:'on-lapis',forms:['Verse-Chorus','AABA','Groove-based'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Groove-based'],tempos:['Slow Jam (♩=60)','Neo-Soul (♩=80)','Upbeat R&B (♩=100)','Contemporary (♩=120)'],styleNote:'maj7 · dom9 · gospel-influenced · lush extensions · chromatic movement',progressions:{major:[['Imaj7','IV7','iii7','vi7'],['Imaj7','♭VII7','IVmaj7','IV7'],['I7','IV7','iii7','♭III7'],['Imaj7','vi7','ii7','V7'],['I7','♭VII7','♭VI7','V7']],minor:[['im7','♭VII7','♭VImaj7','V7'],['im9','iv9','♭VII9','♭III9'],['im7','iv7','♭VII7','im7'],['im9','♭VImaj7','ii7','V7']],bridge:[['IV7','♭VII7','Imaj7'],['ii7','♭II7','Imaj7'],['♭VImaj7','♭VII7','im7']]},jazzMods:{'Imaj7':'Imaj9','IV7':'IV9','iii7':'iii9','vi7':'vi9','♭VII7':'♭VII9','IVmaj7':'IVmaj9','im7':'im9','iv7':'iv9','V7':'V9','♭VImaj7':'♭VImaj9'}},
-  hiphop:{label:'Hip-Hop',icon:'🎧',color:'on',forms:['Verse-Chorus','Groove-based','Loop'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Groove-based','Loop'],tempos:['Boom Bap (♩=90)','Trap (♩=140 half-time)','Chill Rap (♩=80)','Drill (♩=144)'],styleNote:'Sample-driven · minor-heavy · looped changes · sparse but deliberate harmony',progressions:{major:[['Imaj7','♭VII','IV','I'],['I','♭VII','♭VI','♭VII'],['Imaj7','vi7','IVmaj7','V7'],['I','IV','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['im7','iv7','♭VII7','im7'],['i','♭VI','♭III','♭VII'],['im7','♭VImaj7','♭VII7','im7'],['i','♭VII','iv','i'],['i','♭II','♭VII','i']],bridge:[['♭VI','♭VII','i'],['iv','♭VII','i'],['♭III','♭VII','im7']]},jazzMods:{'im7':'im9','iv7':'iv9','♭VII7':'♭VII9','Imaj7':'Imaj9','vi7':'vi9','IVmaj7':'IVmaj9','♭VImaj7':'♭VImaj9'}},
-  country:{label:'Country',icon:'🤠',color:'on',forms:['Verse-Chorus','AABA','Ballad (AABB)'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Ballad (AABB)'],tempos:['Country Ballad (♩=66)','Mid Tempo (♩=92)','Nashville (♩=120)','Hoedown (♩=160)'],styleNote:'Triads · I-IV-V backbone · pedal steel feel · Mixolydian influence · direct and honest',progressions:{major:[['I','IV','V','I'],['I','V','IV','I'],['I','IV','I','V'],['I','ii','IV','V'],['I','♭VII','IV','I'],['I','IV','V','IV'],['I','vi','IV','V']],minor:[['i','VII','VI','VII'],['i','iv','V','i'],['i','VII','III','IV']],bridge:[['IV','V','I'],['ii','V','I'],['♭VII','IV','I']]},jazzMods:{}},
-  reggae:{label:'Reggae',icon:'🌿',color:'on',forms:['Verse-Chorus','Groove-based','Vamp'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Groove-based','Vamp'],tempos:['Roots Reggae (♩=70)','Rocksteady (♩=80)','One Drop (♩=90)','Dancehall (♩=100)'],styleNote:'Offbeat skank · one-drop rhythm · I-IV-V or modal · bass-led harmony',progressions:{major:[['I','IV','V','IV'],['I','IV','I','V'],['I','♭VII','IV','I'],['I','IV','♭VII','IV'],['I','V','IV','I']],minor:[['i','iv','V','i'],['i','♭VII','♭VI','♭VII'],['i','iv','i','V'],['i','♭VI','♭VII','i']],bridge:[['IV','V','I'],['♭VII','IV','I'],['iv','V','i']]},jazzMods:{}},
-  metal:{label:'Metal',icon:'🤘',color:'on',forms:['Verse-Chorus','Riff-based','Through-composed'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Riff-based','Through-composed'],tempos:['Doom (♩=60)','Heavy Metal (♩=120)','Thrash (♩=180)','Death/Black (♩=200+)'],styleNote:'Power chords · tritone · Phrygian dominant · drop tuning · riff-centric',progressions:{major:[['I','♭VII','♭VI','♭VII'],['I','♭II','♭VII','I'],['I','♭VI','♭VII','I'],['I','♭III','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭II','i','♭II'],['i','♭VI','♭VII','i'],['i','v','♭VI','♭VII'],['i','♭VII','iv','i'],['i','♭II','♭VII','♭VI']],bridge:[['♭VI','♭VII','i'],['♭II','i'],['iv','♭VII','i']]},jazzMods:{}},
-  flamenco:{label:'Flamenco',icon:'💃',color:'on-lapis',forms:['Through-composed','ABA','Verse-Chorus'],signatureForm:'Through-composed',formAlts:['Through-composed','ABA','Verse-Chorus'],tempos:['Soleares (♩=60)','Bulería (♩=160)','Rumba Flamenca (♩=120)','Seguiriya (♩=80)'],styleNote:'Phrygian dominant · Andalusian cadence · ♭II as dominant · guitar-centric',progressions:{major:[['I','♭VII','♭VI','V'],['V','♭VI','V','i'],['I','♭II','I','V']],minor:[['i','♭VII','♭VI','V'],['i','♭II','i','♭II'],['i','♭VII','♭VI','♭VII'],['i','iv','V','i'],['i','♭VI','♭VII','V']],bridge:[['♭VI','V','i'],['♭II','V','i'],['♭VII','♭VI','V']]},jazzMods:{}},
-  afrobeat:{label:'Afrobeat',icon:'🪘',color:'on',forms:['Groove-based','Vamp','Loop'],signatureForm:'Groove-based',formAlts:['Groove-based','Vamp','Loop'],tempos:['Lagos Groove (♩=96)','Afrobeat (♩=108)','High-life (♩=120)','Afropop (♩=130)'],styleNote:'Polyrhythmic · dominant 7ths · I-IV vamp · sparse changes · horn-driven',progressions:{major:[['I7','IV7'],['I7','♭VII7','IV7','I7'],['I7','IV7','I7','V7'],['I9','IV9'],['I7','II7','IV7','I7']],minor:[['i7','iv7'],['i7','♭VII7','♭VI7','♭VII7'],['i9','iv9'],['i7','♭VII7','iv7','i7']],bridge:[['IV7','V7','I7'],['♭VII7','IV7','I7'],['ii7','V7','I7']]},jazzMods:{'I7':'I9','IV7':'IV9','♭VII7':'♭VII9','i7':'i9','iv7':'iv9','V7':'V9','II7':'II9'}},
-  samba:{label:'Samba',icon:'🥁',color:'on-lapis',forms:['AABA','Verse-Chorus','Through-composed'],signatureForm:'AABA',formAlts:['AABA','Verse-Chorus','Through-composed'],tempos:['Samba-Canção (♩=80)','Samba (♩=100)','Pagode (♩=120)','Carnaval (♩=160)'],styleNote:'Syncopated · ii-V-I · chromatic movement · higher energy than Bossa',progressions:{major:[['I7','IV7','ii7','V7'],['Imaj7','♭III7','ii7','♭II7'],['I7','VI7','II7','V7'],['Imaj7','♭VII7','IVmaj7','V7']],minor:[['im7','♭VII7','♭VImaj7','V7'],['im7','iv7','♭VII7','V7'],['im9','II7','V7','im9']],bridge:[['♭II7','V7','I7'],['II7','V7','I']]},jazzMods:{'I7':'I9','IV7':'IV9','ii7':'ii9','V7':'V9','VI7':'VI9','II7':'II9','im7':'im9','♭VII7':'♭VII9'}},
-  gospel:{label:'Gospel',icon:'🙏',color:'on',forms:['Verse-Chorus','AABA','Through-composed'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Through-composed'],tempos:['Slow Gospel (♩=60)','Contemporary Gospel (♩=80)','Joyful (♩=100)','Shout (♩=120)'],styleNote:'IV chord emphasis · secondary dominants · major 7ths · call-and-response',progressions:{major:[['I','IV','I','V'],['I','IV','♭VII','IV'],['I','III7','IV','IV7'],['I','vi','IV','I7'],['Imaj7','IV7','iii7','VI7'],['I','V','IV','I']],minor:[['i','♭VII','♭VI','V'],['i','iv','V','i'],['i','III','♭VII','IV'],['im7','IV7','♭VII7','III7']],bridge:[['IV','V','I'],['IV7','I7','V7'],['♭VII','IV','I']]},jazzMods:{'I':'Imaj7','IV':'IVmaj7','V':'V7','vi':'vi7','I7':'I9','IV7':'IV9','III7':'III9','VI7':'VI9'}},
-  trance:{label:'Trance',icon:'🌀',color:'on-lapis',forms:['Intro-Build-Drop-Break-Drop-Outro','Build-Drop','Hypnotic Loop'],signatureForm:'Intro-Build-Drop-Break-Drop-Outro',formAlts:['Intro-Build-Drop-Break-Drop-Outro','Build-Drop','Hypnotic Loop'],tempos:['Progressive (♩=128)','Classic Trance (♩=138)','Uplifting (♩=142)','Hard Trance (♩=150)'],styleNote:'Minor-driven · arpeggiated synths · 8-bar loops · emotional uplift on the drop',progressions:{major:[['I','♭VII','IV','I'],['Imaj7','vi','IV','V'],['I','vi','♭VII','IV']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭VI','♭III','♭VII'],['i','v','♭VI','♭VII'],['i','♭VII','iv','i'],['i','♭VI','♭VII','i'],['i','♭III','♭VII','♭VI']],bridge:[['♭VI','♭VII','i'],['iv','♭VII','i'],['♭III','♭VII','im7']]},jazzMods:{}},
-  synthwave:{label:'Synthwave',icon:'🌆',color:'on-lapis',forms:['Verse-Chorus','ABA','Intro-Drop-Breakdown-Drop-Outro'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','ABA','Intro-Drop-Breakdown-Drop-Outro'],tempos:['Darksynth (♩=100)','Retrowave (♩=110)','Outrun (♩=118)','Electro (♩=128)'],styleNote:'80s analog feel · minor-major tension · lush pads · John Carpenter aesthetic',progressions:{major:[['I','♭VII','♭VI','♭VII'],['Imaj7','vi','IVmaj7','V'],['I','V','vi','IV'],['I','♭VI','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭VI','♭III','♭VII'],['i','♭VII','iv','V'],['im7','♭VImaj7','♭VII7','V7'],['i','♭VI','♭VII','i'],['i','♭III','♭VI','♭VII']],bridge:[['♭VI','♭VII','i'],['IV','V','I'],['♭VI','♭III','♭VII','i']]},jazzMods:{'im7':'im9','♭VImaj7':'♭VImaj9','♭VII7':'♭VII9','Imaj7':'Imaj9'}},
-  latinjazz:{label:'Latin Jazz',icon:'🎺',color:'on-lapis',forms:['AABA','Groove-based','Through-composed'],signatureForm:'AABA',formAlts:['AABA','Groove-based','Through-composed'],tempos:['Bolero (♩=80)','Son Montuno (♩=180)','Mambo (♩=200)','Cha-cha (♩=120)'],styleNote:'Clave rhythm · ii-V-I · montuno patterns · Afro-Cuban polyrhythm',progressions:{major:[['ii7','V7','Imaj7','VI7'],['Imaj7','VI7','II7','V7'],['ii7','♭II7','Imaj7','VI7'],['Imaj7','♭VII7','iii7','VI7'],['I7','IV7','iii7','♭III7']],minor:[['im7','iv7','V7','im7'],['im7','♭VImaj7','ii7','V7'],['im9','II7','V7','im9'],['im7','iv7','♭VII7','V7']],bridge:[['♭II7','V7','Imaj7'],['II7','V7','I7'],['iv7','♭VII7','Imaj7']]},jazzMods:{'Imaj7':'Imaj9','ii7':'ii9','V7':'V9','VI7':'VI9','II7':'II9','IV7':'IV9','im7':'im9','iv7':'iv9'}},
-  modaljazz:{label:'Modal Jazz',icon:'🎼',color:'on-lapis',forms:['Through-composed','AABA','Groove-based'],signatureForm:'Through-composed',formAlts:['Through-composed','AABA','Groove-based'],tempos:['Slow Modal (♩=60)','Miles Tempo (♩=120)','Medium Modal (♩=140)','Open (♩=80)'],styleNote:'Static harmony · modal scales · no ii-V-I resolution · So What voicing · colour over function',progressions:{major:[['Imaj7','♭VIImaj7'],['Imaj7','IVmaj7'],['I','II'],['Imaj7','♭VImaj7','♭VIImaj7','Imaj7']],minor:[['im7','♭VIImaj7'],['im7','IVmaj7'],['im7','♭VImaj7'],['im9','♭VII9'],['im7','ii7'],['im7','♭VIImaj7','♭VImaj7','im7']],bridge:[['♭VIImaj7','Imaj7'],['IVmaj7','im7'],['♭VImaj7','♭VIImaj7']]},jazzMods:{'Imaj7':'Imaj9','♭VIImaj7':'♭VIImaj9','IVmaj7':'IVmaj9','im7':'im9','♭VImaj7':'♭VImaj9','ii7':'ii9'}},
-};
-
-
-// Add signatureForm/formAlts to original genres
-GENRES.jazz.signatureForm='AABA';GENRES.jazz.formAlts=['AABA','ABAC','ABA','Through-composed'];
-GENRES.pop.signatureForm='Verse-Chorus';GENRES.pop.formAlts=['Verse-Chorus','ABABCB','AABA'];
-GENRES.rock.signatureForm='Verse-Chorus';GENRES.rock.formAlts=['Verse-Chorus','12-bar','ABA','Riff-based'];
-GENRES.classical.signatureForm='Sonata';GENRES.classical.formAlts=['Sonata','Rondo','Ternary (ABA)','Binary (AB)'];
-GENRES.bossa.signatureForm='AABA';GENRES.bossa.formAlts=['AABA','16-bar','Through-composed'];
-GENRES.funk.signatureForm='Groove-based';GENRES.funk.formAlts=['Groove-based','Vamp','ABA'];
-
-// ── Complexity ──
-let SONG_COMPLEXITY='medium';
-const COMPLEXITY={
-  simple:{label:'Simple',desc:'3–4 chords · short · triads',maxSections:3,barMult:1,passingChords:false,extChance:0},
-  medium:{label:'Medium',desc:'standard form · some extensions',maxSections:5,barMult:1,passingChords:false,extChance:0.3},
-  complex:{label:'Complex',desc:'passing chords · jazz extensions · longer',maxSections:8,barMult:2,passingChords:true,extChance:0.7},
-};
-
-// ── Song-view thaat state ──
-let SONG_THAAT = null; // thaat selected inside Song tab (independent of main OPEN_THAAT)
-
-// ── Thaat character data for song generator ──
-// Each thaat has: western parallel iv[], mood, characteristic progressions, swara hints
-const THAAT_SONG = {
-  Bilawal:{
-    western:'Major / Ionian',
-    iv:[0,2,4,5,7,9,11],
-    isMinor:false,
-    mood:'Pure · Radiant · Morning clarity',
-    swaras:'Sa Re Ga Ma Pa Dha Ni',
-    colorNote:'All shuddha (natural) swaras. Identical to Western Major. Bright, resolved.',
-    progressions:{
-      major:[
-        ['I','IV','V','I'],['I','ii','V','I'],['I','IV','ii','V'],
-        ['I','iii','IV','V'],['I','vi','IV','V'],
-      ],
-      bridge:[['IV','V','I'],['ii','V','I'],['vi','ii','V','I']]
-    },
-    melodyHints:[
-      'Emphasise Sa, Ga, Pa as anchor tones — the three pillars of Bilawal.',
-      'Ascending phrases feel natural here; the scale resolves upward toward Sa.',
-      'Use sustained Ni as a leading tone into Sa for the Bilawal arrival.',
-    ]
-  },
-  Kalyan:{
-    western:'Lydian',
-    iv:[0,2,4,6,7,9,11],
-    isMinor:false,
-    mood:'Ethereal · Romantic · Floating',
-    swaras:'Sa Re Ga Ma# Pa Dha Ni',
-    colorNote:'Tivra Ma (♯4) is the defining note — the "Lydian" shimmer.',
-    progressions:{
-      major:[
-        ['I','II','V','I'],['I','IV','II','V'],['I','ii','II','V'],
-        ['I','V','II','I'],['I','vi','II','V'],
-      ],
-      bridge:[['II','V','I'],['IV','II','V'],['vi','II','V','I']]
-    },
-    melodyHints:[
-      'The tivra Ma (♯4) is the signature note — linger on it before resolving to Pa.',
-      'Try a rising phrase: Sa Re Ga Ma# Pa — the Lydian lift feels otherworldly.',
-      'In jazz context, this is the Lydian mode: use the ♯11 extension on the I chord.',
-    ]
-  },
-  Khamaj:{
-    western:'Mixolydian',
-    iv:[0,2,4,5,7,9,10],
-    isMinor:false,
-    mood:'Playful · Festive · Warm',
-    swaras:'Sa Re Ga Ma Pa Dha ni',
-    colorNote:'Komal Ni (♭7) only. Identical to Mixolydian — the blues/rock dominant sound.',
-    progressions:{
-      major:[
-        ['I','♭VII','IV','I'],['I','IV','♭VII','I'],['I','♭VII','V','I'],
-        ['I','IV','I','♭VII'],['I','ii','♭VII','I'],
-      ],
-      bridge:[['♭VII','IV','I'],['IV','♭VII','I'],['ii','♭VII','I']]
-    },
-    melodyHints:[
-      'The komal ni (♭7) is the Khamaj signature — use it in descent for the folk/festive colour.',
-      'Western musicians: this is Mixolydian. The ♭VII chord is your "Khamaj" sound.',
-      'Phrases go up in major, come back down through ni — the asymmetric Khamaj motion.',
-    ]
-  },
-  Kafi:{
-    western:'Dorian',
-    iv:[0,2,3,5,7,9,10],
-    isMinor:true,
-    mood:'Wistful · Seasonal · Folk warmth',
-    swaras:'Sa Re ga Ma Pa Dha ni',
-    colorNote:'Komal Ga and Ni. Dorian — minor but with a raised 6th (Dha = natural).',
-    progressions:{
-      minor:[
-        ['i','IV','♭VII','i'],['i','ii°','♭VII','i'],['i','IV','v','i'],
-        ['i','vi','IV','♭VII'],['i','♭III','IV','i'],
-      ],
-      bridge:[['IV','♭VII','i'],['♭VI','♭VII','i'],['ii°','♭VII','i']]
-    },
-    melodyHints:[
-      'The natural Dha (6th) brightens the minor — use it to lift phrases before descending through ni.',
-      'Kafi is Dorian: ga (♭3) and ni (♭7) are the minor flavour, Dha (6) is the warmth.',
-      'Folk-style short call-and-response phrases work beautifully in Kafi.',
-    ]
-  },
-  Asavari:{
-    western:'Natural Minor / Aeolian',
-    iv:[0,2,3,5,7,8,10],
-    isMinor:true,
-    mood:'Sorrowful · Meditative · Morning prayer',
-    swaras:'Sa Re ga Ma Pa dha ni',
-    colorNote:'Three komal swaras (ga, dha, ni). Pure natural minor — deep and inward.',
-    progressions:{
-      minor:[
-        ['i','♭VI','♭VII','i'],['i','iv','♭VII','i'],['i','♭VI','iv','v'],
-        ['i','ii°','v','i'],['i','iv','♭VI','♭VII'],
-      ],
-      bridge:[['♭VI','♭VII','i'],['iv','♭VI','♭VII'],['ii°','v','i']]
-    },
-    melodyHints:[
-      'Ascending phrases omit Ga — jump Sa→Re→Ma in the Asavari style.',
-      'Descend fully through all seven notes for the sorrowful Asavari arrival.',
-      'Rest on Pa and dha — these are the emotionally heavy points of this thaat.',
-    ]
-  },
-  Bhairavi:{
-    western:'Phrygian',
-    iv:[0,1,3,5,7,8,10],
-    isMinor:true,
-    mood:'Tender · Farewell · All-encompassing',
-    swaras:'Sa re ga Ma Pa dha ni',
-    colorNote:'Four komal swaras (re, ga, dha, ni). Phrygian — the deepest minor colour.',
-    progressions:{
-      minor:[
-        ['i','♭II','♭VII','i'],['i','♭II','iv','i'],['i','♭VI','♭II','i'],
-        ['i','iv','♭II','i'],['i','♭III','♭II','i'],
-      ],
-      bridge:[['♭II','♭VII','i'],['♭VI','♭II','i'],['iv','♭II','i']]
-    },
-    melodyHints:[
-      'The ♭II chord (Neapolitan / re) is the Bhairavi signature — its bittersweet pull defines the thaat.',
-      'Bhairavi allows ornamental use of all 12 notes. Don\'t be rigid about scale adherence.',
-      'In Flamenco terms, this is the Phrygian cadence: i→♭VII→♭VI→♭II→i.',
-    ]
-  },
-  Bhairav:{
-    western:'Double Harmonic / Byzantine',
-    iv:[0,1,4,5,7,8,11],
-    isMinor:false,
-    mood:'Majestic · Devotional · Sacred dawn',
-    swaras:'Sa re Ga Ma Pa dha Ni',
-    colorNote:'Komal re and dha with natural Ga and Ni — two augmented 2nds give it gravity.',
-    progressions:{
-      major:[
-        ['I','♭II','IV','I'],['I','♭II','V','I'],['I','IV','♭II','I'],
-        ['I','♭VI','♭II','I'],['I','IV','♭VI','♭II'],
-      ],
-      bridge:[['♭II','V','I'],['IV','♭II','I'],['♭VI','♭II','I']]
-    },
-    melodyHints:[
-      'The two minor-second intervals (Sa↔re and Pa↔dha) create the grave, majestic Bhairav sound.',
-      'The ♭II chord (Neapolitan) built on komal re is essential to Bhairav\'s harmonic identity.',
-      'Move between Sa and re slowly — this half-step carries the weight of the entire thaat.',
-    ]
-  },
-  Purvi:{
-    western:'Byzantine + ♯4 (no direct parallel)',
-    iv:[0,1,4,6,7,8,11],
-    isMinor:false,
-    mood:'Intense · Yearning · Sunset longing',
-    swaras:'Sa re Ga Ma# Pa dha Ni',
-    colorNote:'Komal re+dha, tivra Ma — ♭2 and ♯4 together create extreme tension.',
-    progressions:{
-      major:[
-        ['I','♭II','♯IV°','I'],['I','♭VI','♭II','I'],['I','♯IV°','V','I'],
-        ['I','♭II','V','I'],['I','IV','♭II','♯IV°'],
-      ],
-      bridge:[['♭II','V','I'],['♯IV°','V','I'],['♭VI','♭II','I']]
-    },
-    melodyHints:[
-      'The tritone between re (♭2) and Ma# (♯4) is Purvi\'s defining tension — use it dramatically.',
-      'Phrases typically begin from below Sa, ascending through re→Ga→Ma#.',
-      'Let phrases hang unresolved before the final arrival on Sa — Purvi is about yearning, not arrival.',
-    ]
-  },
-  Marwa:{
-    western:'Lydian ♭2 (no Pa)',
-    iv:[0,1,4,6,9,11],
-    isMinor:false,
-    mood:'Mysterious · Restless · Suspended dusk',
-    swaras:'Sa re Ga Ma# Dha Ni (no Pa)',
-    colorNote:'Pa (perfect 5th) is absent — komal re and tivra Ma create rootless tension.',
-    progressions:{
-      major:[
-        ['I','♭II','II','I'],['I','♯IV°','♭II','I'],['I','VI','♭II','I'],
-        ['I','♭II','VI','I'],['I','♯IV°','VI','♭II'],
-      ],
-      bridge:[['♭II','II','I'],['VI','♭II','I'],['♯IV°','♭II','I']]
-    },
-    melodyHints:[
-      'Avoid the 5th (G in C) — the missing Pa is Marwa\'s most striking feature.',
-      'The tritone re→Ma# creates an unresolved, suspended atmosphere. Let it hang.',
-      'Marwa has no "home" landing — all phrases feel like questions, never answers.',
-    ]
-  },
-  Todi:{
-    western:'Phrygian ♯4 (unique)',
-    iv:[0,1,3,6,7,8,11],
-    isMinor:true,
-    mood:'Profound · Complex · Morning depth',
-    swaras:'Sa re ga Ma# Pa dha Ni',
-    colorNote:'♭2 ♭3 ♯4 ♭6 — four altered notes. The most harmonically complex thaat.',
-    progressions:{
-      minor:[
-        ['i','♭II','♯IV°','i'],['i','♭VI','♭II','i'],['i','♭II','v','i'],
-        ['i','♯IV°','♭VI','♭II'],['i','♭II','iv','i'],
-      ],
-      bridge:[['♯IV°','♭II','i'],['♭VI','♭II','i'],['♭II','v','i']]
-    },
-    melodyHints:[
-      'The combination of ♭2, ♭3 and ♯4 against the tonic is unique to Todi — move slowly between them.',
-      'The tritone ga→Ma# is the most striking interval; let phrases arc over it.',
-      'No Western mode matches Todi exactly — treat every chord change as its own world.',
-    ]
-  },
-};
-
-// ── Thaat song titles ──
-const THAAT_TITLES={
-  Bilawal:[['Dawn Raga','A morning meditation in pure tones'],['Clarity','Seven notes, no alterations'],['Sa Ascending','The simplest path to the summit']],
-  Kalyan:[['Evening Shimmer','The tivra Ma lifts everything skyward'],['Yaman\'s Shadow','Floating above the horizon'],['Tivra','The sharpened fourth, the floating feeling']],
-  Khamaj:[['Komal Greeting','The flat seventh at the door'],['Festival Light','An evening of warmth and movement'],['Khamaj Folk','Festive, familiar, folk-warm']],
-  Kafi:[['Holi Colours','Bright sadness and seasonal folk'],['Dorian Dusk','Minor with a raised heart'],['Wistful Season','The ache between winter and spring']],
-  Asavari:[['Before Sunrise','Three komal notes, one quiet prayer'],['Morning Sorrow','The gentle arrival of light'],['Asavari Walking','A slow procession through the natural minor']],
-  Bhairavi:[['The Last Raga','Always performed last — never finished'],['Farewell','Komal everywhere, warm everywhere'],['Four Flats','The most complete of sorrows']],
-  Bhairav:[['Sacred Hour','Two augmented seconds — the sound of Shiva'],['Byzantine Sunrise','Devotional gravity at first light'],['Double Harmonic','The most ancient of scales']],
-  Purvi:[['Parting Light','The sun\'s last conversation with the horizon'],['Sunset Tension','♭2 and ♯4 — extreme yearning'],['Before Dark','The unresolved dusk']],
-  Marwa:[['Without Fifth','A scale with a missing foundation'],['Suspended Dusk','No landing, only longing'],['Tritone Horizon','re and Ma# — the interval of restlessness']],
-  Todi:[['Phrygian Complexity','The most revered of all thaats'],['Morning Depth','Four altered notes, infinite depth'],['Tansen\'s Scale','Named for the greatest master']],
-};
-
-// Get current scale intervals for the song generator
-function getCurrentScaleIvs(){
-  // If a thaat is selected in Song tab, use it
-  if(SONG_THAAT&&THAAT_SONG[SONG_THAAT]) return THAAT_SONG[SONG_THAAT].iv;
-  if(OPEN_SCALE&&SCALES[OPEN_SCALE]) return SCALES[OPEN_SCALE].iv;
-  if(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE]) return MODES[OPEN_MODE].iv;
-  if(OPEN_THAAT&&THAATS[OPEN_THAAT]) return THAATS[OPEN_THAAT].iv;
-  return MAJ_STEPS; // default major
+  return {
+    title: titles.title,
+    subtitle: titles.subtitle,
+    genre: genre?.label||'',
+    genreIcon: genre?.icon||'♬',
+    form: ai.sections.map(s=>s.label).join('–'),
+    tempo: ai.tempo||'Medium (♩=120)',
+    scaleName, scaleIvs, isMin,
+    fusionLabel: getFusionLabel(),
+    styleNote: ai.styleNote || genre?.styleNote||'',
+    sections: resolvedSections,
+    totalBars: resolvedSections.reduce((s,sec)=>s+(sec.bars||0),0),
+    complexity: SONG_COMPLEXITY,
+    useJazz: JAZZ,
+    evaluation: ai.evaluation||null,
+    aiModel: AI_MODEL,
+    thaatCtx: null,
+  };
 }
 
-function getCurrentScaleName(){
-  if(SONG_THAAT&&THAAT_SONG[SONG_THAAT]) return ROOT+' '+SONG_THAAT+' ('+THAAT_SONG[SONG_THAAT].western+')';
-  if(OPEN_SCALE) return ROOT+' '+OPEN_SCALE;
-  if(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE]) return ROOT+' '+MODES[OPEN_MODE].n;
-  if(OPEN_THAAT) return ROOT+' '+OPEN_THAAT+' Thaat';
-  return ROOT+' Major';
-}
 
-function isMinorish(ivs){
-  // Check if scale has a minor third (interval 3)
-  return ivs.includes(3);
-}
-
+// ══════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════
 // ── MODE-AWARE PROGRESSIONS ──
@@ -5446,25 +5573,7 @@ function renderSongView(){
       <button class="btn-midi" id="midiSongBtn">⬇ MIDI</button>
       <button class="btn-save-song" id="saveSongBtn">☁ Save</button>
       <button class="hist-btn" id="songHistoryBtn">⏱ History<span class="hist-badge" id="histBadge" style="display:none">0</span></button>
-    </div>
-    <div class="ai-model-bar" id="aiModelBar" style="display:none">
-      <span class="ai-bar-label">✦ AI Model</span>
-      <div class="csel" id="aiModelDrop" style="min-width:160px">
-        <div class="csel-trigger" id="aiModelTrigger">
-          <div class="csel-left">
-            <span class="csel-main has-val" id="aiModelMain">Haiku 3.5 · Fast</span>
-          </div>
-          <svg class="csel-chev" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,4 7,10 12,4"/></svg>
-        </div>
-        <div class="csel-opts" id="aiModelOpts">
-          <div class="opt" data-val="off">Off — Algorithmic</div>
-          <div class="opt sel" data-val="haiku">Haiku 3.5 · Fast</div>
-          <div class="opt" data-val="sonnet">Sonnet 4.5 · Rich</div>
-        </div>
-      </div>
-      <span class="ai-bar-hint" id="aiBarHint"></span>
-    </div>
-    <div id="songOutput"></div>`;
+    </div>    <div id="songOutput"></div>`;
 
   // ── Render AI strip ──
   renderAiStrip();
@@ -5553,7 +5662,7 @@ function renderSongView(){
   v.querySelector('#copySongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)copySongToClipboard(CURRENT_SONG);});
   v.querySelector('#midiSongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)downloadMidi(CURRENT_SONG);});
   v.querySelector('#songHistoryBtn')?.addEventListener('click',()=>_openHistoryPanel());
-  _initAiBar(v);
+  
   v.querySelector('#saveSongBtn')?.addEventListener('click',async()=>{
     const btn=v.querySelector('#saveSongBtn'); if(!CURRENT_SONG) return;
     btn.textContent='Saving…'; btn.disabled=true;
@@ -5816,12 +5925,6 @@ const GENRE_ARP_RECS = {
 
 let ACTIVE_ARP='ascending';
 let _songHistory=[];
-
-// ── AI Song Generation ──
-const AI_WHITELIST = ['nitu.rathee@gmail.com']; // add more emails here to grant access
-let AI_MODEL = 'none'; // 'none' | 'haiku' | 'sonnet'
-let AI_GENERATING = false;
-let _aiApiKey = null; // loaded from localStorage on init // [{song, timestamp, scaleName, genre}]
 const SONG_HISTORY_MAX=50;
 let ARP_HARMONY_INTERVAL=0;    // 0=off, 3=third, 4=fourth, 5=fifth, 7=octave
 let ARP_HARMONY_DEGREES=[];    // custom harmony degrees selected
@@ -9770,6 +9873,8 @@ function injectFavBtn(container, scaleKey, labelText){
 
 // ── Init ──
 setView('scale');showEmpty('Choose a category above, then select from the dropdown');
+
+
 </script>
 
 <!-- Song History Panel -->
