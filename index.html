@@ -8,6 +8,49 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 window._supabaseCreateClient = createClient;
 window.dispatchEvent(new Event("supabase-ready"));
+
+// ── PWA Install Prompt ──
+(()=>{
+  const DISMISSED_KEY = 'vk_pwa_dismissed';
+  if(sessionStorage.getItem(DISMISSED_KEY)) return;
+
+  let deferredPrompt = null;
+
+  // Android / Chrome — beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show after 3s delay so page loads first
+    setTimeout(()=>{ document.getElementById('pwaInstallBanner').style.display='block'; }, 3000);
+  });
+
+  document.getElementById('pwaInstallBtn')?.addEventListener('click', async ()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const {outcome} = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('pwaInstallBanner').style.display='none';
+    if(outcome==='accepted') sessionStorage.setItem(DISMISSED_KEY,'1');
+  });
+
+  document.getElementById('pwaDismissBtn')?.addEventListener('click', ()=>{
+    document.getElementById('pwaInstallBanner').style.display='none';
+    sessionStorage.setItem(DISMISSED_KEY,'1');
+  });
+
+  // iOS Safari — check if not already installed
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if(isIos && !isStandalone){
+    setTimeout(()=>{ document.getElementById('pwaIosHint').style.display='block'; }, 3000);
+  }
+
+  document.getElementById('pwaIosDismissBtn')?.addEventListener('click', ()=>{
+    document.getElementById('pwaIosHint').style.display='none';
+    sessionStorage.setItem(DISMISSED_KEY,'1');
+  });
+})();
+
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1037,257 +1080,26 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 .vk-logo{height:64px;width:auto;object-fit:contain;display:block;}
 
 
-.install-divider{height:1px;background:var(--border2);margin:14px 0;}
-
-
-/* ── Arp Harmony ── */
-.harm-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;background:var(--lapis4);border:1.5px solid var(--lapis3);border-radius:10px;margin-bottom:12px;}
-.harm-label{font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--lapis);flex-shrink:0;}
-.harm-btn{padding:5px 12px;border-radius:16px;border:1.5px solid var(--lapis3);background:transparent;font-family:var(--f-mono);font-size:11px;color:var(--lapis);cursor:pointer;transition:all .13s;white-space:nowrap;}
-.harm-btn:hover,.harm-btn.on{background:var(--lapis);color:#fff;border-color:var(--lapis);}
-.harm-play-btn{padding:5px 12px;border-radius:16px;border:1.5px solid var(--jade3);background:var(--jade4);font-family:var(--f-mono);font-size:11px;color:var(--jade);cursor:pointer;transition:all .13s;margin-left:auto;}
-.harm-play-btn:hover{background:var(--jade);color:#fff;}
-
-/* ── Piano Roll Editor ── */
-.arp-editor{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
-.arp-editor-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border2);flex-wrap:wrap;}
-.arp-editor-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);flex:1;}
-.arp-editor-btns{display:flex;gap:6px;align-items:center;}
-.ae-btn{padding:5px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:10px;color:var(--ink3);cursor:pointer;transition:all .13s;white-space:nowrap;}
-.ae-btn:hover{border-color:var(--jade);color:var(--jade);}
-.ae-btn.danger{border-color:rgba(180,40,40,.3);color:rgba(180,40,40,.8);}
-.ae-btn.danger:hover{background:rgba(180,40,40,.1);}
-.ae-btn:disabled{opacity:.35;cursor:default;}
-.ae-btn.active{background:var(--jade);color:#fff;border-color:var(--jade);}
-
-/* Piano roll grid */
-.piano-roll{overflow-x:auto;padding:12px 14px;}
-.pr-grid{display:flex;gap:4px;align-items:flex-end;min-height:100px;position:relative;}
-.pr-note{
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-  gap:2px;cursor:pointer;position:relative;flex-shrink:0;
-  transition:all .13s;
-}
-.pr-note:hover .pr-bar{filter:brightness(1.15);}
-.pr-bar{
-  width:32px;border-radius:4px 4px 0 0;
-  background:var(--jade);
-  transition:height .15s,background .13s;
-  position:relative;min-height:16px;
-}
-.pr-bar.root{background:var(--saffron);}
-.pr-bar.selected{background:var(--lapis);box-shadow:0 0 0 2px var(--lapis2);}
-.pr-note-name{font-family:var(--f-mono);font-size:9px;color:var(--ink4);white-space:nowrap;margin-top:2px;}
-.pr-note-vel{font-family:var(--f-mono);font-size:8px;color:var(--ink4);position:absolute;top:-14px;left:50%;transform:translateX(-50%);white-space:nowrap;opacity:0;}
-.pr-note:hover .pr-note-vel{opacity:1;}
-.pr-add-btn{
-  width:32px;min-height:32px;border-radius:4px;
-  border:1.5px dashed var(--border2);background:transparent;
-  color:var(--ink4);font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .13s;flex-shrink:0;
-}
-.pr-add-btn:hover{border-color:var(--jade);color:var(--jade);}
-.pr-baseline{position:absolute;bottom:20px;left:0;right:0;height:1px;background:var(--border2);pointer-events:none;}
-
-/* Note edit popup */
-.note-edit-pop{
-  position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
-  background:var(--surface);border:1.5px solid var(--border);border-radius:8px;
-  padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,.15);
-  z-index:500;min-width:140px;display:none;
-}
-.pr-note.editing .note-edit-pop{display:block;}
-.nep-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-family:var(--f-mono);font-size:10px;color:var(--ink3);}
-.nep-row:last-child{margin-bottom:0;}
-.nep-row input[type=range]{flex:1;height:3px;}
-.nep-del{padding:3px 8px;border-radius:5px;border:1px solid rgba(180,40,40,.3);background:none;color:rgba(180,40,40,.8);font-size:10px;cursor:pointer;font-family:var(--f-mono);}
-
-/* Undo button */
-.arp-undo-btn{padding:5px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);font-family:var(--f-mono);font-size:10px;color:var(--ink3);cursor:pointer;transition:all .13s;}
-.arp-undo-btn:hover:not(:disabled){border-color:var(--turmeric);color:var(--turmeric);}
-.arp-undo-btn:disabled{opacity:.3;cursor:default;}
-
-
-/* ── Song Evaluation Bar ── */
-.song-eval-bar{
-  display:flex;align-items:center;
-  background:var(--surface2);border:1.5px solid var(--border2);
-  border-radius:10px;padding:10px 16px;margin-bottom:14px;
-}
-.seb-scores{display:flex;align-items:center;gap:14px;flex-wrap:wrap;width:100%;}
-.seb-score{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:48px;}
-.seb-num{font-family:var(--f-mono);font-size:18px;font-weight:700;color:var(--jade);line-height:1;}
-.seb-lbl{font-family:var(--f-mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--ink4);}
-.seb-overall .seb-num{color:var(--lapis);font-size:20px;}
-.seb-divider{width:1.5px;background:var(--border2);align-self:stretch;flex-shrink:0;}
-
-
-/* ── Song History ── */
-.hist-btn{
-  padding:6px 13px;border-radius:7px;
-  border:1.5px solid var(--border2);background:var(--surface2);
-  font-family:var(--f-mono);font-size:10px;color:var(--ink3);
-  cursor:pointer;transition:all .13s;display:flex;align-items:center;gap:5px;
-  position:relative;
-}
-.hist-btn:hover{border-color:var(--lapis);color:var(--lapis);background:var(--lapis4);}
-.hist-badge{
-  position:absolute;top:-6px;right:-6px;
-  background:var(--lapis);color:#fff;
-  border-radius:10px;font-size:8px;font-weight:700;
-  padding:1px 5px;font-family:var(--f-mono);
-  min-width:16px;text-align:center;line-height:14px;
-}
-
-/* History panel overlay */
-#songHistoryPanel{
-  display:none;position:fixed;inset:0;z-index:8000;
-  background:rgba(0,0,0,.45);backdrop-filter:blur(3px);
-  align-items:flex-end;justify-content:center;
-}
-#songHistoryPanel.open{display:flex;animation:fadeIn .18s ease;}
-.hist-sheet{
-  width:100%;max-width:600px;
+/* ── PWA Install Banner ── */
+#pwaInstallBanner, #pwaIosHint{
+  position:fixed;bottom:0;left:0;right:0;z-index:9000;
+  padding:10px 14px 14px;
   background:var(--surface);
-  border-radius:20px 20px 0 0;
-  max-height:82vh;display:flex;flex-direction:column;
-  box-shadow:0 -8px 40px rgba(0,0,0,.22);
-  animation:sheetUp .22s cubic-bezier(.4,0,.2,1);
+  border-top:1.5px solid var(--border2);
+  box-shadow:0 -4px 24px rgba(0,0,0,.12);
+  animation:slideUp .25s ease;
 }
-.hist-sheet-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 20px 12px;border-bottom:1px solid var(--border2);flex-shrink:0;
-}
-.hist-sheet-title{font-family:var(--f-serif);font-size:18px;font-weight:700;color:var(--ink);}
-.hist-sheet-sub{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:2px;}
-.hist-close-btn{
-  width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border2);
-  background:transparent;color:var(--ink4);font-size:14px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;
-}
-.hist-close-btn:hover{border-color:var(--ink3);color:var(--ink);}
-.hist-list{overflow-y:auto;flex:1;padding:10px 12px 20px;}
-.hist-empty{text-align:center;padding:40px 20px;font-family:var(--f-mono);font-size:12px;color:var(--ink4);}
-.hist-item{
-  display:flex;align-items:flex-start;gap:12px;
-  padding:12px 14px;border-radius:10px;border:1.5px solid var(--border2);
-  background:var(--surface2);margin-bottom:8px;cursor:pointer;transition:all .13s;
-}
-.hist-item:hover{border-color:var(--jade);background:var(--surface);}
-.hist-item-main{flex:1;min-width:0;}
-.hist-item-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.hist-item-meta{font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:3px;display:flex;flex-wrap:wrap;gap:6px;}
-.hist-item-tag{background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;color:var(--ink3);}
-.hist-item-time{font-family:var(--f-mono);font-size:9px;color:var(--ink4);flex-shrink:0;padding-top:2px;white-space:nowrap;}
-.hist-item-score{
-  font-family:var(--f-mono);font-size:11px;font-weight:700;
-  color:var(--jade);background:var(--jade4);
-  border:1px solid var(--jade3);border-radius:5px;
-  padding:3px 7px;flex-shrink:0;align-self:center;
-}
-.hist-actions-row{display:flex;gap:6px;margin-top:6px;}
-.hist-action-btn{
-  padding:3px 9px;border-radius:5px;border:1px solid var(--border2);
-  background:transparent;font-family:var(--f-mono);font-size:9px;
-  color:var(--ink4);cursor:pointer;transition:all .12s;
-}
-.hist-action-btn:hover{border-color:var(--jade);color:var(--jade);}
-.hist-action-btn.danger:hover{border-color:rgba(180,40,40,.4);color:rgba(180,40,40,.9);}
-.hist-clear-btn{
-  padding:8px 16px;border-radius:8px;border:1.5px solid rgba(180,40,40,.3);
-  background:transparent;font-family:var(--f-mono);font-size:11px;
-  color:rgba(180,40,40,.7);cursor:pointer;transition:all .13s;margin:8px 12px 4px;flex-shrink:0;
-}
-.hist-clear-btn:hover{background:rgba(180,40,40,.06);border-color:rgba(180,40,40,.5);}
-
-
-/* ── AI Model Bar ── */
-
-
-
-.ai-generating{
-  display:flex;align-items:center;gap:10px;padding:20px;
-  border:1.5px solid var(--lapis3);border-radius:12px;
-  background:var(--lapis4);margin-bottom:16px;
-  font-family:var(--f-mono);font-size:12px;color:var(--lapis);
-}
-.ai-spinner{
-  width:18px;height:18px;border:2px solid var(--lapis3);
-  border-top-color:var(--lapis);border-radius:50%;
-  animation:spin .7s linear infinite;flex-shrink:0;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ai-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:2px 8px;border-radius:5px;
-  background:var(--lapis4);border:1px solid var(--lapis3);
-  font-family:var(--f-mono);font-size:9px;color:var(--lapis);
-  font-weight:600;letter-spacing:.5px;vertical-align:middle;margin-left:6px;
-}
-
-
-/* ── AI Song Generator ── */
-.ai-strip{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  padding:10px 14px;border-radius:10px;
-  background:linear-gradient(135deg,var(--lapis4),rgba(24,37,102,.08));
-  border:1.5px solid var(--lapis3);margin-bottom:12px;
-}
-.ai-strip-label{font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--lapis);flex-shrink:0;}
-.ai-model-sel{
-  padding:5px 10px;border-radius:7px;border:1.5px solid var(--lapis3);
-  background:var(--surface2);font-family:var(--f-mono);font-size:11px;
-  color:var(--ink2);cursor:pointer;outline:none;
-  appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a6040' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;
-}
-.ai-model-sel:focus{border-color:var(--lapis);}
-.ai-generate-btn{
-  padding:7px 16px;border-radius:8px;
-  background:linear-gradient(135deg,var(--lapis),var(--lapis2));
-  border:none;color:#fff;font-family:var(--f-mono);font-size:11px;
-  font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.5px;
-  display:flex;align-items:center;gap:6px;
-}
-.ai-generate-btn:hover{opacity:.9;transform:translateY(-1px);}
-.ai-generate-btn:disabled{opacity:.45;cursor:default;transform:none;}
-.ai-generate-btn .ai-spinner{
-  width:12px;height:12px;border:2px solid rgba(255,255,255,.3);
-  border-top-color:#fff;border-radius:50%;
-  animation:spin .7s linear infinite;display:none;
-}
-.ai-generate-btn.loading .ai-spinner{display:block;}
-.ai-generate-btn.loading .ai-btn-text{opacity:.6;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ai-locked{
-  display:flex;align-items:center;gap:8px;
-  font-family:var(--f-mono);font-size:10px;color:var(--ink4);
-}
-.ai-locked a{color:var(--lapis);text-decoration:none;}
-.ai-locked a:hover{text-decoration:underline;}
-.ai-key-input{
-  flex:1;padding:5px 10px;border-radius:7px;
-  border:1.5px solid var(--border2);background:var(--surface2);
-  font-family:var(--f-mono);font-size:11px;color:var(--ink);outline:none;
-  min-width:0;
-}
-.ai-key-input:focus{border-color:var(--lapis);}
-.ai-key-btn{
-  padding:5px 11px;border-radius:7px;border:1.5px solid var(--lapis3);
-  background:var(--lapis4);color:var(--lapis);font-family:var(--f-mono);
-  font-size:10px;cursor:pointer;white-space:nowrap;transition:all .13s;
-}
-.ai-key-btn:hover{background:var(--lapis);color:#fff;}
-.ai-song-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 9px;border-radius:5px;
-  background:var(--lapis4);border:1px solid var(--lapis3);
-  font-family:var(--f-mono);font-size:9px;color:var(--lapis);
-  margin-left:8px;vertical-align:middle;
-}
-
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pwa-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:var(--card-w);margin:0 auto;}
+.pwa-banner-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
+.pwa-banner-icon{font-size:28px;width:44px;height:44px;border-radius:10px;background:var(--jade);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:serif;}
+.pwa-banner-title{font-family:var(--f-serif);font-size:15px;font-weight:700;color:var(--ink);line-height:1.2;}
+.pwa-banner-sub{font-family:var(--f-mono);font-size:11px;color:var(--ink4);margin-top:2px;}
+.pwa-banner-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pwa-install-btn{padding:8px 18px;border-radius:20px;border:none;background:var(--jade);color:#fff;font-family:var(--f-mono);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.5px;transition:opacity .15s;}
+.pwa-install-btn:hover{opacity:.85}
+.pwa-dismiss-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;color:var(--ink4);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;}
+.pwa-dismiss-btn:hover{border-color:var(--ink3);color:var(--ink);}
 </style>
 </head>
 <body>
@@ -1467,453 +1279,1031 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
   </div>
 </div>
 
-
 <script>
+'use strict';
 
+// ── Music helpers ──
+const CHR=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const MAJ_STEPS=[0,2,4,5,7,9,11];
+function na(root,semi){return CHR[(CHR.indexOf(root)+semi+120)%12]}
+function notesOf(root,ivs){return ivs.map(i=>na(root,i))}
 
+const QSYM={maj:'',min:'m',dim:'°',aug:'+',dom7:'7',maj7:'maj7',min7:'m7',m7b5:'m7♭5',sus2:'sus2',sus4:'sus4',dom9:'9',maj9:'maj9',min9:'m9',min11:'m11',dom13:'13',maj13:'maj13',dom7b9:'7♭9',dom7s9:'7♯9',dim7:'dim7',hdim:'ø7',aug7:'aug7',sus4_7:'7sus4'};
+const QNAME={maj:'Major',min:'Minor',dim:'Diminished',aug:'Augmented',dom7:'Dom 7th',maj7:'Maj 7th',min7:'Min 7th',m7b5:'Half-dim',sus2:'Sus 2',sus4:'Sus 4',dom9:'Dom 9th',maj9:'Maj 9th',min9:'Min 9th',min11:'Min 11th',dom13:'Dom 13th',dim7:'Dim 7th',hdim:'Half-dim',dom7b9:'7♭9'};
+const QIVS={
+  maj:[0,4,7],min:[0,3,7],dim:[0,3,6],aug:[0,4,8],
+  dom7:[0,4,7,10],maj7:[0,4,7,11],min7:[0,3,7,10],m7b5:[0,3,6,10],
+  dim7:[0,3,6,9],dom9:[0,4,7,10,14],maj9:[0,4,7,11,14],min9:[0,3,7,10,14],
+  dom7b9:[0,4,7,10,13],sus4_7:[0,5,7,10]
+};
+function chordName(root,q){return root+(QSYM[q]??q)}
+function chordNotes(root,q){return(QIVS[q]||[0,4,7]).map(i=>na(root,i%12))}
 
-
-// ── Song History ──────────────────────────────────
-function _saveToHistory(song){
-  if(!song||!song.title) return;
-  const entry={
-    song: JSON.parse(JSON.stringify(song)), // deep clone
-    timestamp: Date.now(),
-    id: Date.now()+Math.random().toString(36).slice(2,7)
-  };
-  _songHistory.unshift(entry);
-  if(_songHistory.length>SONG_HISTORY_MAX) _songHistory.pop();
-  _updateHistBadge();
-  // Persist to localStorage
-  try{ localStorage.setItem('vk_song_history', JSON.stringify(_songHistory.slice(0,20))); }catch(e){}
+// Jazz voicing upgrade
+function jazzUpgrade(q, degree){
+  // Upgrade chords to jazz voicings based on chord quality & degree
+  const map={maj:'maj7',min:'min7',dim:'m7b5'};
+  // Extra color on certain degrees
+  if(JAZZ){
+    if(q==='dom7'||q==='maj'&&degree===4) return 'dom7'; // V stays dom7
+    if(q==='dim') return 'm7b5';
+    return map[q]||q;
+  }
+  return q;
 }
 
-function _loadHistoryFromStorage(){
+const DROM=['I','ii','iii','IV','V','vi','vii°'];
+const DROMF=['I — Tonic','ii — Supertonic','iii — Mediant','IV — Subdominant','V — Dominant','vi — Submediant','vii° — Leading Tone'];
+const DFUNC=['Tonic','Supertonic','Mediant','Subdominant','Dominant','Submediant','Leading Tone'];
+const DMOOD=['Home · stable rest · starting point','Soft tension · movement toward IV or V','Colour chord · used for passing motion','Upward lift · second most important chord','Strong tension · always resolves to I','Relative minor · warmth and introspection','Unstable · wants to resolve to I immediately'];
+function diatonicChords(root,ivs,jazz){
+  const arr=[...ivs];while(arr.length<7)arr.push((arr[arr.length-1]+2)%12);
+  return arr.slice(0,7).map((iv,i)=>{
+    const cr=na(root,iv),t3=(arr[(i+2)%7]-iv+12)%12,t5=(arr[(i+4)%7]-iv+12)%12;
+    let q='maj';
+    if(t3===3&&t5===7)q='min';
+    else if(t3===3&&t5===6)q='dim';
+    else if(t3===4&&t5===8)q='aug';
+    if(jazz){const t7=(arr[(i+6)%7]-iv+12)%12;const m={maj:{11:'maj7',10:'dom7'},min:{10:'min7'},dim:{10:'m7b5'}};q=(m[q]&&m[q][t7])||q;}
+    return{root:cr,q,sym:chordName(cr,q),notes:chordNotes(cr,q),rom:DROM[i]||'',degree:i};
+  });
+}
+
+
+// ── Web Audio Engine (instrument-aware, click-free) ──────────
+const NOTE_FREQS={C:261.63,'C#':277.18,D:293.66,'D#':311.13,E:329.63,F:349.23,'F#':369.99,G:392,'G#':415.30,A:440,'A#':466.16,B:493.88};
+let _audioCtx=null;
+let _quickMaster=null;
+let _quickComp=null;
+let _quickActive=[];
+
+function getAudioCtx(){
+  if(!_audioCtx) _audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_audioCtx.state==='suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+function noteFreq(name,octave){
+  octave=octave==null?4:octave;
+  return (NOTE_FREQS[name]||440)*Math.pow(2,octave-4);
+}
+
+// Persistent output chain: masterGain → compressor → destination
+// Never recreated — avoids glitches from reconnection
+function getQuickMaster(){
+  const ctx=getAudioCtx();
+  if(_quickMaster && _quickMaster.context===ctx) return _quickMaster;
+  _quickComp=ctx.createDynamicsCompressor();
+  _quickComp.threshold.value=-12;
+  _quickComp.knee.value=8;
+  _quickComp.ratio.value=4;
+  _quickComp.attack.value=0.005;
+  _quickComp.release.value=0.3;
+  _quickComp.connect(ctx.destination);
+  _quickMaster=ctx.createGain();
+  _quickMaster.gain.value=0.55;
+  _quickMaster.connect(_quickComp);
+  return _quickMaster;
+}
+
+// Fade out all active voices cleanly — NO abrupt stops
+function stopQuickPlay(){
+  const ctx=getAudioCtx();
+  const now=ctx.currentTime;
+  const fade=0.05;
+  _quickActive.forEach(v=>{
+    try{
+      // cancelAndHoldAtTime is not available in all browsers; use setTargetAtTime for smooth fade
+      v.gn.gain.cancelScheduledValues(now);
+      v.gn.gain.setValueAtTime(Math.max(v.gn.gain.value,0.0001),now);
+      v.gn.gain.setTargetAtTime(0.0001,now,fade/3); // time constant = fade/3
+      v.osc.stop(now+fade*2);
+    }catch(e){}
+  });
+  _quickActive=[];
+}
+
+// Core voice builder — all audition sounds go through this
+// Uses ONLY sine oscillators (no triangle/sawtooth — those alias and crackle)
+// Harmonic richness comes from additive partials, not wave type
+function _voice(freq, t, dur, gain, partials, master){
+  // partials = [{ratio, amp, phase?}]  e.g. [{ratio:1,amp:1},{ratio:2,amp:0.3}]
+  const ctx=getAudioCtx();
+  const voiceGain=ctx.createGain();
+  voiceGain.connect(master);
+
+  partials.forEach(p=>{
+    const osc=ctx.createOscillator();
+    const og=ctx.createGain();
+    osc.type='sine'; // always sine — no aliasing
+    osc.frequency.value=freq*p.ratio;
+    og.gain.value=gain*p.amp;
+    osc.connect(og); og.connect(voiceGain);
+    osc.start(t);
+    osc.stop(t+dur+0.1);
+    _quickActive.push({osc,gn:og});
+  });
+
+  // Master envelope for this voice — exponential only, no discontinuities
+  const att=0.012, dec=dur*0.6, rel=0.08;
+  voiceGain.gain.setValueAtTime(0.0001,t);
+  voiceGain.gain.exponentialRampToValueAtTime(1.0, t+att);
+  voiceGain.gain.exponentialRampToValueAtTime(0.3, t+att+dec);
+  voiceGain.gain.exponentialRampToValueAtTime(0.0001, t+dur-rel);
+  _quickActive.push({osc:{stop:()=>{}},gn:voiceGain});
+}
+
+// Instrument partials — warm additive tones, no aliasing
+const PARTIALS={
+  guitar:  [{ratio:1,amp:1},{ratio:2,amp:0.5},{ratio:3,amp:0.25},{ratio:4,amp:0.1},{ratio:5,amp:0.04}],
+  ukulele: [{ratio:1,amp:1},{ratio:2,amp:0.6},{ratio:3,amp:0.2},{ratio:4,amp:0.06}],
+  keyboard:[{ratio:1,amp:1},{ratio:2,amp:0.45},{ratio:3,amp:0.15},{ratio:4,amp:0.05}],
+  default: [{ratio:1,amp:1},{ratio:2,amp:0.4},{ratio:3,amp:0.15}],
+};
+
+function getInstProfile(){
+  switch(INSTRUMENT){
+    case 'guitar':  return {partials:PARTIALS.guitar,  strumDelay:0.022,octave:3,gain:0.13,dur:2.0};
+    case 'ukulele': return {partials:PARTIALS.ukulele, strumDelay:0.016,octave:4,gain:0.14,dur:1.5};
+    case 'keyboard':return {partials:PARTIALS.keyboard,strumDelay:0.006,octave:4,gain:0.13,dur:1.8};
+    default:        return {partials:PARTIALS.default, strumDelay:0.018,octave:4,gain:0.14,dur:1.8};
+  }
+}
+
+function playChordAudio(notes,duration,octaveOverride){
+  stopQuickPlay();
+  const ctx=getAudioCtx();
+  const prof=getInstProfile();
+  const master=getQuickMaster();
+  const oct=octaveOverride!=null?octaveOverride:prof.octave;
+  const dur=duration||prof.dur;
+  const now=ctx.currentTime;
+  const gainPerVoice=(prof.gain||0.13)/Math.max(notes.length,1);
+  notes.forEach((n,i)=>{
+    const voiceOct=oct+(i>2?1:0);
+    const freq=noteFreq(n,voiceOct);
+    const t=now+i*prof.strumDelay;
+    _voice(freq, t, dur, gainPerVoice, prof.partials, master);
+  });
+}
+
+function playScaleNotesFromIvs(root,ivs,btnEl){
+  stopQuickPlay();
+  const ctx=getAudioCtx();
+  const prof=getInstProfile();
+  const master=getQuickMaster();
+  const bpm=80;
+  const step=60/bpm;
+  const dur=step*0.85;
+  const notes=ivs.map(iv=>CHR[(CHR.indexOf(root)+iv+120)%12]);
+  const upDown=[...notes,notes[0],...[...notes].reverse().slice(1)];
+  const now=ctx.currentTime;
+  if(btnEl)btnEl.classList.add('playing');
+  upDown.forEach((n,i)=>{
+    const extra=(i>=notes.length)?1:0;
+    const freq=noteFreq(n,prof.octave+extra);
+    _voice(freq, now+i*step, dur, prof.gain, prof.partials, master);
+  });
+  if(btnEl)setTimeout(()=>btnEl.classList.remove('playing'),upDown.length*step*1000+300);
+}
+
+function playNoteAudio(noteName,octave,duration){
+  stopQuickPlay();
+  const ctx=getAudioCtx();
+  const prof=getInstProfile();
+  const master=getQuickMaster();
+  const freq=noteFreq(noteName,octave!=null?octave:prof.octave);
+  _voice(freq, ctx.currentTime, duration||1.2, prof.gain, prof.partials, master);
+}
+
+function playArpAudio(arpNotes,bpm){
+  stopQuickPlay();
+  const ctx=getAudioCtx();
+  const prof=getInstProfile();
+  const master=getQuickMaster();
+  const step=60/(bpm||90)*0.5;
+  const dur=step*0.80;
+  const now=ctx.currentTime;
+  arpNotes.forEach((n,i)=>{
+    const freq=noteFreq(n.name||n,prof.octave+(n.octO||0));
+    _voice(freq, now+i*step, dur, prof.gain, prof.partials, master);
+  });
+}
+
+function playRagaSeq(arr,btnEl){
+  stopQuickPlay();
+  const ctx=getAudioCtx();
+  const prof=getInstProfile();
+  const master=getQuickMaster();
+  const bpm=80;
+  const step=60/bpm;
+  const dur=step*0.85;
+  const now=ctx.currentTime;
+  if(btnEl)btnEl.classList.add('playing');
+  arr.forEach((n,i)=>{
+    const noteName=n.iv!=null?CHR[(CHR.indexOf(ROOT)+n.iv+120)%12]:n.n;
+    const freq=noteFreq(noteName,prof.octave+(n.oct||0));
+    _voice(freq, now+i*step, dur, prof.gain, prof.partials, master);
+  });
+  if(btnEl)setTimeout(()=>btnEl.classList.remove('playing'),arr.length*step*1000+300);
+}
+
+// playTone: used by DAW engine — freq is a number, ctx/masterGain provided externally
+function playTone(freq,startTime,duration,ctx,masterGain,profile){
+  const partials=profile?.partials||PARTIALS.default;
+  const gain=profile?.gain||0.13;
+  partials.forEach(p=>{
+    const osc=ctx.createOscillator();
+    const og=ctx.createGain();
+    osc.type='sine'; osc.frequency.value=freq*p.ratio;
+    og.gain.value=gain*p.amp;
+    osc.connect(og); og.connect(masterGain);
+    osc.start(startTime); osc.stop(startTime+duration+0.1);
+  });
+  const env=ctx.createGain();
+  env.connect(masterGain);
+  const att=0.012, rel=0.08;
+  env.gain.setValueAtTime(0.0001,startTime);
+  env.gain.exponentialRampToValueAtTime(1.0,startTime+att);
+  env.gain.exponentialRampToValueAtTime(0.35,startTime+duration*0.6);
+  env.gain.exponentialRampToValueAtTime(0.0001,startTime+duration-rel);
+}
+
+function ivToNote(root,iv){return CHR[(CHR.indexOf(root)+iv+120)%12];}
+
+function chordNotesFromSym(sym){
   try{
-    const stored=localStorage.getItem('vk_song_history');
-    if(stored){ _songHistory=JSON.parse(stored); _updateHistBadge(); }
-  }catch(e){}
+    const norm=typeof normalizeChord==='function'?normalizeChord(sym):sym;
+    const p=parseChordName(norm);
+    if(!p)return chordNotes(sym.replace(/[^A-G#b]/,''),sym.replace(/^[A-G#b]*/,''))||[sym];
+    return (qualIntervals(p.qual)||[0,4,7]).map(iv=>CHR[(CHR.indexOf(p.root)+iv+120)%12]);
+  }catch(e){return[sym];}
 }
 
-function _updateHistBadge(){
-  const badge=document.getElementById('histBadge');
-  if(!badge) return;
-  if(_songHistory.length>0){
-    badge.textContent=_songHistory.length;
-    badge.style.display='block';
+
+// ── Global chord/prog registry (avoids JSON.stringify in onclick) ──
+const _CHORD_REG=[];
+function regChord(sym,notes,label){
+  const idx=_CHORD_REG.length;
+  _CHORD_REG.push({sym,notes:notes||chordNotesFromSym(sym),label:label||''});
+  return idx;
+}
+
+function playRegChord(idx){const ch=_CHORD_REG[idx];if(ch)playChordAudio(ch.notes);}
+
+const _PROG_REG=[];
+function regProg(chords,label){const idx=_PROG_REG.length;_PROG_REG.push({chords,label});return idx;}
+
+// ── Song / Section Playback ───────────────────────────────────
+let _songPlayTimer=null;
+let _songPlaying=false;
+let _songLooping=false;
+let _songCurrentBpm=120;
+
+function songStop(){
+  _songPlaying=false;
+  _songLooping=false;
+  if(_songPlayTimer){clearTimeout(_songPlayTimer);_songPlayTimer=null;}
+  stopQuickPlay();
+  const playSvg=`<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>`;
+  document.querySelectorAll('.ss-play-btn,.song-play-btn').forEach(b=>{
+    b.classList.remove('playing');
+    b.innerHTML=playSvg;
+  });
+  document.querySelectorAll('.ss-loop-btn').forEach(b=>{
+    b.classList.remove('on');
+  });
+}
+
+// Play a flat array of {notes} objects sequentially at bpm, then call onDone
+function _playChordSequence(chords, bpm, onDone){
+  stopQuickPlay();
+  const ctx=getAudioCtx();
+  const master=getQuickMaster();
+  const prof=getInstProfile();
+  const barDur=60/bpm*4; // 1 bar = 4 beats
+  const now=ctx.currentTime;
+  chords.forEach((ch,i)=>{
+    const notes=ch.notes||chordNotesFromSym(ch.sym);
+    const t=now+i*barDur;
+    const gainPerVoice=(prof.gain||0.13)/Math.max(notes.length,1);
+    notes.forEach((n,j)=>{
+      const voiceOct=(prof.octave||4)+(j>2?1:0);
+      const freq=noteFreq(n,voiceOct);
+      _voice(freq, t+j*prof.strumDelay, barDur*0.88, gainPerVoice, prof.partials, master);
+    });
+  });
+  const totalMs=chords.length*barDur*1000;
+  _songPlayTimer=setTimeout(()=>{ _songPlayTimer=null; if(onDone) onDone(); }, totalMs+120);
+}
+
+function playSection(secIdx, bpm, loop){
+  songStop();
+  const song=CURRENT_SONG; if(!song) return;
+  const sec=song.sections[secIdx]; if(!sec||!sec.resolvedChords?.length) return;
+  _songPlaying=true;
+  _songLooping=!!loop;
+  _songCurrentBpm=bpm||_songCurrentBpm||120;
+
+  const btn=document.querySelector(`.ss-play-btn[data-sec="${secIdx}"]`);
+  const lbtn=document.querySelector(`.ss-loop-btn[data-sec="${secIdx}"]`);
+  const stopSvg=`<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="12" rx="1"/></svg>`;
+  if(btn){btn.classList.add('playing');btn.innerHTML=stopSvg;}
+
+  function play(){
+    if(!_songPlaying) return;
+    _playChordSequence(sec.resolvedChords, _songCurrentBpm, ()=>{
+      if(_songLooping && _songPlaying) play();
+      else songStop();
+    });
+  }
+  play();
+}
+
+function toggleSectionLoop(secIdx, bpm){
+  if(_songPlaying && _songLooping){
+    songStop();
   } else {
-    badge.style.display='none';
+    playSection(secIdx, bpm, true);
+    // Add highlight after playSection (which calls songStop first, clearing classes)
+    const btn=document.querySelector(`.ss-loop-btn[data-sec="${secIdx}"]`);
+    if(btn) btn.classList.add('on');
   }
 }
 
-function _formatTime(ts){
-  const diff=Date.now()-ts;
-  if(diff<60000) return 'just now';
-  if(diff<3600000) return Math.round(diff/60000)+'m ago';
-  if(diff<86400000) return Math.round(diff/3600000)+'h ago';
-  return new Date(ts).toLocaleDateString();
+function playSong(bpm){
+  songStop();
+  const song=CURRENT_SONG; if(!song) return;
+  _songPlaying=true;
+  _songCurrentBpm=bpm||_songCurrentBpm||120;
+
+  const btn=document.querySelector('.song-play-btn');
+  const stopSvg=`<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="12" height="12" rx="1"/></svg>`;
+  if(btn){btn.classList.add('playing');btn.innerHTML=stopSvg;}
+
+  // Flatten all sections
+  const allChords=song.sections.flatMap(s=>s.resolvedChords||[]);
+  if(!allChords.length){songStop();return;}
+
+  _playChordSequence(allChords, _songCurrentBpm, ()=>songStop());
 }
 
-function _openHistoryPanel(){
-  const panel=document.getElementById('songHistoryPanel');
-  if(!panel) return;
-  _renderHistList();
-  panel.classList.add('open');
-}
-
-function _closeHistoryPanel(){
-  const panel=document.getElementById('songHistoryPanel');
-  if(panel) panel.classList.remove('open');
-}
-
-function _renderHistList(){
-  const list=document.getElementById('histList');
-  const sub=document.getElementById('histSheetSub');
-  if(!list) return;
-  if(sub) sub.textContent=_songHistory.length+' song'+(  _songHistory.length!==1?'s':'')+' this session';
-  if(!_songHistory.length){
-    list.innerHTML='<div class="hist-empty">♬ No songs generated yet.<br>Hit Generate Song to start.</div>';
-    return;
-  }
-  list.innerHTML=_songHistory.map((entry,i)=>{
-    const s=entry.song;
-    const score=s.evaluation?`<span class="hist-item-score">${s.evaluation.overall}/10</span>`:'';
-    const tags=[
-      s.genre?`<span class="hist-item-tag">${s.genreIcon||'♬'} ${s.genre}</span>`:'',
-      s.scaleName?`<span class="hist-item-tag">♩ ${s.scaleName}</span>`:'',
-      s.form?`<span class="hist-item-tag">${s.form}</span>`:'',
-      s.totalBars?`<span class="hist-item-tag">${s.totalBars} bars</span>`:'',
-    ].filter(Boolean).join('');
-    return`<div class="hist-item" data-hist-idx="${i}">
-      <div class="hist-item-main">
-        <div class="hist-item-title">${s.title||'Untitled'}</div>
-        ${s.subtitle?`<div style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:1px;font-style:italic">${s.subtitle}</div>`:''}
-        <div class="hist-item-meta">${tags}</div>
-        <div class="hist-actions-row">
-          <button class="hist-action-btn" data-hist-load="${i}">▶ Load</button>
-          <button class="hist-action-btn" data-hist-midi="${i}">⬇ MIDI</button>
-          <button class="hist-action-btn danger" data-hist-del="${i}">✕ Remove</button>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-        ${score}
-        <span class="hist-item-time">${_formatTime(entry.timestamp)}</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Wire load buttons
-  list.querySelectorAll('[data-hist-load]').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const idx=+btn.dataset.histLoad;
-      const entry=_songHistory[idx];
-      if(!entry) return;
-      CURRENT_SONG=entry.song;
-      displaySong(CURRENT_SONG);
-      _closeHistoryPanel();
-      if(VIEW!=='song') setView('song');
-    });
-  });
-
-  // Wire MIDI buttons
-  list.querySelectorAll('[data-hist-midi]').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const idx=+btn.dataset.histMidi;
-      const entry=_songHistory[idx];
-      if(!entry||!entry.song) return;
-      // Trigger MIDI export for this song
-      const s=entry.song;
-      const ev=new CustomEvent('vk-midi-export',{detail:{song:s}});
-      document.dispatchEvent(ev);
-    });
-  });
-
-  // Wire delete buttons
-  list.querySelectorAll('[data-hist-del]').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const idx=+btn.dataset.histDel;
-      _songHistory.splice(idx,1);
-      try{ localStorage.setItem('vk_song_history',JSON.stringify(_songHistory.slice(0,20))); }catch(ex){}
-      _updateHistBadge();
-      _renderHistList();
-    });
-  });
-
-  // Wire whole row click → load
-  list.querySelectorAll('.hist-item[data-hist-idx]').forEach(row=>{
-    row.addEventListener('click',()=>{
-      const idx=+row.dataset.histIdx;
-      const entry=_songHistory[idx];
-      if(!entry) return;
-      CURRENT_SONG=entry.song;
-      displaySong(CURRENT_SONG);
-      _closeHistoryPanel();
-      if(VIEW!=='song') setView('song');
-    });
-  });
-}
-
-// Init history panel wiring
-(()=>{
-  _loadHistoryFromStorage();
-
-  document.getElementById('histCloseBtn')?.addEventListener('click',_closeHistoryPanel);
-  document.getElementById('songHistoryPanel')?.addEventListener('click',e=>{
-    if(e.target===document.getElementById('songHistoryPanel')) _closeHistoryPanel();
-  });
-  document.getElementById('histClearBtn')?.addEventListener('click',()=>{
-    if(!_songHistory.length) return;
-    _songHistory=[];
-    try{ localStorage.removeItem('vk_song_history'); }catch(e){}
-    _updateHistBadge();
-    _renderHistList();
-  });
-
-  // Keyboard: Escape closes panel
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape') _closeHistoryPanel(); });
-})();
-
-
-// ════════════════════════════════════════════════════════
-// ── AI SONG GENERATOR ───────────────────────────────────
-// ════════════════════════════════════════════════════════
-
-function _isAiWhitelisted(){
-  return _user && AI_WHITELIST.includes((_user.email||'').toLowerCase().trim());
-}
-
-function _getAiKey(){
-  if(_aiApiKey) return _aiApiKey;
-  try{ _aiApiKey = localStorage.getItem('vk_ai_key')||null; }catch(e){}
-  return _aiApiKey;
-}
-
-function _saveAiKey(key){
-  _aiApiKey = key;
-  try{ localStorage.setItem('vk_ai_key', key); }catch(e){}
-}
-
-function _clearAiKey(){
-  _aiApiKey = null;
-  try{ localStorage.removeItem('vk_ai_key'); }catch(e){}
-}
-
-// ── Render the AI strip into #aiStripWrap ──
-function renderAiStrip(){
-  const wrap = document.getElementById('aiStripWrap');
-  if(!wrap) return;
-
-  const isWhitelisted = _isAiWhitelisted();
-  const hasKey = !!_getAiKey();
-
-  if(!isWhitelisted){
-    // Not signed in or not whitelisted — show locked state
-    const signedIn = !!_user;
-    wrap.innerHTML = `
-      <div class="ai-strip">
-        <span class="ai-strip-label">✦ AI Generate</span>
-        <div class="ai-locked">
-          ${signedIn
-            ? `<span>Request AI access — write to <a href="mailto:nitu.rathee@gmail.com">nitu.rathee@gmail.com</a></span>`
-            : `<span>Sign in to request AI access</span>`}
-        </div>
-      </div>`;
-    return;
-  }
-
-  // Whitelisted — show full AI strip
-  if(!hasKey){
-    // Need API key
-    wrap.innerHTML = `
-      <div class="ai-strip">
-        <span class="ai-strip-label">✦ AI Generate</span>
-        <input class="ai-key-input" id="aiKeyInput" type="password" placeholder="Paste Anthropic API key…" autocomplete="off">
-        <button class="ai-key-btn" id="aiKeySaveBtn">Save Key</button>
-      </div>`;
-    document.getElementById('aiKeySaveBtn')?.addEventListener('click',()=>{
-      const val = document.getElementById('aiKeyInput')?.value?.trim();
-      if(val && val.startsWith('sk-ant-')){ _saveAiKey(val); renderAiStrip(); }
-      else alert('Invalid key — must start with sk-ant-');
-    });
-    document.getElementById('aiKeyInput')?.addEventListener('keydown',e=>{
-      if(e.key==='Enter') document.getElementById('aiKeySaveBtn')?.click();
-    });
-    return;
-  }
-
-  // Has key + whitelisted — show model selector + generate button
-  wrap.innerHTML = `
-    <div class="ai-strip">
-      <span class="ai-strip-label">✦ AI Generate</span>
-      <select class="ai-model-sel" id="aiModelSel">
-        <option value="none">Off — use algorithm</option>
-        <option value="haiku" ${AI_MODEL==='haiku'?'selected':''}>Haiku 3.5 — fast</option>
-        <option value="sonnet" ${AI_MODEL==='sonnet'?'selected':''}>Sonnet 4.5 — best</option>
-      </select>
-      <button class="ai-generate-btn" id="aiGenerateBtn" ${AI_MODEL==='none'?'disabled':''}>
-        <div class="ai-spinner"></div>
-        <span class="ai-btn-text">✦ AI Song</span>
-      </button>
-      <button class="ai-key-btn" id="aiKeyClearBtn" style="opacity:.5;font-size:9px">✕ Key</button>
-    </div>`;
-
-  document.getElementById('aiModelSel')?.addEventListener('change', e=>{
-    AI_MODEL = e.target.value;
-    document.getElementById('aiGenerateBtn').disabled = (AI_MODEL==='none');
-  });
-
-  document.getElementById('aiGenerateBtn')?.addEventListener('click', generateSongAI);
-
-  document.getElementById('aiKeyClearBtn')?.addEventListener('click',()=>{
-    if(confirm('Remove saved API key?')){ _clearAiKey(); renderAiStrip(); }
-  });
-}
-
-// ── Build the prompt ──
-function _buildSongPrompt(){
-  const genre = getEffectiveGenre();
-  const scaleIvs = getCurrentScaleIvs();
-  const scaleRoot = getCurrentScaleRoot();
-  const scaleName = getCurrentScaleName();
-  const isMin = isMinorish(scaleIvs);
-  const chords = diatonicChords(scaleRoot, scaleIvs, JAZZ);
-  const form = genre?.signatureForm || genre?.forms?.[0] || 'Verse-Chorus';
-
-  const chordList = chords.map((ch,i)=>`${['I','ii','iii','IV','V','vi','vii°'][i]} = ${ch.sym}`).join(', ');
-  const CHR2=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  const rootIdx2 = CHR2.indexOf(scaleRoot);
-  const scaleNotes2 = scaleIvs.map(iv=>CHR2[(rootIdx2+iv)%12]).join(', ');
-
-  const thaatCtx = OPEN_THAAT ? `\nThaat context: ${OPEN_THAAT} (${THAATS[OPEN_THAAT]?.western||''})` : '';
-  const modeCtx = OPEN_MODE>=0&&MODES[OPEN_MODE] ? `\nMode: ${MODES[OPEN_MODE].n} — ${MODES[OPEN_MODE].v}` : '';
-  const jazzNote = JAZZ ? '\nJazz+ mode is ON — use 7ths and extensions.' : '';
-  const genres = [...SELECTED_GENRES].join(' + ');
-  const complexity = SONG_COMPLEXITY;
-
-  return `You are a professional music composer and arranger. Generate a complete song structure with chord progressions.
-
-CONTEXT:
-- Key / Root: ${scaleRoot}
-- Scale: ${scaleName} (${isMin?'minor':'major'} quality)
-- Scale notes: ${scaleNotes2}
-- Available diatonic chords ONLY: ${chordList}
-- Genre: ${genres}
-- Form: ${form}
-- Complexity: ${complexity}${thaatCtx}${modeCtx}${jazzNote}
-
-RULES (strictly follow every one):
-1. Use ONLY the diatonic chords listed above — no others. Every chord must be from this list.
-2. Use Roman numeral degree notation (I, ii, iii, IV, V, vi, vii°).
-3. Each section MUST use a different chord progression. Never repeat the same progression in adjacent sections.
-4. Chorus must feel stronger / more resolved than Verse.
-5. Bridge must introduce harmonic contrast — move away from tonic.
-6. The final section must end on the tonic chord (I or i).
-7. Avoid using the tonic chord more than twice consecutively.
-8. Use common, recognisable progressions for the genre.
-
-OUTPUT FORMAT — respond with valid JSON only, no markdown, no explanation:
-{
-  "title": "evocative song title",
-  "subtitle": "one evocative line describing the mood",
-  "styleNote": "brief description of harmonic approach for this genre",
-  "sections": [
-    {
-      "label": "Verse",
-      "role": "verse",
-      "progression": ["I", "vi", "IV", "V"],
-      "bars": 4,
-      "melodyHint": "specific melodic guidance for this progression"
+function setSongBpm(val){
+  _songCurrentBpm=Math.max(40,Math.min(240,parseInt(val)||120));
+  const disp=document.getElementById('songBpmDisplay');
+  if(disp) disp.textContent=_songCurrentBpm;
+  // If song is playing, restart at new tempo
+  if(_songPlaying){
+    if(_songLooping){
+      // Find which section is looping
+      const loopBtn=document.querySelector('.ss-loop-btn.on');
+      const secIdx=loopBtn?parseInt(loopBtn.dataset.sec):-1;
+      if(secIdx>=0) { songStop(); setTimeout(()=>{ playSection(secIdx,_songCurrentBpm,true); const b=document.querySelector(`.ss-loop-btn[data-sec="${secIdx}"]`); if(b)b.classList.add('on'); },20); }
+    } else {
+      songStop();
+      setTimeout(()=>playSong(_songCurrentBpm),20);
     }
-  ],
-  "tempo": "Medium (♩=120)",
-  "evaluation": {
-    "harmVariation": 8,
-    "knownProgs": 9,
-    "repetitionScore": 8,
-    "resolutionScore": 10,
-    "overall": 9
-  }
-}`;
-}
-
-// ── Call the API and parse ──
-async function generateSongAI(){
-  const key = _getAiKey();
-  if(!key){ alert('No API key saved.'); return; }
-  if(AI_GENERATING) return;
-  if(AI_MODEL==='none') return;
-
-  const btn = document.getElementById('aiGenerateBtn');
-  AI_GENERATING = true;
-  btn?.classList.add('loading');
-  if(btn) btn.disabled = true;
-
-  const modelId = AI_MODEL==='sonnet'
-    ? 'claude-sonnet-4-5'
-    : 'claude-haiku-3-5-20241022';
-
-  try{
-    const prompt = _buildSongPrompt();
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': key,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true',
-      },
-      body: JSON.stringify({
-        model: modelId,
-        max_tokens: 2000,
-        messages:[{role:'user', content: prompt}]
-      })
-    });
-
-    if(!res.ok){
-      const err = await res.json().catch(()=>({}));
-      throw new Error(err.error?.message || `API error ${res.status}`);
-    }
-
-    const data = await res.json();
-    const raw = data.content?.[0]?.text || '';
-
-    // Parse JSON from response
-    const jsonStr = raw.replace(/^```json\s*/i,'').replace(/```$/,'').trim();
-    const aiResult = JSON.parse(jsonStr);
-
-    // Convert AI result into Vaikhari song object
-    const song = _aiResultToSong(aiResult);
-    if(song){
-      CURRENT_SONG = song;
-      displaySong(CURRENT_SONG);
-      _saveToHistory(CURRENT_SONG);
-    }
-
-  } catch(e){
-    console.error('AI generation error:', e);
-    const msg = e.message?.includes('401') ? 'Invalid API key — check your key and try again.'
-               : e.message?.includes('429') ? 'Rate limit hit — wait a moment and retry.'
-               : e.message?.includes('JSON') ? 'AI returned unexpected format — try again.'
-               : `Error: ${e.message}`;
-    alert(msg);
-  } finally{
-    AI_GENERATING = false;
-    btn?.classList.remove('loading');
-    if(btn) btn.disabled = false;
   }
 }
 
-// ── Convert AI JSON response to Vaikhari song object ──
-function _aiResultToSong(ai){
-  if(!ai||!ai.sections) return null;
-  const genre = getEffectiveGenre();
-  const scaleIvs = getCurrentScaleIvs();
-  const scaleRoot = getCurrentScaleRoot();
-  const scaleName = getCurrentScaleName();
-  const isMin = isMinorish(scaleIvs);
 
-  const resolvedSections = ai.sections.map(sec=>{
-    const resolved = (sec.progression||[]).map(rom=>
-      resolveChord(upgradeRoman(rom, primaryGenre()), scaleRoot, scaleIvs, primaryGenre(), JAZZ)
-    ).filter(Boolean);
-    return {
-      label: sec.label||'Section',
-      prog: sec.progression||[],
-      resolvedChords: resolved,
-      bars: sec.bars || resolved.length,
-      midiReps: sec.role==='chorus'?2:1,
-      melodyHint: sec.melodyHint||'',
-      aiGenerated: true,
-    };
-  }).filter(s=>s.resolvedChords.length>0);
+const _ARP_REG=[];
 
-  const titles = {title: ai.title||'Untitled', subtitle: ai.subtitle||''};
-
-  return {
-    title: titles.title,
-    subtitle: titles.subtitle,
-    genre: genre?.label||'',
-    genreIcon: genre?.icon||'♬',
-    form: ai.sections.map(s=>s.label).join('–'),
-    tempo: ai.tempo||'Medium (♩=120)',
-    scaleName, scaleIvs, isMin,
-    fusionLabel: getFusionLabel(),
-    styleNote: ai.styleNote || genre?.styleNote||'',
-    sections: resolvedSections,
-    totalBars: resolvedSections.reduce((s,sec)=>s+(sec.bars||0),0),
-    complexity: SONG_COMPLEXITY,
-    useJazz: JAZZ,
-    evaluation: ai.evaluation||null,
-    aiModel: AI_MODEL,
-    thaatCtx: null,
-  };
+// ── Scale/Seq registry (avoids JSON.stringify in onclick) ──
+const _SEQ_REG=[];
+function regSeq(root,ivs,label){
+  const idx=_SEQ_REG.length;
+  _SEQ_REG.push({root,ivs,label});
+  return idx;
+}
+function playRegScale(idx,btnEl){
+  const s=_SEQ_REG[idx];if(!s)return;
+  playScaleNotesFromIvs(s.root,s.ivs,btnEl);
+}
+// Raga seq registry
+const _RAGA_SEQ_REG=[];
+function regRagaSeq(arr,label){
+  const idx=_RAGA_SEQ_REG.length;
+  _RAGA_SEQ_REG.push({arr,label});
+  return idx;
+}
+function playRegRagaSeq(idx,btnEl){
+  const s=_RAGA_SEQ_REG[idx];if(!s)return;
+  playRagaSeq(s.arr,btnEl);
 }
 
+function regArp(sym,patKey,notes,label){const idx=_ARP_REG.length;_ARP_REG.push({sym,patKey,notes,label});return idx;}
 
-// ══════════════════════════════════════════════════════════════
+function playRegArp(idx){const a=_ARP_REG[idx];if(a&&a.notes)playArpAudio(a.notes);}
+
+
+
+// ── State ──
+let ROOT='C',VIEW='scale',JAZZ=false,INDIAN=true,OPEN_SCALE=null,OPEN_MODE=null,OPEN_THAAT=null,OPEN_RAGA=null,INSTRUMENT='guitar';
+let dcLit=new Set();
+let CURRENT_SONG=null;
+let SELECTED_GENRES=new Set(['jazz']); // multi-select set
+// Helper: primary genre (first selected, or 'jazz')
+function primaryGenre(){return [...SELECTED_GENRES][0]||'jazz';}
+// Helper: sorted genre key for fusion lookup
+function fusionKey(){return [...SELECTED_GENRES].sort().join('+');}
+// Legacy compat alias used internally
+Object.defineProperty(window,'SELECTED_GENRE',{get:()=>primaryGenre(),set:(v)=>{SELECTED_GENRES=new Set([v]);}});
+
+
+// ── Swara names ──
+const SWARAS={0:'Sa',1:'re♭',2:'Re',3:'ga♭',4:'Ga',5:'Ma',6:'Ma#',7:'Pa',8:'dha♭',9:'Dha',10:'ni♭',11:'Ni'};
+const SW_SHORT={0:'Sa',1:'re',2:'Re',3:'ga',4:'Ga',5:'Ma',6:'Ma#',7:'Pa',8:'dha',9:'Dha',10:'ni',11:'Ni'};
+
+// ── Scale Data ──
+const SCALES={
+  'Major':        {iv:[0,2,4,5,7,9,11],steps:['W','W','H','W','W','W','H'],vibe:'Bright · Stable · Resolved',desc:'The bedrock of Western music. Seven notes, no tension — bright and fully resolved. Corresponds to Bilawal Thaat in Hindustani music.',thaat:'Bilawal'},
+  'Natural Minor':{iv:[0,2,3,5,7,8,10],steps:['W','H','W','W','H','W','W'],vibe:'Dark · Emotional · Expressive',desc:'The most common minor scale, foundation of classical and popular music. Corresponds to Asavari Thaat. Three flatted degrees (♭3 ♭6 ♭7) give it depth.',thaat:'Asavari'},
+  'Harmonic Minor':{iv:[0,2,3,5,7,8,11],steps:['W','H','W','W','H','A','H'],vibe:'Exotic · Dramatic · Classical',desc:'Natural minor with raised 7th. Creates an augmented 2nd interval (A2) between ♭6 and 7 — the exotic sound of Eastern Europe and the Middle East.',thaat:null},
+  'Melodic Minor': {iv:[0,2,3,5,7,9,11],steps:['W','H','W','W','W','W','H'],vibe:'Smooth · Jazz-minor · Versatile',desc:'Raised 6th and 7th ascending. Used extensively in jazz improvisation (jazz minor). Each mode of this scale has a name used in jazz harmony.',thaat:null},
+  'Dorian':       {iv:[0,2,3,5,7,9,10],steps:['W','H','W','W','W','H','W'],vibe:'Cool · Jazz · Folk',desc:'Minor with a raised 6th — brighter than natural minor. Core of jazz, funk, Celtic folk and blues. Corresponds to Kafi Thaat.',thaat:'Kafi'},
+  'Mixolydian':   {iv:[0,2,4,5,7,9,10],steps:['W','W','H','W','W','H','W'],vibe:'Bluesy · Rock · Dominant',desc:'Major scale with ♭7. The dominant 7th built on the tonic. Backbone of blues, rock and Celtic music. Corresponds to Khamaj Thaat.',thaat:'Khamaj'},
+  'Phrygian':     {iv:[0,1,3,5,7,8,10],steps:['H','W','W','W','H','W','W'],vibe:'Dark · Spanish · Intense',desc:'Minor scale with ♭2. Distinctly exotic and intense — foundational to Flamenco and metal. Corresponds to Bhairavi Thaat.',thaat:'Bhairavi'},
+  'Lydian':       {iv:[0,2,4,6,7,9,11],steps:['W','W','W','H','W','W','H'],vibe:'Dreamy · Floating · Cinematic',desc:'Major with ♯4 (tritone above root). Ethereal and upward-reaching — widely used in film scores and jazz. Corresponds to Kalyan Thaat.',thaat:'Kalyan'},
+  'Pentatonic Maj':{iv:[0,2,4,7,9],   steps:['W','W','A','W','A'],vibe:'Open · Universal · Folk',desc:'Five-note major scale.',thaat:null},
+  'Pentatonic Min':{iv:[0,3,5,7,10],  steps:['A','W','W','A','W'],vibe:'Gritty · Rock · Blues',desc:'Five-note minor scale.',thaat:null},
+  'Blues':        {iv:[0,3,5,6,7,10], steps:['A','W','H','H','A','W'],vibe:'Soulful · Gritty · Expressive',desc:'Pentatonic minor + ♭5 "blue note".',thaat:null},
+  'Whole Tone':   {iv:[0,2,4,6,8,10], steps:['W','W','W','W','W','W'],vibe:'Dreamy · Impressionist · Hovering',desc:'Six equidistant whole tones.',thaat:null},
+  'Diminished':   {iv:[0,2,3,5,6,8,9,11],steps:['W','H','W','H','W','H','W','H'],vibe:'Tense · Symmetric · Octatonic',desc:'Alternating whole and half steps.',thaat:null},
+};
+
+const MODES=[
+  {n:'Ionian',    g:'Natural Major',  iv:[0,2,4,5,7,9,11],steps:['W','W','H','W','W','W','H'],v:'Bright · Happy · Resolved',  d:'The standard major scale.',thaat:'Bilawal'},
+  {n:'Dorian',    g:'Minor + ♮6',     iv:[0,2,3,5,7,9,10],steps:['W','H','W','W','W','H','W'],v:'Cool · Jazzy · Soulful',    d:'Minor with natural 6th.',thaat:'Kafi'},
+  {n:'Phrygian',  g:'Minor + ♭2',     iv:[0,1,3,5,7,8,10],steps:['H','W','W','W','H','W','W'],v:'Dark · Intense · Spanish',  d:'Minor with flat 2nd.',thaat:'Bhairavi'},
+  {n:'Lydian',    g:'Major + ♯4',     iv:[0,2,4,6,7,9,11],steps:['W','W','W','H','W','W','H'],v:'Dreamy · Cinematic · Bright',d:'Major with raised 4th.',thaat:'Kalyan'},
+  {n:'Mixolydian',g:'Major + ♭7',     iv:[0,2,4,5,7,9,10],steps:['W','W','H','W','W','H','W'],v:'Bluesy · Rock · Dominant',  d:'Major with lowered 7th.',thaat:'Khamaj'},
+  {n:'Aeolian',   g:'Natural Minor',  iv:[0,2,3,5,7,8,10],steps:['W','H','W','W','H','W','W'],v:'Sad · Introspective · Dark', d:'The natural minor scale.',thaat:'Asavari'},
+  {n:'Locrian',   g:'Diminished + ♭2',iv:[0,1,3,5,6,8,10],steps:['H','W','H','W','W','W','W'],v:'Tense · Unstable · Rare',   d:'Most dissonant mode.',thaat:null},
+];
+
+const THAATS={
+  Bilawal:{iv:[0,2,4,5,7,9,11],swaras:'Sa Re Ga Ma Pa Dha Ni',vibe:'Pure · Radiant · Serene',desc:'The foundation thaat — all <em>shuddha</em> (natural) swaras.',western:'Major Scale / Ionian mode (C D E F G A B)',ragas:['Alhaiya Bilawal','Bilawal','Bihag','Deshkar','Durga','Hamsadhwani','Shankara','Kukubh Bilawal','Yamani Bilawal','Bihagda'],note:'Bilawal is the only thaat with no altered swaras.'},
+  Kalyan:{iv:[0,2,4,6,7,9,11],swaras:'Sa Re Ga Ma# Pa Dha Ni',vibe:'Ethereal · Expansive · Romantic',desc:'Uses <em>tivra</em> (sharpened) Ma.',western:'Lydian mode (C D E F# G A B)',ragas:['Yaman','Yaman Kalyan','Shuddha Kalyan','Kedar','Bihag','Hamir','Hameer Kalyani','Chhayanat','Kamod','Bhoopali'],note:'The ♯4 (tivra Ma) is the defining difference from Bilawal.'},
+  Khamaj:{iv:[0,2,4,5,7,9,10],swaras:'Sa Re Ga Ma Pa Dha ni',vibe:'Playful · Festive · Folk',desc:'Uses <em>komal</em> (flat) Ni.',western:'Mixolydian mode (C D E F G A B♭)',ragas:['Khamaj','Desh','Tilak Kamod','Jaijaiwanti','Jhinjhoti','Rageshree','Sorath','Khambavati','Gara','Tilang'],note:'Komal Ni (♭7) is the only difference from Major.'},
+  Kafi:{iv:[0,2,3,5,7,9,10],swaras:'Sa Re ga Ma Pa Dha ni',vibe:'Wistful · Seasonal · Folk',desc:'Uses <em>komal</em> Ga and Ni.',western:'Dorian mode (C D E♭ F G A B♭)',ragas:['Kafi','Bageshree','Bhimpalasi','Pilu','Dhani','Patdeep','Zila Kafi','Sindhura','Madhmad Sarang','Chandrakauns'],note:'Two flatted notes (♭3 and ♭7).'},
+  Asavari:{iv:[0,2,3,5,7,8,10],swaras:'Sa Re ga Ma Pa dha ni',vibe:'Sorrowful · Meditative · Morning',desc:'Three <em>komal</em> swaras — Ga, Dha and Ni.',western:'Natural Minor / Aeolian mode (C D E♭ F G A♭ B♭)',ragas:['Asavari','Jaunpuri','Darbari Kanada','Adana','Komal Rishabh Asavari','Dev Gandhar','Gandhari','Shuddha Nat','Kaunsi Kanada'],note:'Three flats (♭3 ♭6 ♭7).'},
+  Bhairavi:{iv:[0,1,3,5,7,8,10],swaras:'Sa re ga Ma Pa dha ni',vibe:'Tender · Devotional · Farewell',desc:'All five movable swaras are <em>komal</em>.',western:'Phrygian mode (C D♭ E♭ F G A♭ B♭)',ragas:['Bhairavi','Malkauns','Bilaskhani Todi','Sindhi Bhairavi','Manjh Khamaj','Jogiya Bhairavi','Mangal Bhairavi'],note:'Four flats (♭2 ♭3 ♭6 ♭7).'},
+  Bhairav:{iv:[0,1,4,5,7,8,11],swaras:'Sa re Ga Ma Pa dha Ni',vibe:'Majestic · Devotional · Dawn',desc:'Uses <em>komal</em> Re and Dha.',western:'Double Harmonic / Byzantine scale',ragas:['Bhairav','Ahir Bhairav','Ramkali','Jogiya','Nat Bhairav','Bairagi Bhairav','Anand Bhairav','Prabhat Bhairav','Shivmat Bhairav'],note:'No direct Western mode equivalent.'},
+  Purvi:{iv:[0,1,4,6,7,8,11],swaras:'Sa re Ga Ma# Pa dha Ni',vibe:'Intense · Yearning · Sunset',desc:'Komal Re and Dha with <em>tivra</em> Ma.',western:'No direct equivalent',ragas:['Poorvi','Puriya Dhanashree','Basant','Shree','Lalit','Gauri','Basant Mukhari'],note:'Uniquely Indian.'},
+  Marwa:{iv:[0,1,4,6,9,11],swaras:'Sa re Ga Ma# (Pa) Dha Ni',vibe:'Mysterious · Restless · Dusk',desc:'Komal Re and <em>tivra</em> Ma — Pa absent.',western:'Lydian ♭2 without perfect 5th',ragas:['Marwa','Puriya','Sohini','Lalit','Bhatiyar','Puriya Kalyan','Bibhas','Jait'],note:'The missing Pa is unusual in any tradition.'},
+  Todi:{iv:[0,1,3,6,7,8,11],swaras:'Sa re ga Ma# Pa dha Ni',vibe:'Profound · Complex · Morning',desc:'The most revered and complex thaat.',western:'Phrygian ♯4 — near unique',ragas:['Miyan ki Todi','Gujari Todi','Multani','Madhuvanti','Bilaskhani Todi','Bahaduri Todi','Gurjari Todi'],note:'No Western scale is a precise match.'},
+};
+
+// ── Song Generator ──
+
+const GENRES={
+  jazz:{
+    label:'Jazz',icon:'🎷',
+    color:'on-lapis',
+    forms:['AABA','ABAC','12-bar','Through-composed','ABA'],
+    tempos:['Ballad (♩=60–80)','Medium Swing (♩=120–140)','Up-tempo (♩=200+)','Bossa (♩=130)'],
+    styleNote:'Rich extensions · ii-V-I motion · tritone subs',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','vi','IV','V'],['I','ii','V','I'],
+        ['I','IV','ii','V'],['I','iii','vi','ii','V','I'],
+        ['iii','vi','ii','V'],['I','IV','I','V'],['I','vi','ii','V'],
+      ],
+      minor:[
+        ['i','iv','V','i'],['i','VI','III','VII'],['i','ii°','V','i'],
+        ['i','iv','VII','III'],['i','VI','VII','i'],
+      ],
+      bridge:[
+        ['IV','V','iii','vi'],['II','V','I'],['vi','ii','V','I'],
+        ['♭VII','IV','I'],['♭II7','V7','I'],
+      ]
+    },
+    jazzMods:{
+      'I':'Imaj7','IV':'IVmaj7','V':'V7','ii':'ii7','iii':'iii7','vi':'vi7',
+      'i':'im7','iv':'iv7','VII':'VII7','VI':'VImaj7','III':'IIImaj7',
+      '♭VII':'♭VIImaj7','♭II7':'♭II7','II':'II7','II7':'II7',
+    }
+  },
+  blues:{
+    label:'Blues',icon:'🎸',
+    color:'on',
+    // Four distinct complexity levels as distinct form variants
+    forms:['12-bar (Delta)','12-bar (Chicago)','12-bar (Blues-Rock)','12-bar (Jazz Blues)','8-bar','16-bar'],
+    signatureForm:'12-bar (Chicago)',
+    formAlts:['12-bar (Chicago)','12-bar (Delta)','12-bar (Blues-Rock)','12-bar (Jazz Blues)','8-bar','16-bar'],
+    tempos:['Slow Blues (♩=54)','Medium Blues (♩=80)','Shuffle (♩=120)','Fast Blues (♩=176)'],
+    styleNote:'All chords dominant 7ths · blue notes · turnarounds · chord-tone targeting',
+    progressions:{
+      // Actual blues uses buildBluesSong() — these are structural fallbacks only
+      major:[['I7','IV7','I7','I7','IV7','IV7','I7','I7','V7','IV7','I7','V7']],
+      minor:[['i7','iv7','i7','i7','iv7','iv7','i7','i7','V7','iv7','i7','V7']],
+      bridge:[['IV7','IV7','I7','I7'],['II7','V7','I7','I7']]
+    },
+    // jazzMods applied by resolveChord for extension upgrades
+    jazzMods:{'I7':'I9','IV7':'IV9','V7':'V9','i7':'i9','iv7':'iv9'}
+  },
+  pop:{
+    label:'Pop',icon:'🎵',
+    color:'on',
+    forms:['Verse-Chorus','ABABCB','AABA'],
+    tempos:['Slow Pop (♩=72)','Medium Pop (♩=100)','Upbeat (♩=120)','Dance (♩=140)'],
+    styleNote:'Triads · clear function · hook-driven',
+    progressions:{
+      major:[
+        ['I','V','vi','IV'],['I','IV','V','IV'],['I','vi','IV','V'],
+        ['I','IV','I','V'],['vi','IV','I','V'],['I','V','IV','I'],
+      ],
+      minor:[
+        ['i','VI','III','VII'],['i','iv','VI','VII'],['i','VII','VI','VII'],
+      ],
+      bridge:[['IV','V','I'],['vi','V','IV'],['II','V','I']]
+    },
+    jazzMods:{}
+  },
+  rock:{
+    label:'Rock',icon:'🎸',
+    color:'on',
+    forms:['Verse-Chorus','12-bar','ABA','Riff-based'],
+    tempos:['Power Ballad (♩=72)','Classic Rock (♩=120)','Hard Rock (♩=150)','Punk (♩=180+)'],
+    styleNote:'Power chords · modal movement · pentatonic feel',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','♭VII','IV','I'],['I','IV','♭VII','IV'],
+        ['I','V','IV','I'],['I','♭III','♭VII','IV'],
+      ],
+      minor:[
+        ['i','VII','VI','VII'],['i','iv','v','i'],['i','♭VI','♭VII','i'],
+        ['i','VII','IV','i'],
+      ],
+      bridge:[['♭VI','♭VII','i'],['IV','V','I'],['♭VII','IV','I']]
+    },
+    jazzMods:{}
+  },
+  classical:{
+    label:'Classical',icon:'🎻',
+    color:'on',
+    forms:['Sonata','Rondo','Theme & Variations','Binary (AB)','Ternary (ABA)'],
+    tempos:['Largo (♩=40–60)','Andante (♩=76–108)','Allegro (♩=120–168)','Presto (♩=168+)'],
+    styleNote:'Voice leading · cadences · functional harmony',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','ii','V','I'],['I','vi','ii','V','I'],
+        ['I','IV','ii','V7','I'],['I','iii','IV','V'],
+      ],
+      minor:[
+        ['i','iv','V','i'],['i','ii°','V','i'],['i','VI','iv','V','i'],
+        ['i','iv','i','V7','i'],
+      ],
+      bridge:[['IV','ii','V7','I'],['vi','ii','V','I'],['iv','V7','i']]
+    },
+    jazzMods:{}
+  },
+  bossa:{
+    label:'Bossa Nova',icon:'🌴',
+    color:'on-lapis',
+    forms:['AABA','16-bar','Through-composed'],
+    tempos:['Slow Bossa (♩=100)','Medium Bossa (♩=130)','Samba (♩=160)'],
+    styleNote:'maj7 · dom9 · ii-V-I · Jobim-style extensions',
+    progressions:{
+      major:[
+        ['Imaj7','IV7','iii7','♭III7'],['Imaj7','VII7','IIImaj7','♭III7'],
+        ['ii7','V7','Imaj7','♭VII7'],['Imaj7','vi7','ii7','V7'],
+        ['I6','♭III°7','ii7','V7'],
+      ],
+      minor:[
+        ['im7','♭VII7','♭VImaj7','V7'],['im9','iv7','V7sus','V7'],
+      ],
+      bridge:[['♭II7','V7','Imaj7'],['IV7','♭IV°7','iii7','♭III7']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','ii7':'ii9','V7':'V9','IV7':'IV7♯11',
+      '♭VII7':'♭VII7','IIImaj7':'IIImaj7','♭III7':'♭III7',
+    }
+  },
+  funk:{
+    label:'Funk',icon:'🔥',
+    color:'on',
+    forms:['Groove-based','ABA','Vamp'],
+    tempos:['Mid Funk (♩=96)','Tight Funk (♩=110)','Fast Funk (♩=126)'],
+    styleNote:'16th-note feel · dominant 7ths · syncopation · one-chord vamps',
+    progressions:{
+      major:[
+        ['I7','IV7'],['I7','♭VII7'],['I7','IV7','I7','V7'],
+        ['I9','♭VII9'],['I7','ii7','I7'],
+      ],
+      minor:[
+        ['i7','♭VII7'],['i7','iv7'],['i9','♭VI7','♭VII7','i9'],
+      ],
+      bridge:[['IV7','V7','I7'],['♭VII7','IV7','I7']]
+    },
+    jazzMods:{
+      'I7':'I9','IV7':'IV9','V7':'V9','♭VII7':'♭VII9','i7':'i9',
+    }
+  },
+  folk:{
+    label:'Folk',icon:'🪕',
+    color:'on',
+    forms:['Verse-Chorus','Ballad (AABB)','Through-composed'],
+    signatureForm:'Verse-Chorus',
+    formAlts:['Verse-Chorus','Ballad (AABB)','Through-composed'],
+    tempos:['Slow Folk (♩=60)','Walking (♩=80)','Upbeat Folk (♩=110)'],
+    styleNote:'Open chords · diatonic · modal feel · no extensions',
+    progressions:{
+      major:[
+        ['I','V','I','IV'],['I','IV','I','V'],['I','ii','V','I'],
+        ['I','V','vi','IV'],['I','IV','V','IV'],
+      ],
+      minor:[
+        ['i','VII','VI','VII'],['i','iv','i','v'],['i','VII','III','VII'],
+      ],
+      bridge:[['IV','V','I'],['vi','IV','I']]
+    },
+    jazzMods:{}
+  },
+  house:{
+    label:'House',icon:'🎛️',
+    color:'on-lapis',
+    forms:['Intro-Drop-Breakdown-Drop-Outro','Build-Drop','ABA'],
+    signatureForm:'Intro-Drop-Breakdown-Drop-Outro',
+    formAlts:['Intro-Drop-Breakdown-Drop-Outro','Build-Drop','ABA'],
+    tempos:['Deep House (♩=120)','Classic House (♩=126)','Acid House (♩=130)','Tech House (♩=132)'],
+    styleNote:'Four-on-the-floor · chord stabs · soulful vocal chops',
+    progressions:{
+      major:[
+        ['Imaj7','IVmaj7','ii7','V7'],['I','IV','vi','V'],
+        ['Imaj7','vi7','IVmaj7','V7'],['I','♭VII','IV','I'],
+      ],
+      minor:[
+        ['i7','iv7','♭VII7','♭III'],['i7','♭VII','♭VI','♭VII'],
+        ['i7','iv7','i7','V7'],['i','♭VI','♭VII','i'],
+      ],
+      bridge:[['IV','V','I'],['♭VII','IV','I'],['ii7','V7','I']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','IVmaj7':'IVmaj9','ii7':'ii9','V7':'V9','vi7':'vi9',
+      'i7':'im9','iv7':'iv9','♭VII7':'♭VII9',
+    }
+  },
+  techno:{
+    label:'Techno',icon:'⚡',
+    color:'on-lapis',
+    forms:['Intro-Build-Drop-Break-Drop-Outro','Hypnotic Loop','Vamp'],
+    signatureForm:'Intro-Build-Drop-Break-Drop-Outro',
+    formAlts:['Intro-Build-Drop-Break-Drop-Outro','Hypnotic Loop','Vamp'],
+    tempos:['Industrial (♩=135)','Peak Techno (♩=140)','Hardgroove (♩=145)','Hard Techno (♩=150)'],
+    styleNote:'Minimalist · atonal tension · driving kick · industrial timbre',
+    progressions:{
+      major:[['I','♭VII'],['I','♭VI'],['i7','♭VII7'],['i','♭VII','♭VI','♭VII']],
+      minor:[
+        ['i','♭VII'],['i','♭VI','♭VII','i'],['i7','♭VI7'],['i','♭II'],
+      ],
+      bridge:[['♭VII','i'],['♭VI','♭VII'],['♭II','i']]
+    },
+    jazzMods:{'i7':'im7','♭VII7':'♭VII7','♭VI7':'♭VI7'}
+  },
+  ambient:{
+    label:'Ambient',icon:'🌊',
+    color:'on',
+    forms:['Through-composed','Drone','ABA'],
+    signatureForm:'Through-composed',
+    formAlts:['Through-composed','Drone','ABA'],
+    tempos:['Floating (♩=60)','Slow Drift (♩=72)','Pulse (♩=80)'],
+    styleNote:'Suspended voicings · long sustain · modal stasis · textural',
+    progressions:{
+      major:[
+        ['Imaj7','IVmaj7'],['Imaj9','iii7','IVmaj7','Imaj7'],
+        ['Imaj7','♭VIImaj7','IVmaj7'],
+      ],
+      minor:[
+        ['im7','♭VImaj7'],['im9','♭VII','♭VI'],['im7','♭VImaj7','♭VIImaj7'],
+      ],
+      bridge:[['IVmaj7','Imaj7'],['♭VImaj7','♭VIImaj7']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','IVmaj7':'IVmaj9','iii7':'iii9','im7':'im9',
+      '♭VImaj7':'♭VImaj9','♭VIImaj7':'♭VIImaj9',
+    }
+  },
+  dnb:{
+    label:'Drum & Bass',icon:'🥁',
+    color:'on',
+    forms:['Intro-Drop-Break-Drop','Liquid','ABA'],
+    signatureForm:'Intro-Drop-Break-Drop',
+    formAlts:['Intro-Drop-Break-Drop','Liquid','ABA'],
+    tempos:['Liquid DnB (♩=170)','Neurofunk (♩=174)','Jump-Up (♩=178)'],
+    styleNote:'Half-time feel · amen break · sub bass · minor-heavy',
+    progressions:{
+      major:[['I','♭VII','IV','I'],['I','IV','♭VII','I']],
+      minor:[
+        ['i','♭VII','♭VI','♭VII'],['i','iv','♭VI','♭VII'],
+        ['i7','♭VII7','♭VI7','♭VII7'],['i','♭VI','♭VII','i'],
+      ],
+      bridge:[['♭VI','♭VII','i'],['iv','♭VII','i']]
+    },
+    jazzMods:{'i7':'im7','♭VII7':'♭VII7','♭VI7':'♭VImaj7'}
+  },
+  lofi:{
+    label:'Lo-fi',icon:'📻',
+    color:'on',
+    forms:['AABA','Verse-Chorus','Loop'],
+    signatureForm:'AABA',
+    formAlts:['AABA','Verse-Chorus','Loop'],
+    tempos:['Chilled (♩=70)','Lazy Beat (♩=80)','Dusty (♩=90)'],
+    styleNote:'maj7 · min7 · vinyl warmth · jazz-influenced · sleepy groove',
+    progressions:{
+      major:[
+        ['Imaj7','vi7','IVmaj7','V7'],['Imaj7','iii7','vi7','ii7'],
+        ['I6','IVmaj7','ii7','V7'],
+      ],
+      minor:[
+        ['im7','♭VImaj7','♭III7','♭VII7'],['im7','iv7','♭VII7','♭III7'],
+        ['im9','♭VImaj7','♭VII7','im9'],
+      ],
+      bridge:[['IVmaj7','V7','Imaj7'],['♭VII7','IV7','Imaj7']]
+    },
+    jazzMods:{
+      'Imaj7':'Imaj9','vi7':'vi9','IVmaj7':'IVmaj9','V7':'V9',
+      'iii7':'iii9','ii7':'ii9','im7':'im9','iv7':'iv9',
+    }
+  },
+  rnb:{label:'R&B / Soul',icon:'🎤',color:'on-lapis',forms:['Verse-Chorus','AABA','Groove-based'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Groove-based'],tempos:['Slow Jam (♩=60)','Neo-Soul (♩=80)','Upbeat R&B (♩=100)','Contemporary (♩=120)'],styleNote:'maj7 · dom9 · gospel-influenced · lush extensions · chromatic movement',progressions:{major:[['Imaj7','IV7','iii7','vi7'],['Imaj7','♭VII7','IVmaj7','IV7'],['I7','IV7','iii7','♭III7'],['Imaj7','vi7','ii7','V7'],['I7','♭VII7','♭VI7','V7']],minor:[['im7','♭VII7','♭VImaj7','V7'],['im9','iv9','♭VII9','♭III9'],['im7','iv7','♭VII7','im7'],['im9','♭VImaj7','ii7','V7']],bridge:[['IV7','♭VII7','Imaj7'],['ii7','♭II7','Imaj7'],['♭VImaj7','♭VII7','im7']]},jazzMods:{'Imaj7':'Imaj9','IV7':'IV9','iii7':'iii9','vi7':'vi9','♭VII7':'♭VII9','IVmaj7':'IVmaj9','im7':'im9','iv7':'iv9','V7':'V9','♭VImaj7':'♭VImaj9'}},
+  hiphop:{label:'Hip-Hop',icon:'🎧',color:'on',forms:['Verse-Chorus','Groove-based','Loop'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Groove-based','Loop'],tempos:['Boom Bap (♩=90)','Trap (♩=140 half-time)','Chill Rap (♩=80)','Drill (♩=144)'],styleNote:'Sample-driven · minor-heavy · looped changes · sparse but deliberate harmony',progressions:{major:[['Imaj7','♭VII','IV','I'],['I','♭VII','♭VI','♭VII'],['Imaj7','vi7','IVmaj7','V7'],['I','IV','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['im7','iv7','♭VII7','im7'],['i','♭VI','♭III','♭VII'],['im7','♭VImaj7','♭VII7','im7'],['i','♭VII','iv','i'],['i','♭II','♭VII','i']],bridge:[['♭VI','♭VII','i'],['iv','♭VII','i'],['♭III','♭VII','im7']]},jazzMods:{'im7':'im9','iv7':'iv9','♭VII7':'♭VII9','Imaj7':'Imaj9','vi7':'vi9','IVmaj7':'IVmaj9','♭VImaj7':'♭VImaj9'}},
+  country:{label:'Country',icon:'🤠',color:'on',forms:['Verse-Chorus','AABA','Ballad (AABB)'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Ballad (AABB)'],tempos:['Country Ballad (♩=66)','Mid Tempo (♩=92)','Nashville (♩=120)','Hoedown (♩=160)'],styleNote:'Triads · I-IV-V backbone · pedal steel feel · Mixolydian influence · direct and honest',progressions:{major:[['I','IV','V','I'],['I','V','IV','I'],['I','IV','I','V'],['I','ii','IV','V'],['I','♭VII','IV','I'],['I','IV','V','IV'],['I','vi','IV','V']],minor:[['i','VII','VI','VII'],['i','iv','V','i'],['i','VII','III','IV']],bridge:[['IV','V','I'],['ii','V','I'],['♭VII','IV','I']]},jazzMods:{}},
+  reggae:{label:'Reggae',icon:'🌿',color:'on',forms:['Verse-Chorus','Groove-based','Vamp'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Groove-based','Vamp'],tempos:['Roots Reggae (♩=70)','Rocksteady (♩=80)','One Drop (♩=90)','Dancehall (♩=100)'],styleNote:'Offbeat skank · one-drop rhythm · I-IV-V or modal · bass-led harmony',progressions:{major:[['I','IV','V','IV'],['I','IV','I','V'],['I','♭VII','IV','I'],['I','IV','♭VII','IV'],['I','V','IV','I']],minor:[['i','iv','V','i'],['i','♭VII','♭VI','♭VII'],['i','iv','i','V'],['i','♭VI','♭VII','i']],bridge:[['IV','V','I'],['♭VII','IV','I'],['iv','V','i']]},jazzMods:{}},
+  metal:{label:'Metal',icon:'🤘',color:'on',forms:['Verse-Chorus','Riff-based','Through-composed'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','Riff-based','Through-composed'],tempos:['Doom (♩=60)','Heavy Metal (♩=120)','Thrash (♩=180)','Death/Black (♩=200+)'],styleNote:'Power chords · tritone · Phrygian dominant · drop tuning · riff-centric',progressions:{major:[['I','♭VII','♭VI','♭VII'],['I','♭II','♭VII','I'],['I','♭VI','♭VII','I'],['I','♭III','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭II','i','♭II'],['i','♭VI','♭VII','i'],['i','v','♭VI','♭VII'],['i','♭VII','iv','i'],['i','♭II','♭VII','♭VI']],bridge:[['♭VI','♭VII','i'],['♭II','i'],['iv','♭VII','i']]},jazzMods:{}},
+  flamenco:{label:'Flamenco',icon:'💃',color:'on-lapis',forms:['Through-composed','ABA','Verse-Chorus'],signatureForm:'Through-composed',formAlts:['Through-composed','ABA','Verse-Chorus'],tempos:['Soleares (♩=60)','Bulería (♩=160)','Rumba Flamenca (♩=120)','Seguiriya (♩=80)'],styleNote:'Phrygian dominant · Andalusian cadence · ♭II as dominant · guitar-centric',progressions:{major:[['I','♭VII','♭VI','V'],['V','♭VI','V','i'],['I','♭II','I','V']],minor:[['i','♭VII','♭VI','V'],['i','♭II','i','♭II'],['i','♭VII','♭VI','♭VII'],['i','iv','V','i'],['i','♭VI','♭VII','V']],bridge:[['♭VI','V','i'],['♭II','V','i'],['♭VII','♭VI','V']]},jazzMods:{}},
+  afrobeat:{label:'Afrobeat',icon:'🪘',color:'on',forms:['Groove-based','Vamp','Loop'],signatureForm:'Groove-based',formAlts:['Groove-based','Vamp','Loop'],tempos:['Lagos Groove (♩=96)','Afrobeat (♩=108)','High-life (♩=120)','Afropop (♩=130)'],styleNote:'Polyrhythmic · dominant 7ths · I-IV vamp · sparse changes · horn-driven',progressions:{major:[['I7','IV7'],['I7','♭VII7','IV7','I7'],['I7','IV7','I7','V7'],['I9','IV9'],['I7','II7','IV7','I7']],minor:[['i7','iv7'],['i7','♭VII7','♭VI7','♭VII7'],['i9','iv9'],['i7','♭VII7','iv7','i7']],bridge:[['IV7','V7','I7'],['♭VII7','IV7','I7'],['ii7','V7','I7']]},jazzMods:{'I7':'I9','IV7':'IV9','♭VII7':'♭VII9','i7':'i9','iv7':'iv9','V7':'V9','II7':'II9'}},
+  samba:{label:'Samba',icon:'🥁',color:'on-lapis',forms:['AABA','Verse-Chorus','Through-composed'],signatureForm:'AABA',formAlts:['AABA','Verse-Chorus','Through-composed'],tempos:['Samba-Canção (♩=80)','Samba (♩=100)','Pagode (♩=120)','Carnaval (♩=160)'],styleNote:'Syncopated · ii-V-I · chromatic movement · higher energy than Bossa',progressions:{major:[['I7','IV7','ii7','V7'],['Imaj7','♭III7','ii7','♭II7'],['I7','VI7','II7','V7'],['Imaj7','♭VII7','IVmaj7','V7']],minor:[['im7','♭VII7','♭VImaj7','V7'],['im7','iv7','♭VII7','V7'],['im9','II7','V7','im9']],bridge:[['♭II7','V7','I7'],['II7','V7','I']]},jazzMods:{'I7':'I9','IV7':'IV9','ii7':'ii9','V7':'V9','VI7':'VI9','II7':'II9','im7':'im9','♭VII7':'♭VII9'}},
+  gospel:{label:'Gospel',icon:'🙏',color:'on',forms:['Verse-Chorus','AABA','Through-composed'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','AABA','Through-composed'],tempos:['Slow Gospel (♩=60)','Contemporary Gospel (♩=80)','Joyful (♩=100)','Shout (♩=120)'],styleNote:'IV chord emphasis · secondary dominants · major 7ths · call-and-response',progressions:{major:[['I','IV','I','V'],['I','IV','♭VII','IV'],['I','III7','IV','IV7'],['I','vi','IV','I7'],['Imaj7','IV7','iii7','VI7'],['I','V','IV','I']],minor:[['i','♭VII','♭VI','V'],['i','iv','V','i'],['i','III','♭VII','IV'],['im7','IV7','♭VII7','III7']],bridge:[['IV','V','I'],['IV7','I7','V7'],['♭VII','IV','I']]},jazzMods:{'I':'Imaj7','IV':'IVmaj7','V':'V7','vi':'vi7','I7':'I9','IV7':'IV9','III7':'III9','VI7':'VI9'}},
+  trance:{label:'Trance',icon:'🌀',color:'on-lapis',forms:['Intro-Build-Drop-Break-Drop-Outro','Build-Drop','Hypnotic Loop'],signatureForm:'Intro-Build-Drop-Break-Drop-Outro',formAlts:['Intro-Build-Drop-Break-Drop-Outro','Build-Drop','Hypnotic Loop'],tempos:['Progressive (♩=128)','Classic Trance (♩=138)','Uplifting (♩=142)','Hard Trance (♩=150)'],styleNote:'Minor-driven · arpeggiated synths · 8-bar loops · emotional uplift on the drop',progressions:{major:[['I','♭VII','IV','I'],['Imaj7','vi','IV','V'],['I','vi','♭VII','IV']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭VI','♭III','♭VII'],['i','v','♭VI','♭VII'],['i','♭VII','iv','i'],['i','♭VI','♭VII','i'],['i','♭III','♭VII','♭VI']],bridge:[['♭VI','♭VII','i'],['iv','♭VII','i'],['♭III','♭VII','im7']]},jazzMods:{}},
+  synthwave:{label:'Synthwave',icon:'🌆',color:'on-lapis',forms:['Verse-Chorus','ABA','Intro-Drop-Breakdown-Drop-Outro'],signatureForm:'Verse-Chorus',formAlts:['Verse-Chorus','ABA','Intro-Drop-Breakdown-Drop-Outro'],tempos:['Darksynth (♩=100)','Retrowave (♩=110)','Outrun (♩=118)','Electro (♩=128)'],styleNote:'80s analog feel · minor-major tension · lush pads · John Carpenter aesthetic',progressions:{major:[['I','♭VII','♭VI','♭VII'],['Imaj7','vi','IVmaj7','V'],['I','V','vi','IV'],['I','♭VI','♭VII','I']],minor:[['i','♭VII','♭VI','♭VII'],['i','♭VI','♭III','♭VII'],['i','♭VII','iv','V'],['im7','♭VImaj7','♭VII7','V7'],['i','♭VI','♭VII','i'],['i','♭III','♭VI','♭VII']],bridge:[['♭VI','♭VII','i'],['IV','V','I'],['♭VI','♭III','♭VII','i']]},jazzMods:{'im7':'im9','♭VImaj7':'♭VImaj9','♭VII7':'♭VII9','Imaj7':'Imaj9'}},
+  latinjazz:{label:'Latin Jazz',icon:'🎺',color:'on-lapis',forms:['AABA','Groove-based','Through-composed'],signatureForm:'AABA',formAlts:['AABA','Groove-based','Through-composed'],tempos:['Bolero (♩=80)','Son Montuno (♩=180)','Mambo (♩=200)','Cha-cha (♩=120)'],styleNote:'Clave rhythm · ii-V-I · montuno patterns · Afro-Cuban polyrhythm',progressions:{major:[['ii7','V7','Imaj7','VI7'],['Imaj7','VI7','II7','V7'],['ii7','♭II7','Imaj7','VI7'],['Imaj7','♭VII7','iii7','VI7'],['I7','IV7','iii7','♭III7']],minor:[['im7','iv7','V7','im7'],['im7','♭VImaj7','ii7','V7'],['im9','II7','V7','im9'],['im7','iv7','♭VII7','V7']],bridge:[['♭II7','V7','Imaj7'],['II7','V7','I7'],['iv7','♭VII7','Imaj7']]},jazzMods:{'Imaj7':'Imaj9','ii7':'ii9','V7':'V9','VI7':'VI9','II7':'II9','IV7':'IV9','im7':'im9','iv7':'iv9'}},
+  modaljazz:{label:'Modal Jazz',icon:'🎼',color:'on-lapis',forms:['Through-composed','AABA','Groove-based'],signatureForm:'Through-composed',formAlts:['Through-composed','AABA','Groove-based'],tempos:['Slow Modal (♩=60)','Miles Tempo (♩=120)','Medium Modal (♩=140)','Open (♩=80)'],styleNote:'Static harmony · modal scales · no ii-V-I resolution · So What voicing · colour over function',progressions:{major:[['Imaj7','♭VIImaj7'],['Imaj7','IVmaj7'],['I','II'],['Imaj7','♭VImaj7','♭VIImaj7','Imaj7']],minor:[['im7','♭VIImaj7'],['im7','IVmaj7'],['im7','♭VImaj7'],['im9','♭VII9'],['im7','ii7'],['im7','♭VIImaj7','♭VImaj7','im7']],bridge:[['♭VIImaj7','Imaj7'],['IVmaj7','im7'],['♭VImaj7','♭VIImaj7']]},jazzMods:{'Imaj7':'Imaj9','♭VIImaj7':'♭VIImaj9','IVmaj7':'IVmaj9','im7':'im9','♭VImaj7':'♭VImaj9','ii7':'ii9'}},
+};
+
+
+// Add signatureForm/formAlts to original genres
+GENRES.jazz.signatureForm='AABA';GENRES.jazz.formAlts=['AABA','ABAC','ABA','Through-composed'];
+GENRES.pop.signatureForm='Verse-Chorus';GENRES.pop.formAlts=['Verse-Chorus','ABABCB','AABA'];
+GENRES.rock.signatureForm='Verse-Chorus';GENRES.rock.formAlts=['Verse-Chorus','12-bar','ABA','Riff-based'];
+GENRES.classical.signatureForm='Sonata';GENRES.classical.formAlts=['Sonata','Rondo','Ternary (ABA)','Binary (AB)'];
+GENRES.bossa.signatureForm='AABA';GENRES.bossa.formAlts=['AABA','16-bar','Through-composed'];
+GENRES.funk.signatureForm='Groove-based';GENRES.funk.formAlts=['Groove-based','Vamp','ABA'];
+
+// ── Complexity ──
+let SONG_COMPLEXITY='medium';
+const COMPLEXITY={
+  simple:{label:'Simple',desc:'3–4 chords · short · triads',maxSections:3,barMult:1,passingChords:false,extChance:0},
+  medium:{label:'Medium',desc:'standard form · some extensions',maxSections:5,barMult:1,passingChords:false,extChance:0.3},
+  complex:{label:'Complex',desc:'passing chords · jazz extensions · longer',maxSections:8,barMult:2,passingChords:true,extChance:0.7},
+};
+
+// ── Song-view thaat state ──
+let SONG_THAAT = null; // thaat selected inside Song tab (independent of main OPEN_THAAT)
+
+// ── Thaat character data for song generator ──
+// Each thaat has: western parallel iv[], mood, characteristic progressions, swara hints
+const THAAT_SONG = {
+  Bilawal:{
+    western:'Major / Ionian',
+    iv:[0,2,4,5,7,9,11],
+    isMinor:false,
+    mood:'Pure · Radiant · Morning clarity',
+    swaras:'Sa Re Ga Ma Pa Dha Ni',
+    colorNote:'All shuddha (natural) swaras. Identical to Western Major. Bright, resolved.',
+    progressions:{
+      major:[
+        ['I','IV','V','I'],['I','ii','V','I'],['I','IV','ii','V'],
+        ['I','iii','IV','V'],['I','vi','IV','V'],
+      ],
+      bridge:[['IV','V','I'],['ii','V','I'],['vi','ii','V','I']]
+    },
+    melodyHints:[
+      'Emphasise Sa, Ga, Pa as anchor tones — the three pillars of Bilawal.',
+      'Ascending phrases feel natural here; the scale resolves upward toward Sa.',
+      'Use sustained Ni as a leading tone into Sa for the Bilawal arrival.',
+    ]
+  },
+  Kalyan:{
+    western:'Lydian',
+    iv:[0,2,4,6,7,9,11],
+    isMinor:false,
+    mood:'Ethereal · Romantic · Floating',
+    swaras:'Sa Re Ga Ma# Pa Dha Ni',
+    colorNote:'Tivra Ma (♯4) is the defining note — the "Lydian" shimmer.',
+    progressions:{
+      major:[
+        ['I','II','V','I'],['I','IV','II','V'],['I','ii','II','V'],
+        ['I','V','II','I'],['I','vi','II','V'],
+      ],
+      bridge:[['II','V','I'],['IV','II','V'],['vi','II','V','I']]
+    },
+    melodyHints:[
+      'The tivra Ma (♯4) is the signature note — linger on it before resolving to Pa.',
+      'Try a rising phrase: Sa Re Ga Ma# Pa — the Lydian lift feels otherworldly.',
+      'In jazz context, this is the Lydian mode: use the ♯11 extension on the I chord.',
+    ]
+  },
+  Khamaj:{
+    western:'Mixolydian',
+    iv:[0,2,4,5,7,9,10],
+    isMinor:false,
+    mood:'Playful · Festive · Warm',
+    swaras:'Sa Re Ga Ma Pa Dha ni',
+    colorNote:'Komal Ni (♭7) only. Identical to Mixolydian — the blues/rock dominant sound.',
+    progressions:{
+      major:[
+        ['I','♭VII','IV','I'],['I','IV','♭VII','I'],['I','♭VII','V','I'],
+        ['I','IV','I','♭VII'],['I','ii','♭VII','I'],
+      ],
+      bridge:[['♭VII','IV','I'],['IV','♭VII','I'],['ii','♭VII','I']]
+    },
+    melodyHints:[
+      'The komal ni (♭7) is the Khamaj signature — use it in descent for the folk/festive colour.',
+      'Western musicians: this is Mixolydian. The ♭VII chord is your "Khamaj" sound.',
+      'Phrases go up in major, come back down through ni — the asymmetric Khamaj motion.',
+    ]
+  },
+  Kafi:{
+    western:'Dorian',
+    iv:[0,2,3,5,7,9,10],
+    isMinor:true,
+    mood:'Wistful · Seasonal · Folk warmth',
+    swaras:'Sa Re ga Ma Pa Dha ni',
+    colorNote:'Komal Ga and Ni. Dorian — minor but with a raised 6th (Dha = natural).',
+    progressions:{
+      minor:[
+        ['i','IV','♭VII','i'],['i','ii°','♭VII','i'],['i','IV','v','i'],
+        ['i','vi','IV','♭VII'],['i','♭III','IV','i'],
+      ],
+      bridge:[['IV','♭VII','i'],['♭VI','♭VII','i'],['ii°','♭VII','i']]
+    },
+    melodyHints:[
+      'The natural Dha (6th) brightens the minor — use it to lift phrases before descending through ni.',
+      'Kafi is Dorian: ga (♭3) and ni (♭7) are the minor flavour, Dha (6) is the warmth.',
+      'Folk-style short call-and-response phrases work beautifully in Kafi.',
+    ]
+  },
+  Asavari:{
+    western:'Natural Minor / Aeolian',
+    iv:[0,2,3,5,7,8,10],
+    isMinor:true,
+    mood:'Sorrowful · Meditative · Morning prayer',
+    swaras:'Sa Re ga Ma Pa dha ni',
+    colorNote:'Three komal swaras (ga, dha, ni). Pure natural minor — deep and inward.',
+    progressions:{
+      minor:[
+        ['i','♭VI','♭VII','i'],['i','iv','♭VII','i'],['i','♭VI','iv','v'],
+        ['i','ii°','v','i'],['i','iv','♭VI','♭VII'],
+      ],
+      bridge:[['♭VI','♭VII','i'],['iv','♭VI','♭VII'],['ii°','v','i']]
+    },
+    melodyHints:[
+      'Ascending phrases omit Ga — jump Sa→Re→Ma in the Asavari style.',
+      'Descend fully through all seven notes for the sorrowful Asavari arrival.',
+      'Rest on Pa and dha — these are the emotionally heavy points of this thaat.',
+    ]
+  },
+  Bhairavi:{
+    western:'Phrygian',
+    iv:[0,1,3,5,7,8,10],
+    isMinor:true,
+    mood:'Tender · Farewell · All-encompassing',
+    swaras:'Sa re ga Ma Pa dha ni',
+    colorNote:'Four komal swaras (re, ga, dha, ni). Phrygian — the deepest minor colour.',
+    progressions:{
+      minor:[
+        ['i','♭II','♭VII','i'],['i','♭II','iv','i'],['i','♭VI','♭II','i'],
+        ['i','iv','♭II','i'],['i','♭III','♭II','i'],
+      ],
+      bridge:[['♭II','♭VII','i'],['♭VI','♭II','i'],['iv','♭II','i']]
+    },
+    melodyHints:[
+      'The ♭II chord (Neapolitan / re) is the Bhairavi signature — its bittersweet pull defines the thaat.',
+      'Bhairavi allows ornamental use of all 12 notes. Don\'t be rigid about scale adherence.',
+      'In Flamenco terms, this is the Phrygian cadence: i→♭VII→♭VI→♭II→i.',
+    ]
+  },
+  Bhairav:{
+    western:'Double Harmonic / Byzantine',
+    iv:[0,1,4,5,7,8,11],
+    isMinor:false,
+    mood:'Majestic · Devotional · Sacred dawn',
+    swaras:'Sa re Ga Ma Pa dha Ni',
+    colorNote:'Komal re and dha with natural Ga and Ni — two augmented 2nds give it gravity.',
+    progressions:{
+      major:[
+        ['I','♭II','IV','I'],['I','♭II','V','I'],['I','IV','♭II','I'],
+        ['I','♭VI','♭II','I'],['I','IV','♭VI','♭II'],
+      ],
+      bridge:[['♭II','V','I'],['IV','♭II','I'],['♭VI','♭II','I']]
+    },
+    melodyHints:[
+      'The two minor-second intervals (Sa↔re and Pa↔dha) create the grave, majestic Bhairav sound.',
+      'The ♭II chord (Neapolitan) built on komal re is essential to Bhairav\'s harmonic identity.',
+      'Move between Sa and re slowly — this half-step carries the weight of the entire thaat.',
+    ]
+  },
+  Purvi:{
+    western:'Byzantine + ♯4 (no direct parallel)',
+    iv:[0,1,4,6,7,8,11],
+    isMinor:false,
+    mood:'Intense · Yearning · Sunset longing',
+    swaras:'Sa re Ga Ma# Pa dha Ni',
+    colorNote:'Komal re+dha, tivra Ma — ♭2 and ♯4 together create extreme tension.',
+    progressions:{
+      major:[
+        ['I','♭II','♯IV°','I'],['I','♭VI','♭II','I'],['I','♯IV°','V','I'],
+        ['I','♭II','V','I'],['I','IV','♭II','♯IV°'],
+      ],
+      bridge:[['♭II','V','I'],['♯IV°','V','I'],['♭VI','♭II','I']]
+    },
+    melodyHints:[
+      'The tritone between re (♭2) and Ma# (♯4) is Purvi\'s defining tension — use it dramatically.',
+      'Phrases typically begin from below Sa, ascending through re→Ga→Ma#.',
+      'Let phrases hang unresolved before the final arrival on Sa — Purvi is about yearning, not arrival.',
+    ]
+  },
+  Marwa:{
+    western:'Lydian ♭2 (no Pa)',
+    iv:[0,1,4,6,9,11],
+    isMinor:false,
+    mood:'Mysterious · Restless · Suspended dusk',
+    swaras:'Sa re Ga Ma# Dha Ni (no Pa)',
+    colorNote:'Pa (perfect 5th) is absent — komal re and tivra Ma create rootless tension.',
+    progressions:{
+      major:[
+        ['I','♭II','II','I'],['I','♯IV°','♭II','I'],['I','VI','♭II','I'],
+        ['I','♭II','VI','I'],['I','♯IV°','VI','♭II'],
+      ],
+      bridge:[['♭II','II','I'],['VI','♭II','I'],['♯IV°','♭II','I']]
+    },
+    melodyHints:[
+      'Avoid the 5th (G in C) — the missing Pa is Marwa\'s most striking feature.',
+      'The tritone re→Ma# creates an unresolved, suspended atmosphere. Let it hang.',
+      'Marwa has no "home" landing — all phrases feel like questions, never answers.',
+    ]
+  },
+  Todi:{
+    western:'Phrygian ♯4 (unique)',
+    iv:[0,1,3,6,7,8,11],
+    isMinor:true,
+    mood:'Profound · Complex · Morning depth',
+    swaras:'Sa re ga Ma# Pa dha Ni',
+    colorNote:'♭2 ♭3 ♯4 ♭6 — four altered notes. The most harmonically complex thaat.',
+    progressions:{
+      minor:[
+        ['i','♭II','♯IV°','i'],['i','♭VI','♭II','i'],['i','♭II','v','i'],
+        ['i','♯IV°','♭VI','♭II'],['i','♭II','iv','i'],
+      ],
+      bridge:[['♯IV°','♭II','i'],['♭VI','♭II','i'],['♭II','v','i']]
+    },
+    melodyHints:[
+      'The combination of ♭2, ♭3 and ♯4 against the tonic is unique to Todi — move slowly between them.',
+      'The tritone ga→Ma# is the most striking interval; let phrases arc over it.',
+      'No Western mode matches Todi exactly — treat every chord change as its own world.',
+    ]
+  },
+};
+
+// ── Thaat song titles ──
+const THAAT_TITLES={
+  Bilawal:[['Dawn Raga','A morning meditation in pure tones'],['Clarity','Seven notes, no alterations'],['Sa Ascending','The simplest path to the summit']],
+  Kalyan:[['Evening Shimmer','The tivra Ma lifts everything skyward'],['Yaman\'s Shadow','Floating above the horizon'],['Tivra','The sharpened fourth, the floating feeling']],
+  Khamaj:[['Komal Greeting','The flat seventh at the door'],['Festival Light','An evening of warmth and movement'],['Khamaj Folk','Festive, familiar, folk-warm']],
+  Kafi:[['Holi Colours','Bright sadness and seasonal folk'],['Dorian Dusk','Minor with a raised heart'],['Wistful Season','The ache between winter and spring']],
+  Asavari:[['Before Sunrise','Three komal notes, one quiet prayer'],['Morning Sorrow','The gentle arrival of light'],['Asavari Walking','A slow procession through the natural minor']],
+  Bhairavi:[['The Last Raga','Always performed last — never finished'],['Farewell','Komal everywhere, warm everywhere'],['Four Flats','The most complete of sorrows']],
+  Bhairav:[['Sacred Hour','Two augmented seconds — the sound of Shiva'],['Byzantine Sunrise','Devotional gravity at first light'],['Double Harmonic','The most ancient of scales']],
+  Purvi:[['Parting Light','The sun\'s last conversation with the horizon'],['Sunset Tension','♭2 and ♯4 — extreme yearning'],['Before Dark','The unresolved dusk']],
+  Marwa:[['Without Fifth','A scale with a missing foundation'],['Suspended Dusk','No landing, only longing'],['Tritone Horizon','re and Ma# — the interval of restlessness']],
+  Todi:[['Phrygian Complexity','The most revered of all thaats'],['Morning Depth','Four altered notes, infinite depth'],['Tansen\'s Scale','Named for the greatest master']],
+};
+
+// Get current scale intervals for the song generator
+function getCurrentScaleIvs(){
+  // If a thaat is selected in Song tab, use it
+  if(SONG_THAAT&&THAAT_SONG[SONG_THAAT]) return THAAT_SONG[SONG_THAAT].iv;
+  if(OPEN_SCALE&&SCALES[OPEN_SCALE]) return SCALES[OPEN_SCALE].iv;
+  if(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE]) return MODES[OPEN_MODE].iv;
+  if(OPEN_THAAT&&THAATS[OPEN_THAAT]) return THAATS[OPEN_THAAT].iv;
+  return MAJ_STEPS; // default major
+}
+
+function getCurrentScaleName(){
+  if(SONG_THAAT&&THAAT_SONG[SONG_THAAT]) return ROOT+' '+SONG_THAAT+' ('+THAAT_SONG[SONG_THAAT].western+')';
+  if(OPEN_SCALE) return ROOT+' '+OPEN_SCALE;
+  if(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE]) return ROOT+' '+MODES[OPEN_MODE].n;
+  if(OPEN_THAAT) return ROOT+' '+OPEN_THAAT+' Thaat';
+  return ROOT+' Major';
+}
+
+function isMinorish(ivs){
+  // Check if scale has a minor third (interval 3)
+  return ivs.includes(3);
+}
+
 
 // ══════════════════════════════════════════════════
 // ── MODE-AWARE PROGRESSIONS ──
@@ -3141,406 +3531,6 @@ function getFusionLabel(){
   return (g?.icon||'♬')+' '+(g?.label||'Jazz');
 }
 
-
-// ══════════════════════════════════════════════════════════════════
-// ── SMART SONG GENERATION ENGINE v2 ──────────────────────────────
-// Rules:
-//  1. Only uses chords from the diatonic scale (degrees 1-7)
-//  2. Progressions built from scale degrees, not picked randomly
-//  3. Different progression per section, no direct repeats
-//  4. Chorus stronger than verse (lands on I or V)
-//  5. Bridge introduces new harmonic movement
-//  6. Final section resolves to root (I)
-//  7. Evaluates output for quality
-// ══════════════════════════════════════════════════════════════════
-
-// ── Core progression library (scale-degree indexed, genre-weighted) ──
-const PROG_LIBRARY = {
-  // Format: arrays of 0-based degree indices [0=I, 1=ii, 2=iii, 3=IV, 4=V, 5=vi, 6=vii°]
-  // Each entry: { degs:[], label:'', genres:[], weight:number, tension:'low'|'mid'|'high' }
-
-  major: [
-    // Low tension — tonic-centred
-    {degs:[0,3,4,0],      label:'I–IV–V–I',       genres:['pop','rock','folk','country','classical'], weight:8, tension:'low'},
-    {degs:[0,5,3,4],      label:'I–vi–IV–V',       genres:['pop','rock','country','lofi'],            weight:9, tension:'low'},
-    {degs:[0,3,0,4],      label:'I–IV–I–V',        genres:['folk','country','classical','gospel'],    weight:6, tension:'low'},
-    {degs:[0,1,4,0],      label:'I–ii–V–I',        genres:['jazz','bossa','classical'],               weight:8, tension:'low'},
-    {degs:[0,2,5,4],      label:'I–iii–vi–V',      genres:['pop','jazz','bossa'],                     weight:7, tension:'low'},
-    // Mid tension — movement away from tonic
-    {degs:[0,5,1,4],      label:'I–vi–ii–V',       genres:['jazz','pop','lofi','rnb'],                weight:9, tension:'mid'},
-    {degs:[2,5,1,4],      label:'iii–vi–ii–V',     genres:['jazz','bossa','classical'],               weight:7, tension:'mid'},
-    {degs:[0,3,1,4],      label:'I–IV–ii–V',       genres:['jazz','pop','gospel'],                    weight:8, tension:'mid'},
-    {degs:[0,2,3,4],      label:'I–iii–IV–V',      genres:['pop','rock','folk'],                      weight:7, tension:'mid'},
-    {degs:[0,3,5,4],      label:'I–IV–vi–V',       genres:['pop','country','gospel'],                 weight:7, tension:'mid'},
-    {degs:[5,3,0,4],      label:'vi–IV–I–V',       genres:['pop','rock','indie'],                     weight:8, tension:'mid'},
-    {degs:[0,3,4,3],      label:'I–IV–V–IV',       genres:['rock','folk','blues'],                    weight:7, tension:'mid'},
-    {degs:[0,5,3,1,4,0],  label:'I–vi–IV–ii–V–I',  genres:['jazz','classical','bossa'],               weight:6, tension:'mid'},
-    // High tension — chromatic/modal flavour
-    {degs:[0,3,1,5,2,4],  label:'I–IV–ii–vi–iii–V', genres:['jazz','classical'],                      weight:5, tension:'high'},
-    {degs:[2,5,1,4,0,3],  label:'iii–vi–ii–V–I–IV', genres:['jazz','bossa'],                          weight:5, tension:'high'},
-    {degs:[0,4,3,1],      label:'I–V–IV–ii',       genres:['rock','blues','funk'],                    weight:7, tension:'high'},
-    // Electronic / dance
-    {degs:[0,5,3,4],      label:'I–vi–IV–V',       genres:['house','techno','trance','synthwave'],    weight:8, tension:'mid'},
-    {degs:[0,3,4,5],      label:'I–IV–V–vi',       genres:['house','trance','dnb'],                   weight:7, tension:'mid'},
-    {degs:[5,3,4,0],      label:'vi–IV–V–I',       genres:['house','synthwave','dnb'],                weight:8, tension:'mid'},
-    // Ambient / atmospheric
-    {degs:[0,2,3,2],      label:'I–iii–IV–iii',    genres:['ambient','lofi','classical'],             weight:6, tension:'low'},
-    {degs:[0,1,5,3],      label:'I–ii–vi–IV',      genres:['ambient','lofi','jazz'],                  weight:6, tension:'low'},
-    // R&B / soul / funk
-    {degs:[0,3,5,4],      label:'I–IV–vi–V',       genres:['rnb','gospel','funk','soul'],             weight:8, tension:'mid'},
-    {degs:[5,1,4,0],      label:'vi–ii–V–I',       genres:['rnb','soul','jazz'],                      weight:7, tension:'mid'},
-    // Hip-hop / lo-fi
-    {degs:[5,3,0,4],      label:'vi–IV–I–V',       genres:['hiphop','lofi','rnb'],                    weight:9, tension:'mid'},
-    {degs:[5,3,4,0],      label:'vi–IV–V–I',       genres:['hiphop','lofi'],                          weight:8, tension:'mid'},
-    // Metal / hard rock
-    {degs:[0,6,3,4],      label:'I–vii°–IV–V',     genres:['metal','rock'],                           weight:7, tension:'high'},
-    {degs:[0,3,4,6],      label:'I–IV–V–vii°',     genres:['metal','rock'],                           weight:6, tension:'high'},
-    // Classical specific
-    {degs:[0,4,5,1,4,0],  label:'I–V–vi–ii–V–I',  genres:['classical'],                              weight:7, tension:'mid'},
-    {degs:[0,3,0,4,0],    label:'I–IV–I–V–I',      genres:['classical','folk','gospel'],              weight:6, tension:'low'},
-    // Afrobeat / World
-    {degs:[0,3,5,3],      label:'I–IV–vi–IV',      genres:['afrobeat','reggae','samba'],              weight:8, tension:'low'},
-    {degs:[5,0,3,4],      label:'vi–I–IV–V',       genres:['afrobeat','flamenco','samba'],            weight:7, tension:'low'},
-    // Thaat / Indian-fusion
-    {degs:[0,3,4,0],      label:'Sa–Ma–Pa–Sa',     genres:['thaat'],                                  weight:8, tension:'low'},
-    {degs:[0,2,4,0],      label:'Sa–Ga–Pa–Sa',     genres:['thaat'],                                  weight:7, tension:'low'},
-    {degs:[0,5,3,4],      label:'Sa–Dha–Ma–Pa',    genres:['thaat'],                                  weight:7, tension:'mid'},
-    {degs:[5,3,0,4,0],    label:'Dha–Ma–Sa–Pa–Sa', genres:['thaat'],                                  weight:6, tension:'mid'},
-  ],
-
-  minor: [
-    // Natural minor / Aeolian
-    {degs:[0,6,3,4],      label:'i–VII–iv–V',      genres:['rock','metal','pop','rnb'],               weight:9, tension:'low'},
-    {degs:[0,3,4,0],      label:'i–iv–V–i',        genres:['classical','folk','flamenco'],            weight:8, tension:'low'},
-    {degs:[0,5,3,4],      label:'i–VI–III–VII',    genres:['pop','rock','rnb','hiphop'],              weight:9, tension:'low'},
-    {degs:[0,3,6,4],      label:'i–iv–VII–V',      genres:['jazz','classical','flamenco'],            weight:7, tension:'low'},
-    // Mid tension
-    {degs:[0,5,4,3],      label:'i–VI–V–iv',       genres:['pop','rnb','lofi'],                       weight:8, tension:'mid'},
-    {degs:[0,1,4,0],      label:'i–ii°–V–i',       genres:['jazz','classical'],                       weight:7, tension:'mid'},
-    {degs:[3,6,0,4],      label:'iv–VII–i–V',      genres:['rock','metal','folk'],                    weight:7, tension:'mid'},
-    {degs:[0,4,5,3],      label:'i–V–VI–III',      genres:['pop','rock','ambient'],                   weight:7, tension:'mid'},
-    {degs:[0,3,6,3],      label:'i–iv–VII–iv',     genres:['ambient','classical','folk'],             weight:6, tension:'mid'},
-    // High tension
-    {degs:[0,1,5,4],      label:'i–ii°–VI–V',      genres:['jazz','classical','flamenco'],            weight:6, tension:'high'},
-    {degs:[0,6,4,1],      label:'i–VII–V–ii°',     genres:['metal','rock','classical'],               weight:5, tension:'high'},
-    // Electronic
-    {degs:[0,5,3,6],      label:'i–VI–III–VII',    genres:['techno','trance','dnb','synthwave'],      weight:8, tension:'mid'},
-    {degs:[5,3,6,0],      label:'VI–III–VII–i',    genres:['house','techno','trance'],                weight:8, tension:'mid'},
-    // Hip-hop / lo-fi
-    {degs:[0,5,3,4],      label:'i–VI–III–V',      genres:['hiphop','lofi'],                          weight:9, tension:'mid'},
-    {degs:[5,6,0,4],      label:'VI–VII–i–V',      genres:['hiphop','rnb','lofi'],                    weight:8, tension:'mid'},
-    // Thaat
-    {degs:[0,3,4,0],      label:'Sa–Ma–Pa–Sa',     genres:['thaat'],                                  weight:8, tension:'low'},
-    {degs:[0,5,3,4],      label:'Sa–Dha–Ma–Pa',    genres:['thaat'],                                  weight:7, tension:'mid'},
-  ],
-
-  // Bridge / contrast progressions — designed to move away from tonic
-  bridge: [
-    {degs:[3,1,4,0],      label:'IV–ii–V–I',       genres:['all'],                                    weight:8, tension:'mid'},
-    {degs:[5,1,4,0],      label:'vi–ii–V–I',       genres:['jazz','pop','all'],                       weight:9, tension:'mid'},
-    {degs:[4,5,1,4],      label:'V–vi–ii–V',       genres:['jazz','classical'],                       weight:7, tension:'high'},
-    {degs:[3,4,5,4],      label:'IV–V–vi–V',       genres:['pop','rock','all'],                       weight:7, tension:'mid'},
-    {degs:[5,3,1,4],      label:'vi–IV–ii–V',      genres:['all'],                                    weight:8, tension:'mid'},
-    {degs:[1,4,0,3],      label:'ii–V–I–IV',       genres:['jazz','classical','bossa'],               weight:7, tension:'mid'},
-    {degs:[2,5,1,4],      label:'iii–vi–ii–V',     genres:['jazz','bossa'],                           weight:7, tension:'mid'},
-    {degs:[3,1,5,4],      label:'IV–ii–vi–V',      genres:['pop','rnb','gospel'],                     weight:6, tension:'high'},
-    // Minor bridges
-    {degs:[3,6,4,0],      label:'iv–VII–V–i',      genres:['all'],                                    weight:8, tension:'high'},
-    {degs:[5,3,6,4],      label:'VI–III–VII–V',    genres:['all'],                                    weight:7, tension:'high'},
-    {degs:[4,5,6,0],      label:'V–VI–VII–i',      genres:['rock','metal','classical'],               weight:6, tension:'high'},
-  ],
-
-  // Chorus progressions — strong, resolving, high-energy
-  chorus: [
-    {degs:[0,3,4,0],      label:'I–IV–V–I',        genres:['all'],                                    weight:10, tension:'low'},
-    {degs:[0,5,3,4],      label:'I–vi–IV–V',       genres:['pop','rock','all'],                       weight:9,  tension:'low'},
-    {degs:[5,3,4,0],      label:'vi–IV–V–I',       genres:['pop','rock','all'],                       weight:9,  tension:'mid'},
-    {degs:[0,3,1,4],      label:'I–IV–ii–V',       genres:['all'],                                    weight:8,  tension:'mid'},
-    {degs:[3,4,0,0],      label:'IV–V–I–I',        genres:['rock','gospel','all'],                    weight:8,  tension:'low'},
-    {degs:[0,4,3,0],      label:'I–V–IV–I',        genres:['rock','folk','all'],                      weight:7,  tension:'low'},
-    // Minor chorus
-    {degs:[0,5,3,4],      label:'i–VI–III–VII',    genres:['all'],                                    weight:9,  tension:'low'},
-    {degs:[0,3,4,0],      label:'i–iv–V–i',        genres:['all'],                                    weight:8,  tension:'low'},
-    {degs:[3,6,0,4],      label:'iv–VII–i–V',      genres:['rock','metal','all'],                     weight:7,  tension:'mid'},
-  ],
-};
-
-// ── Select progression for a role ──
-function selectProg(role, isMin, genreKeys, used, scaleLen){
-  const pool = role==='bridge'
-    ? PROG_LIBRARY.bridge
-    : role==='chorus'
-    ? PROG_LIBRARY.chorus
-    : (isMin ? PROG_LIBRARY.minor : PROG_LIBRARY.major);
-
-  // Score each candidate
-  const scored = pool.map(p=>{
-    let score = p.weight;
-    // Genre bonus
-    if(genreKeys.some(g=>p.genres.includes(g)||p.genres.includes('all'))) score+=3;
-    // Penalise if recently used
-    const key = p.degs.join('-');
-    const usedIdx = used.indexOf(key);
-    if(usedIdx>=0) score -= (used.length - usedIdx)*5;
-    // Tension weighting by role
-    if(role==='chorus' && p.tension==='low') score+=2;
-    if(role==='bridge' && p.tension==='high') score+=2;
-    if(role==='verse' && p.tension==='mid') score+=1;
-    // Penalise if too long for scale
-    const maxDeg = Math.max(...p.degs);
-    if(maxDeg >= scaleLen) score -= 10;
-    return {p, score, key};
-  }).filter(x=>x.score>0 && Math.max(...x.p.degs)<scaleLen);
-
-  scored.sort((a,b)=>b.score-a.score);
-  // Weighted random from top candidates
-  const top = scored.slice(0, Math.min(6, scored.length));
-  const totalW = top.reduce((s,x)=>s+x.score,0);
-  let rand = Math.random()*totalW;
-  for(const x of top){ rand-=x.score; if(rand<=0) return x; }
-  return top[0];
-}
-
-// ── Build a section's chord list from degree indices ──
-function buildSectionFromDegs(degs, chords, scaleLen){
-  const maxIdx = chords.length - 1;
-  return degs.map(d => chords[Math.min(d, maxIdx)]);
-}
-
-// ── Ensure final chord of last section is root ──
-function ensureResolution(sections){
-  if(!sections.length) return sections;
-  const last = sections[sections.length-1];
-  if(!last.resolvedChords||!last.resolvedChords.length) return sections;
-  const lastChord = last.resolvedChords[last.resolvedChords.length-1];
-  // If last chord is not degree 0 (root), append root
-  if(lastChord.rom && !['I','i'].includes(lastChord.rom.replace(/[°7maj]+$/,''))){
-    const firstChord = last.resolvedChords[0]; // root chord of section
-    if(firstChord && ['I','i'].includes(firstChord.rom.replace(/[°7maj]+$/,''))){
-      last.resolvedChords = [...last.resolvedChords, firstChord];
-      last.prog = [...(last.prog||[]), last.prog[0]];
-    }
-  }
-  return sections;
-}
-
-// ── Evaluate song quality ──
-function evaluateSong(sections, isMin){
-  const allChords = sections.flatMap(s=>s.resolvedChords||[]);
-  const allRoms = allChords.map(c=>c.rom||'?');
-  const rootSym = isMin?'i':'I';
-
-  // 1. Harmonic variation — unique progressions across sections
-  const sectionProgs = sections.map(s=>(s.resolvedChords||[]).map(c=>c.rom).join('-'));
-  const uniqueProgs = new Set(sectionProgs).size;
-  const harmVariation = Math.min(10, Math.round((uniqueProgs/Math.max(1,sections.length))*10));
-
-  // 2. Known progressions — pentatonic rootward motion check
-  const goodMotions = ['V→I','V→i','IV→I','iv→i','ii→V','VII→i','V7→I'];
-  let goodCount=0;
-  for(let i=0;i<allRoms.length-1;i++){
-    const motion=allRoms[i].replace(/[°7maj9]+$/,'')+'→'+allRoms[i+1].replace(/[°7maj9]+$/,'');
-    if(goodMotions.some(g=>motion.includes(g.split('→')[0])&&motion.includes(g.split('→')[1]))) goodCount++;
-  }
-  const knownProgs = Math.min(10, 4+Math.round((goodCount/Math.max(1,allChords.length))*12));
-
-  // 3. Repetition level — lower is better
-  const rootCount = allRoms.filter(r=>r.replace(/[°7maj9]+$/,'')==='I'||r.replace(/[°7maj9]+$/,'')==='i').length;
-  const rootRatio = rootCount/Math.max(1,allRoms.length);
-  const repetitionScore = Math.min(10, Math.round((1-rootRatio)*10));
-
-  // 4. Resolution — does last section end on root?
-  const lastRom = allRoms[allRoms.length-1]||'';
-  const resolvesToRoot = lastRom.replace(/[°7maj9]+$/,'')==='I'||lastRom.replace(/[°7maj9]+$/,'')==='i';
-  const resolutionScore = resolvesToRoot ? 10 : 4;
-
-  // 5. Overall — weighted average
-  const overall = Math.round((harmVariation*2 + knownProgs*2 + repetitionScore + resolutionScore*2)/7);
-
-  return {
-    harmVariation, knownProgs, repetitionScore, resolutionScore, overall,
-    summary: overall>=8?'Excellent':'Strong'
-  };
-}
-
-// ── Main smart song builder ──
-function generateSongV2(formOverride){
-  const genre = getEffectiveGenre();
-  if(!genre) return null;
-
-  const scaleIvs = getCurrentScaleIvs();
-  const scaleName = getCurrentScaleName();
-  const isMin = isMinorish(scaleIvs);
-  const scaleRoot = getCurrentScaleRoot();
-  const chords = diatonicChords(scaleRoot, scaleIvs, JAZZ);
-  // Always use 7 chord degrees — diatonicChords() always builds 7 chords
-  // even for pentatonic scales (extends the pattern). Limiting to ivs.length
-  // would incorrectly block vi, vii progressions on 5-note scales.
-  const scaleLen = 7;
-
-  // Genre keys for weighting
-  const gKeys = [...SELECTED_GENRES];
-  if(OPEN_THAAT) gKeys.push('thaat');
-
-  const form = formOverride || (genre.signatureForm||genre.forms[0]);
-  const tempo = pick(genre.tempos);
-  const cx = COMPLEXITY[SONG_COMPLEXITY]||COMPLEXITY.medium;
-
-  // Track used prog keys to prevent repetition
-  const usedKeys = [];
-  function getProg(role){
-    const result = selectProg(role, isMin, gKeys, usedKeys, scaleLen);
-    if(result) usedKeys.push(result.key);
-    return result ? result.p.degs : (isMin?[0,5,3,4]:[0,5,3,4]);
-  }
-
-  function buildSec(label, role, degs, opts={}){
-    const resolved = buildSectionFromDegs(degs, chords, scaleLen);
-    return {
-      label, prog: degs.map(d=>(isMin?'i ii° III iv V VI VII'.split(' '):'I ii iii IV V vi vii°'.split(' '))[Math.min(d,6)]),
-      resolvedChords: resolved,
-      bars: degs.length, midiReps: opts.midiReps||2,
-      repeat: opts.repeat||false, isSolo: opts.solo||false,
-      ...opts
-    };
-  }
-
-  const sections = [];
-
-  // Build sections based on form
-  const V = getProg('verse');
-  const CH = getProg('chorus');
-  const BR = getProg('bridge');
-  const V2 = getProg('verse');
-
-  if(form==='Verse-Chorus'||form==='ABABCB'){
-    const intro = V.slice(0,2);
-    sections.push(buildSec('Intro',       'verse',  intro,  {midiReps:1}));
-    sections.push(buildSec('Verse',       'verse',  V,      {midiReps:2}));
-    sections.push(buildSec('Pre-Chorus',  'bridge', BR.slice(0,2), {midiReps:1}));
-    sections.push(buildSec('Chorus',      'chorus', CH,     {midiReps:2}));
-    sections.push(buildSec('Verse 2',     'verse',  V2,     {midiReps:2}));
-    if(cx.maxSections>5){
-      const BR2 = getProg('bridge');
-      sections.push(buildSec('Bridge',    'bridge', BR2,    {midiReps:1}));
-    }
-    sections.push(buildSec('Chorus (Final)', 'chorus', CH.concat([0]), {midiReps:2}));
-
-  } else if(form==='AABA'){
-    sections.push(buildSec('A — Verse',   'verse',  V,      {midiReps:1}));
-    sections.push(buildSec('A — Verse 2', 'verse',  V2,     {midiReps:1}));
-    sections.push(buildSec('B — Bridge',  'bridge', BR,     {midiReps:1}));
-    sections.push(buildSec('A — Outro',   'chorus', CH.slice(0,4).concat([0]), {midiReps:1}));
-
-  } else if(form==='ABAC'){
-    const C = getProg('chorus');
-    sections.push(buildSec('A — Verse',   'verse',  V,      {midiReps:1}));
-    sections.push(buildSec('B — Bridge',  'bridge', BR,     {midiReps:1}));
-    sections.push(buildSec('A — Verse 2', 'verse',  V2,     {midiReps:1}));
-    sections.push(buildSec('C — Chorus',  'chorus', C.concat([0]), {midiReps:1}));
-
-  } else if(form==='ABA'||form==='Ternary (ABA)'){
-    sections.push(buildSec('A — Theme',   'verse',  V,      {midiReps:2}));
-    sections.push(buildSec('B — Contrast','bridge', BR,     {midiReps:1}));
-    sections.push(buildSec('A — Recap',   'chorus', CH.concat([0]), {midiReps:1}));
-
-  } else if(form==='12-bar'||form==='12-bar (Jazz Blues)'||form==='12-bar (Chicago)'||form==='12-bar (Delta)'){
-    // Blues uses existing engine
-    const cx2 = COMPLEXITY[SONG_COMPLEXITY]||COMPLEXITY.medium;
-    function bp(p){ return p; }
-    const blueSections = buildBluesSong(form, SONG_COMPLEXITY, isMin, bp);
-    // Re-resolve using diatonic chords
-    return _finaliseV2Song(blueSections.map(s=>({
-      ...s,
-      resolvedChords: s.prog.map(r=>resolveChord(upgradeRoman(r,primaryGenre()),scaleRoot,scaleIvs,primaryGenre(),JAZZ))
-    })), form, tempo, scaleName, scaleIvs, isMin);
-
-  } else if(form==='Groove-based'||form==='Vamp'){
-    const solo = getProg('bridge');
-    sections.push(buildSec('Intro Vamp',  'verse',  V.slice(0,2),  {midiReps:4,repeat:true}));
-    sections.push(buildSec('Main Groove', 'verse',  V,             {midiReps:8,repeat:true}));
-    sections.push(buildSec('Solo',        'bridge', solo,          {midiReps:4,solo:true}));
-    sections.push(buildSec('Outro',       'chorus', [0,3,0,0],     {midiReps:2}));
-
-  } else if(form==='Intro-Drop-Break-Drop'||form==='Intro-Drop-Breakdown-Drop-Outro'){
-    const drop = getProg('chorus');
-    const brk = getProg('bridge');
-    sections.push(buildSec('Intro',       'verse',  V.slice(0,2),  {midiReps:2}));
-    sections.push(buildSec('Drop',        'chorus', drop,          {midiReps:4}));
-    sections.push(buildSec('Break',       'bridge', brk,           {midiReps:2}));
-    sections.push(buildSec('Drop (Full)', 'chorus', drop.concat([0]),{midiReps:4}));
-    if(form.includes('Outro')) sections.push(buildSec('Outro','verse',[0,3,0,0],{midiReps:2}));
-
-  } else if(form==='Through-composed'){
-    for(let i=0;i<Math.min(cx.maxSections,5);i++){
-      const role = i===0?'verse':i===Math.min(cx.maxSections,5)-1?'chorus':'bridge';
-      const p = getProg(role);
-      sections.push(buildSec(`Section ${String.fromCharCode(65+i)}`, role, i===4?p.concat([0]):p, {midiReps:1}));
-    }
-
-  } else if(form==='Sonata'){
-    const D = getProg('bridge');
-    sections.push(buildSec('Exposition A', 'verse',  V,      {midiReps:2}));
-    sections.push(buildSec('Exposition B', 'bridge', BR,     {midiReps:2}));
-    sections.push(buildSec('Development',  'bridge', D,      {midiReps:2}));
-    sections.push(buildSec('Recap A',      'verse',  V2,     {midiReps:2}));
-    sections.push(buildSec('Recap B',      'chorus', CH.concat([0]), {midiReps:1}));
-
-  } else {
-    // Generic fallback — always well-formed
-    sections.push(buildSec('Verse',   'verse',  V,              {midiReps:2}));
-    sections.push(buildSec('Chorus',  'chorus', CH,             {midiReps:2}));
-    sections.push(buildSec('Bridge',  'bridge', BR,             {midiReps:1}));
-    sections.push(buildSec('Outro',   'chorus', CH.concat([0]), {midiReps:1}));
-  }
-
-  return _finaliseV2Song(sections, form, tempo, scaleName, scaleIvs, isMin);
-}
-
-function getCurrentScaleRoot(){
-  if(OPEN_MODE!==null&&OPEN_MODE>=0&&MODES[OPEN_MODE]) return na(ROOT,MAJ_STEPS[OPEN_MODE]);
-  return ROOT;
-}
-
-function _finaliseV2Song(sections, form, tempo, scaleName, scaleIvs, isMin){
-  const genre = getEffectiveGenre();
-  // Ensure last section resolves to tonic
-  const resolved = ensureResolution(sections.filter(s=>s.resolvedChords&&s.resolvedChords.length>0));
-  // Evaluate
-  const evaluation = evaluateSong(resolved, isMin);
-
-  const titles = genSongTitle(primaryGenre(), scaleName, isMin);
-  const thaatCtx = SONG_THAAT&&THAAT_SONG[SONG_THAAT]?{
-    name:SONG_THAAT, western:THAAT_SONG[SONG_THAAT].western,
-    mood:THAAT_SONG[SONG_THAAT].mood, swaras:THAAT_SONG[SONG_THAAT].swaras,
-    colorNote:THAAT_SONG[SONG_THAAT].colorNote,
-  }:null;
-
-  const modeProgs = getModeProgressions(OPEN_MODE);
-  const modalCtx = modeProgs?{
-    name:MODES[OPEN_MODE]?.n, character:modeProgs.character,
-    styleNote:modeProgs.styleNote, melodyHints:modeProgs.melodyHints,
-  }:null;
-
-  return {
-    title:titles.title, subtitle:titles.subtitle,
-    genre:genre.label, genreIcon:genre.icon,
-    form, tempo, scaleName, scaleIvs, isMin,
-    fusionLabel:getFusionLabel(),
-    styleNote: modalCtx?(modalCtx.character+' · '+modalCtx.styleNote):genre.styleNote,
-    modalCtx, thaatCtx,
-    sections: resolved,
-    totalBars: resolved.reduce((s,sec)=>s+(sec.bars||sec.resolvedChords.length),0),
-    complexity:SONG_COMPLEXITY, useJazz:JAZZ,
-    evaluation,
-  };
-}
-
-// ── Override generateSong to use v2 engine ──
-const _generateSongV1 = generateSong;
-function generateSong(formOverride){ return generateSongV2(formOverride); }
-
-
 function generateSong(formOverride){
   const genre=getEffectiveGenre();
   if(!genre) return null;
@@ -4108,18 +4098,14 @@ function renderSongView(){
     <div class="genre-row" id="formAltRow" style="margin-bottom:14px">${formPills}</div>
     <div class="sec" style="margin-bottom:6px">Complexity</div>
     <div class="genre-row" style="margin-bottom:16px">${cxPills}</div>
-    <div id="aiStripWrap"></div>
     <div class="song-actions">
       <button class="btn-generate" id="generateSongBtn">♬ Generate Song</button>
       <button class="btn-shuffle" id="shuffleSongBtn">⟳ Regenerate</button>
       <button class="btn-copy" id="copySongBtn">⎘ Copy</button>
       <button class="btn-midi" id="midiSongBtn">⬇ MIDI</button>
       <button class="btn-save-song" id="saveSongBtn">☁ Save</button>
-      <button class="hist-btn" id="songHistoryBtn">⏱ History<span class="hist-badge" id="histBadge" style="display:none">0</span></button>
-    </div>    <div id="songOutput"></div>`;
-
-  // ── Render AI strip ──
-  renderAiStrip();
+    </div>
+    <div id="songOutput"></div>`;
 
   // ── Wire genre dropdowns + sub-chips ──
   const _gGroups=[
@@ -4176,7 +4162,7 @@ function renderSongView(){
   }));
     // Wire form alts
   v.querySelectorAll('.form-alt-pill[data-form]').forEach(p=>p.addEventListener('click',()=>{
-    CURRENT_SONG=generateSong(p.dataset.form);displaySong(CURRENT_SONG);_saveToHistory(CURRENT_SONG);
+    CURRENT_SONG=generateSong(p.dataset.form);displaySong(CURRENT_SONG);
     v.querySelectorAll('.form-alt-pill').forEach(x=>x.classList.toggle('on',x===p));
   }));
   // Wire complexity
@@ -4184,28 +4170,14 @@ function renderSongView(){
     SONG_COMPLEXITY=p.dataset.cx;CURRENT_SONG=null;renderSongView();
   }));
   // Wire buttons
-  v.querySelector('#generateSongBtn')?.addEventListener('click', async ()=>{
-    if(_aiModel!=='off' && _aiHasAccess()){
-      const song = await generateSongAI(null);
-      if(song){ CURRENT_SONG=song; displaySong(CURRENT_SONG); _saveToHistory(CURRENT_SONG); }
-      else { CURRENT_SONG=generateSong(null); displaySong(CURRENT_SONG); _saveToHistory(CURRENT_SONG); }
-    } else {
-      CURRENT_SONG=generateSong(SELECTED_FORM||null);displaySong(CURRENT_SONG);_saveToHistory(CURRENT_SONG);
-    }
+  v.querySelector('#generateSongBtn')?.addEventListener('click',()=>{
+    CURRENT_SONG=generateSong(SELECTED_FORM||null);displaySong(CURRENT_SONG);
   });
-  v.querySelector('#shuffleSongBtn')?.addEventListener('click', async ()=>{
-    if(_aiModel!=='off' && _aiHasAccess()){
-      const song = await generateSongAI(CURRENT_SONG?.form||null);
-      if(song){ CURRENT_SONG=song; displaySong(CURRENT_SONG); _saveToHistory(CURRENT_SONG); }
-      else { CURRENT_SONG=generateSong(CURRENT_SONG?.form||null); displaySong(CURRENT_SONG); _saveToHistory(CURRENT_SONG); }
-    } else {
-      CURRENT_SONG=generateSong(CURRENT_SONG?.form||null);displaySong(CURRENT_SONG);_saveToHistory(CURRENT_SONG);
-    }
+  v.querySelector('#shuffleSongBtn')?.addEventListener('click',()=>{
+    CURRENT_SONG=generateSong(CURRENT_SONG?.form||null);displaySong(CURRENT_SONG);
   });
   v.querySelector('#copySongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)copySongToClipboard(CURRENT_SONG);});
   v.querySelector('#midiSongBtn')?.addEventListener('click',()=>{if(CURRENT_SONG)downloadMidi(CURRENT_SONG);});
-  v.querySelector('#songHistoryBtn')?.addEventListener('click',()=>_openHistoryPanel());
-  
   v.querySelector('#saveSongBtn')?.addEventListener('click',async()=>{
     const btn=v.querySelector('#saveSongBtn'); if(!CURRENT_SONG) return;
     btn.textContent='Saving…'; btn.disabled=true;
@@ -4251,8 +4223,8 @@ function displaySong(song){
     const romsHtml=sec.resolvedChords.map(ch=>`<span class="roman-chip">${ch.rom||'?'}</span>`).join('');
     
     // Melody hint (only for first occurrence of each label)
-    const hint = sec.melodyHint || melodyHint(sec,song.isMin,song.scaleIvs,song.genre.toLowerCase().replace(/\s+/g,''));
-    const hintHtml=`<div class="melody-hint">${sec.melodyHint?'<span class="ai-badge" style="font-size:8px;padding:1px 5px">✦ AI</span> ':''}<strong>Melody hint:</strong> ${hint}</div>`;
+    const hint=melodyHint(sec,song.isMin,song.scaleIvs,song.genre.toLowerCase().replace(/\s+/g,''));
+    const hintHtml=`<div class="melody-hint"><strong>Melody hint:</strong> ${hint}</div>`;
     
     const sectionLabel=sec.label||'Section';
     const barCount=sec.resolvedChords.length;
@@ -4355,7 +4327,7 @@ function displaySong(song){
     <div class="song-output">
       <div class="song-header">
         <div class="song-title-row">
-          <div class="song-title">${song.title}${song.aiModel?`<span class="ai-song-badge">✦ ${song.aiModel==="sonnet"?"Sonnet":"Haiku"}</span>`:''}</div>
+          <div class="song-title">${song.title}</div>
           <button class="song-play-btn" title="Play full song" onclick="if(_songPlaying){songStop();}else{setSongBpm(document.getElementById('songBpmSlider')?.value||${_initBpm});playSong(_songCurrentBpm);}">
             <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>
           </button>
@@ -4368,21 +4340,10 @@ function displaySong(song){
           ${song.thaatCtx?`<span class="song-tag" style="color:var(--saffron);border-color:var(--saffron3);background:var(--saffron4)">🪔 ${song.thaatCtx.name}</span>`:''}
         </div>
         <div class="song-scale-info">${song.styleNote}</div>
-      ${song.productionNote?`<div style="font-family:var(--f-mono);font-size:10px;color:var(--lapis);background:var(--lapis4);border:1px solid var(--lapis3);border-radius:7px;padding:6px 10px;margin-top:6px;font-style:italic">✦ ${song.productionNote}</div>`:''}
       </div>
       ${thaatBlock}
       ${bluesBlock}
       ${formChipsHtml}
-      ${song.evaluation ? `<div class="song-eval-bar">
-        <div class="seb-scores">
-          <div class="seb-score"><span class="seb-num">${song.evaluation.harmVariation}</span><span class="seb-lbl">Variation</span></div>
-          <div class="seb-score"><span class="seb-num">${song.evaluation.knownProgs}</span><span class="seb-lbl">Progressions</span></div>
-          <div class="seb-score"><span class="seb-num">${song.evaluation.repetitionScore}</span><span class="seb-lbl">Freshness</span></div>
-          <div class="seb-score"><span class="seb-num">${song.evaluation.resolutionScore}</span><span class="seb-lbl">Resolution</span></div>
-          <div class="seb-divider"></div>
-          <div class="seb-score seb-overall"><span class="seb-num">${song.evaluation.overall}/10</span><span class="seb-lbl">Overall</span></div>
-        </div>
-      </div>` : ''}
       <div class="sec">Song Structure — Lead Sheet</div>
       <div class="song-sections">${sectionsHtml}</div>
       <div class="info-lapis" style="margin-top:18px">
@@ -4467,13 +4428,6 @@ const GENRE_ARP_RECS = {
 };
 
 let ACTIVE_ARP='ascending';
-let _songHistory=[];
-const SONG_HISTORY_MAX=50;
-let ARP_HARMONY_INTERVAL=0;    // 0=off, 3=third, 4=fourth, 5=fifth, 7=octave
-let ARP_HARMONY_DEGREES=[];    // custom harmony degrees selected
-let _arpEditorNotes=null;      // currently edited note sequence (array of {name,octOffset,isRoot,dur,vel})
-let _arpEditorHistory=[];      // undo stack
-let _arpEditorPlaying=false;
 
 function getArpNotes(scaleIvs, rootNote, patternKey){
   const pat=ARP_PATTERNS[patternKey];
@@ -6034,164 +5988,6 @@ let ARP_NOTE_LEN='quarter'; // quarter | eighth | sixteenth | half
 let ARP_REPS=2;
 let ARP_GENRE_FILTER='all';
 
-
-// ── Harmony: get notes shifted by diatonic interval ──
-function getHarmonyNotes(arpNotes, scaleIvs, rootNote, interval){
-  if(!interval) return [];
-  const noteNames = scaleIvs.map(iv=>na(rootNote,iv));
-  return arpNotes.map(n=>{
-    const idx = noteNames.indexOf(n.name);
-    if(idx<0) return null;
-    const harmIdx = (idx + interval) % noteNames.length;
-    const harmOctBoost = Math.floor((idx + interval) / noteNames.length);
-    return {name: noteNames[harmIdx], octOffset: (n.octOffset||0)+harmOctBoost, isRoot: harmIdx===0};
-  }).filter(Boolean);
-}
-
-// ── Play arp with optional harmony ──
-function playArpWithHarmony(arpNotes, harmNotes, bpm){
-  stopQuickPlay();
-  const ctx = getAudioCtx();
-  const prof = getInstProfile();
-  const master = getQuickMaster();
-  const step = 60/(bpm||90)*0.5;
-  const dur = step*0.80;
-  const now = ctx.currentTime;
-  arpNotes.forEach((n,i)=>{
-    const freq = noteFreq(n.name||n, prof.octave + (n.octOffset||0));
-    _voice(freq, now+i*step, dur, prof.gain, prof.partials, master);
-  });
-  if(harmNotes&&harmNotes.length){
-    harmNotes.forEach((n,i)=>{
-      const freq = noteFreq(n.name||n, prof.octave + (n.octOffset||0));
-      _voice(freq, now+i*step, dur, prof.gain*0.55, prof.partials, master);
-    });
-  }
-}
-
-// ── Editor: initialise from arp notes ──
-function arpEditorInit(arpNotes){
-  _arpEditorNotes = arpNotes.map((n,i)=>({
-    name: n.name, octOffset: n.octOffset||0, isRoot: n.isRoot||false,
-    dur: 1.0, vel: n.isRoot ? 100 : 80, id: i
-  }));
-  _arpEditorHistory = [];
-}
-
-function arpEditorSnapshot(){
-  _arpEditorHistory.push(JSON.stringify(_arpEditorNotes));
-  if(_arpEditorHistory.length>30) _arpEditorHistory.shift();
-}
-
-function arpEditorUndo(){
-  if(!_arpEditorHistory.length) return false;
-  _arpEditorNotes = JSON.parse(_arpEditorHistory.pop());
-  return true;
-}
-
-// ── Render Piano Roll ──
-function renderPianoRoll(container, scaleNotes, onUpdate){
-  if(!_arpEditorNotes) return;
-  const MAX_VEL = 127;
-  const MAX_H = 80;
-
-  function buildGrid(){
-    const grid = container.querySelector('.pr-grid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    _arpEditorNotes.forEach((note, idx)=>{
-      const h = Math.max(16, Math.round((note.vel/MAX_VEL)*MAX_H));
-      const div = document.createElement('div');
-      div.className = 'pr-note' + (note.isRoot?' root-note':'');
-      div.dataset.idx = idx;
-      div.innerHTML = `
-        <div class="note-edit-pop">
-          <div class="nep-row">
-            <span>Note</span>
-            <select class="nep-note-sel" style="flex:1;font-family:var(--f-mono);font-size:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--ink);padding:2px 4px;">
-              ${scaleNotes.map(n=>`<option value="${n}" ${n===note.name?'selected':''}>${n}</option>`).join('')}
-            </select>
-          </div>
-          <div class="nep-row"><span>Vel</span><input type="range" class="nep-vel" min="10" max="127" value="${note.vel}"><span class="nep-vel-val">${note.vel}</span></div>
-          <div class="nep-row"><span>Dur</span><input type="range" class="nep-dur" min="1" max="4" step="0.5" value="${note.dur}"><span class="nep-dur-val">${note.dur}x</span></div>
-          <div class="nep-row" style="justify-content:space-between">
-            <button class="nep-del" data-del="${idx}">✕ Remove</button>
-            <button class="nep-del" style="color:var(--jade);border-color:var(--jade3)" data-dup="${idx}">⎘ Dup</button>
-          </div>
-        </div>
-        <div class="pr-bar${note.isRoot?' root':''}" style="height:${h}px" title="${note.name} vel:${note.vel}"></div>
-        <div class="pr-note-vel">${note.vel}</div>
-        <div class="pr-note-name">${note.name}${note.octOffset?'<sup>'+(note.octOffset>0?'+':'')+note.octOffset+'</sup>':''}</div>
-      `;
-      // Toggle edit popup on click
-      div.querySelector('.pr-bar').addEventListener('click', e=>{
-        e.stopPropagation();
-        const wasEditing = div.classList.contains('editing');
-        container.querySelectorAll('.pr-note.editing').forEach(el=>el.classList.remove('editing'));
-        if(!wasEditing) div.classList.add('editing');
-      });
-      // Vel slider
-      const velSlider = div.querySelector('.nep-vel');
-      velSlider.addEventListener('input', ()=>{
-        arpEditorSnapshot();
-        _arpEditorNotes[idx].vel = +velSlider.value;
-        div.querySelector('.nep-vel-val').textContent = velSlider.value;
-        div.querySelector('.pr-bar').style.height = Math.max(16,Math.round((+velSlider.value/MAX_VEL)*MAX_H))+'px';
-        div.querySelector('.pr-note-vel').textContent = velSlider.value;
-        onUpdate();
-      });
-      // Dur slider
-      const durSlider = div.querySelector('.nep-dur');
-      durSlider.addEventListener('input', ()=>{
-        arpEditorSnapshot();
-        _arpEditorNotes[idx].dur = +durSlider.value;
-        div.querySelector('.nep-dur-val').textContent = durSlider.value+'x';
-        onUpdate();
-      });
-      // Note select
-      const noteSel = div.querySelector('.nep-note-sel');
-      noteSel.addEventListener('change', ()=>{
-        arpEditorSnapshot();
-        _arpEditorNotes[idx].name = noteSel.value;
-        _arpEditorNotes[idx].isRoot = (noteSel.value === scaleNotes[0]);
-        buildGrid(); onUpdate();
-      });
-      // Delete
-      div.querySelector('[data-del]').addEventListener('click', e=>{
-        e.stopPropagation();
-        arpEditorSnapshot();
-        _arpEditorNotes.splice(idx,1);
-        buildGrid(); onUpdate();
-      });
-      // Duplicate
-      div.querySelector('[data-dup]').addEventListener('click', e=>{
-        e.stopPropagation();
-        arpEditorSnapshot();
-        _arpEditorNotes.splice(idx+1,0,{..._arpEditorNotes[idx],id:Date.now()});
-        buildGrid(); onUpdate();
-      });
-      grid.appendChild(div);
-    });
-    // Add note button
-    const addBtn = document.createElement('button');
-    addBtn.className = 'pr-add-btn'; addBtn.textContent = '+';
-    addBtn.title = 'Add note';
-    addBtn.addEventListener('click', ()=>{
-      arpEditorSnapshot();
-      const last = _arpEditorNotes[_arpEditorNotes.length-1];
-      const nextIdx = last ? scaleNotes.indexOf(last.name)+1 : 0;
-      _arpEditorNotes.push({name:scaleNotes[nextIdx%scaleNotes.length],octOffset:0,isRoot:nextIdx%scaleNotes.length===0,dur:1,vel:80,id:Date.now()});
-      buildGrid(); onUpdate();
-    });
-    grid.appendChild(addBtn);
-  }
-
-  buildGrid();
-
-  // Close popups on outside click
-  document.addEventListener('click', ()=>container.querySelectorAll('.pr-note.editing').forEach(el=>el.classList.remove('editing')));
-}
-
 function renderArpView(){
   const v=document.getElementById('arpView');v.innerHTML='';
 
@@ -6315,34 +6111,18 @@ function renderArpView(){
       </div>
     </div>
 
-    <!-- Harmony Bar -->
-    <div class="harm-bar" id="harmBar" style="display:none">
-      <span class="harm-label">Harmonise</span>
-      <button class="harm-btn${ARP_HARMONY_INTERVAL===0?' on':''}" data-harm="0">Off</button>
-      <button class="harm-btn${ARP_HARMONY_INTERVAL===2?' on':''}" data-harm="2">3rd</button>
-      <button class="harm-btn${ARP_HARMONY_INTERVAL===3?' on':''}" data-harm="3">4th</button>
-      <button class="harm-btn${ARP_HARMONY_INTERVAL===4?' on':''}" data-harm="4">5th</button>
-      <button class="harm-btn${ARP_HARMONY_INTERVAL===6?' on':''}" data-harm="6">7th</button>
-      <button class="harm-btn${ARP_HARMONY_INTERVAL===7?' on':''}" data-harm="7">Oct</button>
-      <button class="harm-play-btn" id="harmPlayBtn">▶ Play Harmony</button>
-    </div>
-
-    <!-- Arp Editor -->
-    <div class="arp-editor" id="arpEditor" style="display:none">
-      <div class="arp-editor-header">
-        <span class="arp-editor-title" id="arpViewPatName">— Select a pattern —</span>
-        <div class="arp-editor-btns">
-          <button class="arp-undo-btn" id="arpUndoBtn" disabled title="Undo">↩ Undo</button>
-          <button class="ae-btn active" id="arpPlayEditBtn">▶ Play</button>
-          <button class="ae-btn" id="arpResetBtn" title="Reset to original pattern">↺ Reset</button>
-          <button class="ae-btn" id="arpViewDlBtn2">⬇ MIDI</button>
+    <!-- Arp info card — shown when pattern selected -->
+    <div id="arpInfoCard" style="display:none;margin-bottom:18px;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border2);background:var(--surface2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div id="arpViewPatName" style="font-family:var(--f-serif);font-size:18px;font-weight:700;color:var(--ink)">— Select a pattern —</div>
+          <div id="arpViewPatDesc" style="font-family:var(--f-mono);font-size:10px;color:var(--ink4);margin-top:2px"></div>
         </div>
       </div>
-      <div style="padding:6px 14px 4px;font-family:var(--f-mono);font-size:10px;color:var(--ink4)" id="arpViewPatDesc"></div>
-      <div class="piano-roll">
-        <div class="pr-grid" id="prGrid">
-          <div class="pr-baseline"></div>
-          <span style="color:var(--ink4);font-family:var(--f-mono);font-size:11px;padding:20px 0">Click a pattern card below to load it</span>
+      <div style="padding:16px 18px">
+        <!-- Note sequence dots -->
+        <div id="arpViewDisplay2" style="font-size:13px;margin-bottom:2px">
+          <span style="color:var(--ink4);font-family:var(--f-mono);font-size:11px">Click a pattern card below</span>
         </div>
       </div>
     </div>
@@ -6381,36 +6161,30 @@ function renderArpView(){
   });
 
   // ── Wire pattern cards ──
-  const scaleNoteNames = arpIvs.map(iv=>na(arpRoot,iv));
-
-  function refreshUndo(){
-    const btn = v.querySelector('#arpUndoBtn');
-    if(btn) btn.disabled = _arpEditorHistory.length===0;
-  }
-
-  function refreshEditor(){
-    if(!_arpEditorNotes) return;
-    renderPianoRoll(v.querySelector('.piano-roll'), scaleNoteNames, refreshUndo);
-    refreshUndo();
-  }
-
   function selectPattern(key){
     ACTIVE_ARP=key;
     const pat=ARP_PATTERNS[key];
+    // Update card highlight
     v.querySelectorAll('.arp-card').forEach(card=>card.classList.toggle('on',card.dataset.arpkey===key));
+    // Update display
     const notes=getArpNotes(arpIvs,arpRoot,key);
+    const disp=v.querySelector('#arpViewDisplay2');
     const nameEl=v.querySelector('#arpViewPatName');
     const descEl=v.querySelector('#arpViewPatDesc');
-    // Show editor + harmony bar
-    const editor = v.querySelector('#arpEditor');
-    const harmBar = v.querySelector('#harmBar');
-    if(editor) editor.style.display='block';
-    if(harmBar) harmBar.style.display='flex';
+    // Show the info card
+    const card = v.querySelector('#arpInfoCard');
+    if(card) card.style.display='block';
     if(nameEl) nameEl.textContent = pat.name + ' — ' + pat.short;
     if(descEl) descEl.textContent = pat.desc;
-    // Init editor
-    arpEditorInit(notes);
-    refreshEditor();
+    if(disp){
+      const noteDots = notes.map(n=>`<span class="arp-note${n.isRoot?' root':''}">` +
+        `${n.name}${n.octOffset?'<sup>8</sup>':''}</span>`).join('<span style="color:var(--ink4);margin:0 2px">→</span>');
+      const instDisplay = INSTRUMENT!=='none' ? buildArpDisplay(notes, INSTRUMENT) : '';
+      disp.innerHTML = noteDots + instDisplay;
+    }
+    // Enable download
+    const dlBtn=v.querySelector('#arpViewDlBtn');
+    if(dlBtn) dlBtn.disabled=false;
   }
 
   v.querySelectorAll('.arp-card[data-arpkey]').forEach(card=>{
@@ -6422,49 +6196,10 @@ function renderArpView(){
     });
   });
 
-  // ── Harmony buttons ──
-  v.querySelectorAll('[data-harm]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      ARP_HARMONY_INTERVAL=+btn.dataset.harm;
-      v.querySelectorAll('[data-harm]').forEach(b=>b.classList.toggle('on',b===btn));
-    });
-  });
+  // Wire arp send-to-arrange buttons
+;
 
-  v.querySelector('#harmPlayBtn')?.addEventListener('click',()=>{
-    if(!_arpEditorNotes) return;
-    const notes = _arpEditorNotes.map(n=>({name:n.name,octOffset:n.octOffset,isRoot:n.isRoot}));
-    const harm = ARP_HARMONY_INTERVAL>0 ? getHarmonyNotes(notes,arpIvs,arpRoot,ARP_HARMONY_INTERVAL) : [];
-    playArpWithHarmony(notes, harm, 90);
-  });
-
-  // ── Editor play button ──
-  v.querySelector('#arpPlayEditBtn')?.addEventListener('click',()=>{
-    if(!_arpEditorNotes) return;
-    const notes = _arpEditorNotes.map(n=>({name:n.name,octOffset:n.octOffset,isRoot:n.isRoot}));
-    playArpAudio(notes);
-  });
-
-  // ── Undo button ──
-  v.querySelector('#arpUndoBtn')?.addEventListener('click',()=>{
-    if(arpEditorUndo()){ refreshEditor(); }
-  });
-
-  // ── Reset button ──
-  v.querySelector('#arpResetBtn')?.addEventListener('click',()=>{
-    if(!ACTIVE_ARP) return;
-    arpEditorSnapshot();
-    arpEditorInit(getArpNotes(arpIvs,arpRoot,ACTIVE_ARP));
-    refreshEditor();
-  });
-
-  // ── MIDI download (editor version) ──
-  v.querySelector('#arpViewDlBtn2')?.addEventListener('click',()=>{
-    if(!_arpEditorNotes) return;
-    const notes = _arpEditorNotes.map(n=>({name:n.name,octOffset:n.octOffset,isRoot:n.isRoot}));
-    downloadArpMidiAdvanced(notes,arpRoot,ACTIVE_ARP||'custom',ARP_NOTE_LEN,ARP_REPS,arpLabel);
-  });
-
-  // ── Old download button (keep for compat) ──
+  // ── Wire download button ──
   v.querySelector('#arpViewDlBtn')?.addEventListener('click',()=>{
     if(!ACTIVE_ARP) return;
     const notes=getArpNotes(arpIvs,arpRoot,ACTIVE_ARP);
@@ -6581,8 +6316,6 @@ async function getSession(){
 }
 
 function updateAuthUI(){
-  // Refresh AI strip whenever auth state changes
-  if(VIEW==='song') setTimeout(renderAiStrip, 50);
   const btn = document.getElementById('authBtn');
   const iconEl = document.getElementById('authBtnIcon');
   const labelEl = document.getElementById('authBtnLabel');
@@ -8416,22 +8149,36 @@ function injectFavBtn(container, scaleKey, labelText){
 
 // ── Init ──
 setView('scale');showEmpty('Choose a category above, then select from the dropdown');
-
-
 </script>
 
-<!-- Song History Panel -->
-<div id="songHistoryPanel">
-  <div class="hist-sheet" id="histSheet">
-    <div class="hist-sheet-header">
-      <div>
-        <div class="hist-sheet-title">⏱ Song History</div>
-        <div class="hist-sheet-sub" id="histSheetSub">Your generated songs this session</div>
+<!-- PWA Install Banner -->
+<div id="pwaInstallBanner" style="display:none">
+  <div class="pwa-banner">
+    <div class="pwa-banner-left">
+      <div class="pwa-banner-icon">𝄞</div>
+      <div class="pwa-banner-text">
+        <div class="pwa-banner-title">Add to Home Screen</div>
+        <div class="pwa-banner-sub">Open Vaikhari like an app</div>
       </div>
-      <button class="hist-close-btn" id="histCloseBtn">✕</button>
     </div>
-    <div class="hist-list" id="histList"></div>
-    <button class="hist-clear-btn" id="histClearBtn">✕ Clear History</button>
+    <div class="pwa-banner-actions">
+      <button class="pwa-install-btn" id="pwaInstallBtn">Add</button>
+      <button class="pwa-dismiss-btn" id="pwaDismissBtn">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- iOS Install Hint (shown separately since iOS can't use beforeinstallprompt) -->
+<div id="pwaIosHint" style="display:none">
+  <div class="pwa-banner pwa-ios">
+    <div class="pwa-banner-left">
+      <div class="pwa-banner-icon">𝄞</div>
+      <div class="pwa-banner-text">
+        <div class="pwa-banner-title">Add to Home Screen</div>
+        <div class="pwa-banner-sub">Tap <strong>Share</strong> then <strong>Add to Home Screen</strong></div>
+      </div>
+    </div>
+    <button class="pwa-dismiss-btn" id="pwaIosDismissBtn">✕</button>
   </div>
 </div>
 
