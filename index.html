@@ -225,10 +225,10 @@ body.dark .nav-tab.on-saffron{background:rgba(224,128,32,.09)}
 .scale-desc{font-size:14px;color:var(--ink3);line-height:1.75;margin-bottom:14px}
 
 .chord-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:8px}
-.chord-card{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:12px 8px;text-align:center;cursor:default;transition:all .14s;position:relative}
+.chord-card{background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:10px 8px 8px;text-align:center;cursor:pointer;transition:all .14s;position:relative;overflow:hidden}
 .chord-card:hover{border-color:var(--lapis);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.09)}
 .cc-deg{font-size:10px;color:var(--ink4);font-family:var(--f-mono);margin-bottom:5px;letter-spacing:.5px}
-.cc-name{font-family:var(--f-serif);font-size:22px;font-weight:700;color:var(--lapis);line-height:1}
+.cc-name{font-family:var(--f-serif);font-size:18px;font-weight:600;color:var(--ink);line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cc-type{font-size:11px;color:var(--ink3);font-family:var(--f-mono);margin-top:4px;font-weight:500}
 .cc-notes{font-size:10px;color:var(--ink4);margin-top:5px;font-family:var(--f-mono);line-height:1.6}
 
@@ -664,16 +664,9 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 
 /* ── Chord card download button ── */
 .chord-card{position:relative}
-.chord-card .cc-dl{
-  position:absolute;top:5px;right:5px;
-  width:20px;height:20px;border-radius:5px;
-  border:1px solid var(--border2);background:var(--surface);
-  color:var(--ink4);cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:11px;opacity:0;transition:opacity .15s,background .15s;
-  z-index:2;
-}
-.chord-card:hover .cc-dl{opacity:1}
-.chord-card .cc-dl:hover{background:var(--lapis4);border-color:var(--lapis);color:var(--lapis);}
+
+
+
 
 /* Thaat chord table download */
 .tct-dl-btn{
@@ -972,7 +965,7 @@ body.dark .tct-swara.komal-col{color:var(--turmeric);background:rgba(200,160,32,
 /* chord-card speaker: top-left, send: top-right offset */
 .chord-card .play-btn{top:5px;left:5px;}
 .chord-card .cc-send{top:5px;right:28px;}
-.chord-card .cc-dl{top:5px;right:5px;}
+
 .chord-card:hover .play-btn,.chord-card:hover .cc-send{opacity:1}
 .chord-card .play-btn,.chord-card .cc-send{opacity:0;transition:opacity .15s;}
 /* send button (arrangement) */
@@ -1438,6 +1431,77 @@ body.dark .sp-bkey { background: var(--surface4, #302c28); border-color: var(--b
   padding: 6px 10px; border-radius: 8px; border: 1.5px dashed var(--border2);
 }
 
+
+/* ── Chord tile overrides — fix overflow & layout ── */
+.chord-card {
+  cursor: pointer !important;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chord-card .cc-dl,
+.cc-dl {
+  position: static !important;
+  display: block !important;
+  width: calc(100% + 2px) !important;
+  margin: 6px -1px -1px !important;
+  padding: 4px 4px !important;
+  border-radius: 0 0 8px 8px !important;
+  border: none !important;
+  border-top: 1px solid var(--border2) !important;
+  background: var(--surface3) !important;
+  font-family: var(--f-mono) !important;
+  font-size: 8px !important;
+  color: var(--ink4) !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  letter-spacing: .3px !important;
+  opacity: 1 !important;
+  transition: background .12s, color .12s !important;
+}
+.chord-card .cc-dl:hover,
+.chord-card .cc-dl:active {
+  background: var(--lapis4) !important;
+  color: var(--lapis) !important;
+  border-top-color: var(--lapis3) !important;
+}
+.cc-name {
+  font-family: var(--f-serif) !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  line-height: 1 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.cc-type {
+  font-size: 9px !important;
+  color: var(--ink4) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+}
+.cc-notes {
+  font-size: 8px !important;
+  color: var(--ink4) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  opacity: .8 !important;
+  margin-top: 3px !important;
+}
+/* Hide play/send overlays */
+.chord-card .play-btn,
+.chord-card .cc-send,
+.rcc .play-btn { display: none !important; }
+/* Clickable tile */
+.chord-card:active { background: var(--saffron4) !important; }
+
 </style>
 </head>
 <body>
@@ -1527,7 +1591,7 @@ body.dark .sp-bkey { background: var(--surface4, #302c28); border-color: var(--b
 <main id="appMain" aria-label="Music theory reference">
 <article class="card">
   <div class="card-bar" role="heading" aria-level="2">
-    <span class="card-bar-left">Theory Reference <span style="font-weight:400;opacity:.5">v5.23</span></span>
+    <span class="card-bar-left">Theory Reference <span style="font-weight:400;opacity:.5">v5.24</span></span>
     <span class="card-bar-right" id="statusLbl">Select a category</span>
   </div>
 
